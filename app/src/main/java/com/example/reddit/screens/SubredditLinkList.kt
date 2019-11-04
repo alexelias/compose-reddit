@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.ui.core.Text
 import androidx.ui.layout.Column
+import androidx.ui.layout.Expanded
 import com.example.reddit.Ambients
 import com.example.reddit.data.AsyncState
 import com.example.reddit.data.RedditFilterType
@@ -31,7 +32,8 @@ private val sortOptions = listOf(
     RedditFilterType.TOP
 )
 
-@Composable fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
+@Composable
+fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
     val selectedSortIndex = +state { 0 }
     val repository = +ambient(Ambients.Repository)
     val model = +modelFor(subreddit, selectedSortIndex.value) {
@@ -44,7 +46,7 @@ private val sortOptions = listOf(
     if (networkState == AsyncState.LOADING || links == null)
         Text("Loading...")
     else {
-        Column {
+        Column(Expanded) {
             Text("Done Loading...")
             // do stuff here around PagedList...
             for (item in links.snapshot()) {
