@@ -3,14 +3,14 @@ package com.example.reddit
 import android.app.Activity
 import android.os.Bundle
 import androidx.compose.Composable
+import androidx.compose.Model
 import androidx.compose.ambient
 import androidx.compose.unaryPlus
+import androidx.ui.core.Alignment
 import androidx.ui.core.Text
 import androidx.ui.core.setContent
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.Container
-import androidx.ui.layout.Expanded
+import androidx.ui.layout.*
 import androidx.ui.material.Colors
 import androidx.ui.material.MaterialColors
 import androidx.ui.material.MaterialTheme
@@ -19,6 +19,7 @@ import androidx.ui.material.surface.Surface
 import com.example.reddit.api.RedditApi
 import com.example.reddit.data.RedditRepository
 import com.example.reddit.data.RedditRepositoryImpl
+import com.example.reddit.screens.PostScreen
 import com.example.reddit.screens.SubredditLinkList
 import java.util.concurrent.Executors
 
@@ -45,10 +46,24 @@ class MainActivity : Activity() {
     }
 }
 
+@Model
+object Navigator {
+    var route: String = "/r/androiddev"
+//    var route = "/comments/drnvgm"
+}
+
 @Composable
 fun App() {
     Scaffold(subreddit = "androiddev") {
-        SubredditLinkList(subreddit = "androiddev")
+        val route = Navigator.route
+        when {
+            route.startsWith("/r/") ->
+                SubredditLinkList(subreddit = route.substring(3))
+            route.startsWith("/comments/") ->
+                PostScreen(linkId = route.substring(10), pageSize = 10)
+            else ->
+                Text("Route '${route}' not found")
+        }
     }
 }
 

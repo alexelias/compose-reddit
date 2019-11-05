@@ -18,6 +18,7 @@ import androidx.ui.material.surface.Card
 import androidx.ui.material.surface.Surface
 import androidx.ui.text.font.FontStyle
 import com.example.reddit.Ambients
+import com.example.reddit.Navigator
 import com.example.reddit.data.AsyncState
 import com.example.reddit.data.RedditFilterType
 
@@ -70,6 +71,7 @@ fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
                         for (item in links!!.snapshot()) {
                             with(item) {
                                 Post(
+                                    id = item.id,
                                     title = title,
                                     score = score,
                                     author = author,
@@ -86,7 +88,7 @@ fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
 }
 
 @Composable
-fun Post(title: String, score: Int, author: String, comments: Int) {
+fun Post(id: String, title: String, score: Int, author: String, comments: Int) {
     Container(Spacing(10.dp) wraps ExpandedWidth, height = 100.dp) {
         Card(color = +themeColor { primary }, shape = RoundedCornerShape(10.dp), elevation = 2.dp) {
             Row(
@@ -96,7 +98,7 @@ fun Post(title: String, score: Int, author: String, comments: Int) {
             ) {
                 ScoreText(score)
                 Container(Flexible(1f)) {
-                    MainPostCard(title = title, author = author, comments = comments)
+                    MainPostCard(id = id, title = title, author = author, comments = comments)
                 }
             }
         }
@@ -114,10 +116,10 @@ fun ScoreText(score: Int) {
 }
 
 @Composable
-fun MainPostCard(title: String, author: String, comments: Int) {
+fun MainPostCard(id: String, title: String, author: String, comments: Int) {
     Surface {
         Ripple(bounded = true) {
-            Clickable({ /* navigate to new screen */ }) {
+            Clickable({ Navigator.route = "/comments/$id" }) {
                 Wrap {
                     Column(
                         Spacing(
@@ -144,7 +146,7 @@ fun MainPostCard(title: String, author: String, comments: Int) {
 }
 
 @Composable
-fun PostTheme(children: @Composable () -> Unit) {
+fun PostTheme(children: @Composable() () -> Unit) {
     val colors = (+ambient(Colors)).copy(surface = Color.White)
     MaterialTheme(colors, children = children)
 }
