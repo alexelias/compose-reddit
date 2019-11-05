@@ -35,6 +35,11 @@ interface RedditApi {
         @Query("limit") limit: Int
     ): Call<ListResponse>
 
+    @GET("/r/{subreddit}/about.json")
+    fun getSubredditInformation(
+        @Path("subreddit") subreddit: String
+    ): Call<SubredditResponse>
+
     @GET("/r/{subreddit}/{filter}.json")
     fun getSubredditLinksBefore(
         @Path("subreddit") subreddit: String,

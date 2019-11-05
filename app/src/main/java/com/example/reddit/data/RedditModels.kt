@@ -5,6 +5,7 @@ import android.os.Parcelable
 import android.text.Html
 import androidx.recyclerview.widget.DiffUtil
 import com.google.gson.*
+import com.google.gson.annotations.SerializedName
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 
@@ -218,4 +219,13 @@ class LinkResponse(
 class MoreChildrenResponse(val json: Json) {
     class Json(val errors: JsonArray, val data: Data?)
     class Data(val things: List<RedditObject>)
+}
+
+class SubredditResponse(
+    val data: SubredditInformation
+) {
+    class SubredditInformation(
+        // Using it to infer the 'accent color' for the subreddit
+        val keyColor: String
+    )
 }
