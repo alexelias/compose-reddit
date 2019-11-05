@@ -1,6 +1,7 @@
 package com.example.reddit.screens
 
 import androidx.compose.*
+import androidx.core.os.bundleOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.ui.animation.Crossfade
@@ -18,7 +19,7 @@ import androidx.ui.material.surface.Card
 import androidx.ui.material.surface.Surface
 import androidx.ui.text.font.FontStyle
 import com.example.reddit.Ambients
-import com.example.reddit.Navigator
+import com.example.reddit.R
 import com.example.reddit.data.AsyncState
 import com.example.reddit.data.RedditFilterType
 
@@ -117,9 +118,12 @@ fun ScoreText(score: Int) {
 
 @Composable
 fun MainPostCard(id: String, title: String, author: String, comments: Int) {
+    val navigator = +ambient(Ambients.NavController)
     Surface {
         Ripple(bounded = true) {
-            Clickable({ Navigator.route = "/comments/$id" }) {
+            Clickable({
+                navigator.navigate(R.id.post_screen, bundleOf("linkId" to id))
+            }) {
                 Wrap {
                     Column(
                         Spacing(
