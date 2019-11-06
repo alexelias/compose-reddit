@@ -1,5 +1,6 @@
 package com.example.reddit.screens
 
+import androidx.animation.FastOutLinearInEasing
 import androidx.animation.TweenBuilder
 import androidx.compose.*
 import androidx.core.os.bundleOf
@@ -7,7 +8,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.paging.PagedList
 import androidx.ui.animation.animatedColor
+import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Modifier
+import androidx.ui.core.Opacity
 import androidx.ui.core.Text
 import androidx.ui.core.dp
 import androidx.ui.foundation.Clickable
@@ -15,7 +18,6 @@ import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.selection.Toggleable
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
-import androidx.ui.foundation.shape.corner.CircleShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.vector.DrawVector
@@ -97,29 +99,45 @@ fun SubredditLinkList(subreddit: String, accentColor: Color?, pageSize: Int = 10
 
     val isLoading = networkState == AsyncState.LOADING || links == null || accentColor == null
 
+    // Controls fade out of the progress spinner
+    val opacity = +animatedFloat(1f)
+
     if (isLoading) {
-        Container(expanded = true) {
-            Surface(shape = CircleShape, color = Color.White, elevation = 1.dp) {
-                Container(Spacing(4.dp)) {
-                    val color = SubredditTheme.accentColor
-                    val indicatorColor = if (color == Color.White) Color.Black else color
-                    CircularProgressIndicator(color = indicatorColor)
-                }
-            }
+        if (opacity.value != 1f) {
+            opacity.snapTo(1f)
         }
     } else {
-        val animatedColor = +animatedColor(SubredditTheme.accentColor)
         +memo(accentColor!!) {
-            animatedColor.animateTo(
-                accentColor,
-                anim = TweenBuilder<Color>().apply { duration = 500 })
+            SubredditTheme.accentColor = accentColor
+            opacity.animateTo(0f, anim = TweenBuilder<Float>().apply {
+                easing = FastOutLinearInEasing
+                duration = 500
+            })
         }
-        if (SubredditTheme.accentColor != animatedColor.value) {
-            SubredditTheme.accentColor = animatedColor.value
+    }
+
+    Stack(Expanded) {
+        expanded {
+             if (opacity.value == 0f) {
+                 PostTheme {
+                    ScrollingContent(links!!)
+                }
+            }
+            else {
+                 Opacity(opacity.value) {
+                     LoadingIndicator()
+                 }
+             }
         }
-        PostTheme {
-            ScrollingContent(links!!)
-        }
+    }
+}
+
+@Composable
+fun LoadingIndicator() {
+    Container {
+        val color = SubredditTheme.accentColor
+        val indicatorColor = if (color == Color.White) Color.Black else color
+        CircularProgressIndicator(color = indicatorColor)
     }
 }
 
@@ -132,7 +150,7 @@ fun ScrollingContent(links: PagedList<Link>) {
             for (item in links.snapshot()) {
                 with(item) {
                     Post(
-                        id = item.id,
+                        id = id,
                         title = title,
                         score = score,
                         author = author,
@@ -150,10 +168,19 @@ fun Post(id: String, title: String, score: Int, author: String, comments: Int) {
     val voteStatus = +state<Boolean?> { null }
     val upvoteColor = Color(0xFFFF8B60)
     val downvoteColor = Color(0xFF9494FF)
+    val fadedPrimary = +themeColor { fadedPrimary }
     val cardColor = when (voteStatus.value) {
-        null -> +themeColor { fadedPrimary }
+        null -> fadedPrimary
         true -> upvoteColor
         false -> downvoteColor
+    }
+
+    val animatedColor = +animatedColor(cardColor)
+
+    +memo(cardColor) {
+        animatedColor.animateTo(
+            cardColor,
+            anim = TweenBuilder<Color>().apply { duration = 200 })
     }
 
     //TODO: Shouldn't have hardcoded values for height, but no idea how to make it
@@ -161,7 +188,7 @@ fun Post(id: String, title: String, score: Int, author: String, comments: Int) {
     // the individual parts can be flexible within that overall space.
     Container(Spacing(10.dp) wraps ExpandedWidth, height = 100.dp) {
         Card(color = Color.White, shape = RoundedCornerShape(10.dp), elevation = 2.dp) {
-            DrawShape(shape = RectangleShape, color = cardColor)
+            DrawShape(shape = RectangleShape, color = animatedColor.value)
             PostContent(id, title, score, author, comments, voteStatus)
         }
     }
@@ -232,11 +259,19 @@ fun VoteArrow(
         Toggleable(checked = selected, onCheckedChange = onSelected) {
             Container(modifier wraps ExpandedWidth) {
                 Container(width = 24.dp, height = 24.dp) {
+                    val tintColor = +themeColor {
+                        if (selected) onPrimary else fadedOnPrimary
+                    }
+                    val animatedColor = +animatedColor(tintColor)
+                    +memo(tintColor) {
+                        animatedColor.animateTo(
+                            tintColor,
+                            anim = TweenBuilder<Color>().apply { duration = 200 })
+                    }
                     DrawVector(
                         vectorImage = vector,
-                        tintColor = +themeColor {
-                            if (selected) onPrimary else fadedOnPrimary
-                        })
+                        tintColor = animatedColor.value
+                    )
                 }
             }
         }

@@ -1,24 +1,31 @@
 package com.example.reddit
 
 import android.app.Activity
+import android.util.Log
 import android.view.Window
+import androidx.animation.AnimatedValue
+import androidx.animation.TweenBuilder
+import androidx.animation.ValueHolder
 import androidx.compose.*
+import androidx.core.os.bundleOf
 import androidx.navigation.NavGraphBuilder
+import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.Text
+import androidx.ui.core.TextField
 import androidx.ui.core.dp
+import androidx.ui.core.input.FocusManager
 import androidx.ui.foundation.Clickable
+import androidx.ui.foundation.shape.DrawShape
+import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.lerp
 import androidx.ui.graphics.toArgb
 import androidx.ui.graphics.vector.DrawVector
-import androidx.ui.layout.Column
-import androidx.ui.layout.Container
-import androidx.ui.layout.Expanded
-import androidx.ui.material.MaterialColors
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.TopAppBar
+import androidx.ui.input.ImeAction
+import androidx.ui.layout.*
+import androidx.ui.material.*
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
-import androidx.ui.material.themeColor
 import androidx.ui.res.vectorResource
 import com.example.reddit.api.RedditApi
 import com.example.reddit.data.RedditRepository
@@ -72,7 +79,7 @@ class MainActivity : ComposeActivity() {
         Ambients.Repository.Provider(repository) {
             Ambients.Api.Provider(api) {
                 AppTheme(window) {
-                    Scaffold(subreddit = "androiddev") {
+                    Scaffold(subreddit = +optionalNavArg<String>("subreddit") ?: "androiddev") {
                         content()
                     }
                 }
@@ -83,8 +90,23 @@ class MainActivity : ComposeActivity() {
 
 @Model
 object SubredditTheme {
-    var accentColor: Color = Color.White
+    var accentColor: Color
+        set(color) {
+            if (_accentColor.targetValue != color) {
+                _accentColor.animateTo(color, anim = TweenBuilder<Color>().apply { duration = 500 })
+            }
+        }
+        get() = _accentColor.value
+    private var _accentColor = AnimatedValue(AnimValueHolder(Color.White, ::lerp))
 }
+
+// copied from AnimatedValueEffects
+@Model
+private class AnimValueHolder<T>(
+    override var value: T,
+    override val interpolator: (T, T, Float) -> T
+) : ValueHolder<T>
+
 
 /**
  * Provides the [MaterialTheme] for the application and also sets statusbar / nav bar colours for
@@ -114,19 +136,75 @@ fun AppTheme(window: Window, children: @Composable () -> Unit) {
 }
 
 // Washed out version of primary colour used for the score surface
-val MaterialColors.fadedPrimary get() = primary.copy(alpha = 0.55f)
+val MaterialColors.fadedPrimary get() = primary.copy(alpha = 0.75f)
 
 // Washed out version of primary colour used for the vote buttons
 val MaterialColors.fadedOnPrimary get() = onPrimary.copy(alpha = 0.55f)
 
 @Composable
 fun Scaffold(subreddit: String, children: @Composable () -> Unit) {
-    Column {
+    val (state, toggleDrawer) = +state { DrawerState.Closed }
+    ModalDrawerLayout(
+        drawerState = state,
+        onStateChange = toggleDrawer,
+        gesturesEnabled = false,
+        drawerContent = { DrawerContent { toggleDrawer(DrawerState.Closed) } },
+        bodyContent = { MainContent(subreddit, { toggleDrawer(DrawerState.Opened) }, children) }
+    )
+}
+
+@Composable
+fun DrawerContent(closeDrawer: () -> Unit) {
+    val navigator = +ambient(Ambients.NavController)
+    val onNavigate = { subreddit: String ->
+        navigator.navigate(R.id.home_screen, bundleOf("subreddit" to subreddit))
+        closeDrawer()
+    }
+    Column(ExpandedHeight) {
+        SubredditNavigateField(onNavigate)
+        SubredditLink("/r/android", onNavigate)
+        SubredditLink("/r/androiddev", onNavigate)
+        SubredditLink("/r/programmerhumor", onNavigate)
+    }
+}
+
+@Composable
+fun SubredditLink(subreddit: String, onNavigate: (String) -> Unit) {
+    ListItem(text = subreddit, onClick = { onNavigate(subreddit.substring(3)) })
+}
+
+@Composable
+fun SubredditNavigateField(onNavigate: (String) -> Unit) {
+    val focusIdentifier = "subredditnavigate"
+    val focusManager = +ambient(FocusManagerAmbient)
+    Clickable({ focusManager.requestFocusById(focusIdentifier) }) {
+        Container(ExpandedWidth wraps Spacing(left = 16.dp, right = 16.dp), height = 96.dp) {
+            Column {
+                var text by +state { "" }
+                Text("Enter subreddit")
+                TextField(
+                    value = text,
+                    onValueChange = { text = it },
+                    imeAction = ImeAction.Go,
+                    focusIdentifier = focusIdentifier,
+                    onImeActionPerformed = {
+                        onNavigate(text)
+                    }
+                )
+                Divider()
+            }
+        }
+    }
+}
+
+@Composable
+fun MainContent(subreddit: String, openDrawer: () -> Unit, children: @Composable () -> Unit) {
+    Column(Expanded) {
         TopAppBar(title = { Text("/r/$subreddit") }, navigationIcon = {
             val vectorAsset = +vectorResource(R.drawable.ic_menu)
             // Copied from AppBarIcon which doesn't support vector resources ATM
             Ripple(bounded = false) {
-                Clickable({ /** Drawer */ }) {
+                Clickable(openDrawer) {
                     Container(width = 24.dp, height = 24.dp) {
                         DrawVector(
                             vectorImage = vectorAsset,
