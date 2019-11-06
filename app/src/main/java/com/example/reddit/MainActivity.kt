@@ -89,6 +89,11 @@ class MainActivity : ComposeActivity() {
 }
 
 @Model
+object LinkStyle {
+    var thumbnails = true
+}
+
+@Model
 object SubredditTheme {
     var accentColor: Color
         set(color) {
@@ -201,21 +206,28 @@ fun SubredditNavigateField(onNavigate: (String) -> Unit) {
 fun MainContent(subreddit: String, openDrawer: () -> Unit, children: @Composable () -> Unit) {
     Column(Expanded) {
         TopAppBar(title = { Text("/r/$subreddit") }, navigationIcon = {
-            val vectorAsset = +vectorResource(R.drawable.ic_menu)
-            // Copied from AppBarIcon which doesn't support vector resources ATM
-            Ripple(bounded = false) {
-                Clickable(openDrawer) {
-                    Container(width = 24.dp, height = 24.dp) {
-                        DrawVector(
-                            vectorImage = vectorAsset,
-                            tintColor = +themeColor { onPrimary })
-                    }
-                }
-            }
-        })
+            VectorAppBarIcon(R.drawable.ic_menu, openDrawer)
+        }, actionData = listOf(R.drawable.ic_baseline_view_agenda_24)) { resId ->
+            VectorAppBarIcon(resId) { LinkStyle.thumbnails = !LinkStyle.thumbnails }
+        }
         Container(Flexible(1f)) {
             Surface {
                 Container(Expanded, children = children)
+            }
+        }
+    }
+}
+
+@Composable
+private fun VectorAppBarIcon(resId: Int, onClick: () -> Unit) {
+    val vectorAsset = +vectorResource(resId)
+    // Copied from AppBarIcon which doesn't support vector resources ATM
+    Ripple(bounded = false) {
+        Clickable(onClick) {
+            Container(width = 24.dp, height = 24.dp) {
+                DrawVector(
+                    vectorImage = vectorAsset,
+                    tintColor = +themeColor { onPrimary })
             }
         }
     }
