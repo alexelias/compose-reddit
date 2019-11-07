@@ -4,19 +4,17 @@ import androidx.compose.Composable
 import androidx.compose.ambient
 import androidx.compose.modelFor
 import androidx.compose.unaryPlus
-import androidx.ui.core.Draw
-import androidx.ui.core.Text
-import androidx.ui.core.dp
-import androidx.ui.core.sp
+import androidx.ui.core.*
+import androidx.ui.engine.geometry.Offset
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.VerticalScroller
+import androidx.ui.foundation.shape.RectangleShape
+import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.Row
-import androidx.ui.layout.Spacing
+import androidx.ui.graphics.Paint
+import androidx.ui.layout.*
 import androidx.ui.material.ripple.Ripple
-import androidx.ui.material.surface.Surface
-import androidx.ui.material.themeColor
+import androidx.ui.material.surface.Card
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
@@ -26,9 +24,6 @@ import com.example.reddit.components.TimeAgo
 import com.example.reddit.data.*
 import com.example.reddit.screens.Colors2.TEXT_DARK
 import com.example.reddit.screens.Colors2.TEXT_MUTED
-import kotlin.math.min
-
-private val tabTitles = listOf("Comments", "Link")
 
 @Composable
 fun PostScreen(linkId: String, pageSize: Int = 10, initialLink: Link? = null) {
@@ -39,137 +34,194 @@ fun PostScreen(linkId: String, pageSize: Int = 10, initialLink: Link? = null) {
     val comments = +subscribe(linkModel.comments)
     val networkState = +subscribe(linkModel.networkState)
     VerticalScroller {
-        Column {
+        Column(Expanded, mainAxisAlignment = MainAxisAlignment.Start) {
             if (networkState == AsyncState.LOADING)
-                Text("Loading...")
+                LoadingIndicator()
 
             if (link != null) {
-                LinkCard(link = link)
+                LinkCard(
+                    title = link.title,
+                    image = link.preview?.imageUrl,
+                    author = link.author,
+                    score = link.score,
+                    createdAt = link.createdUtc,
+                    comments = link.numComments
+                )
             }
 
-            if (comments != null) {
-                Column {
-                    for (node in comments) {
-                        CommentRow(node, onClick = {
-                            when (node) {
-                                is RedditMore -> linkModel.loadMore(node)
-                                is Comment -> linkModel.toggleCollapsedState(node)
-                            }
-                        })
+            comments?.forEachIndexed { index, node ->
+                CommentRow(isFirst = index == 0, node = node, onClick = {
+                    when (node) {
+                        is RedditMore -> linkModel.loadMore(node)
+                        is Comment -> linkModel.toggleCollapsedState(node)
                     }
-                }
+                })
+            }
+            if ((comments?.size ?: 0) > 0) {
+                CommentEndCap()
             }
         }
     }
 }
 
-@Composable fun LinkCard(link: Link, onClick: () -> Unit = {}) {
-    Column {
-        val image = link.preview?.images?.firstOrNull()
-        if (image != null) {
-            // image will at worst be square
-            Image(
-                url = image.source.decodedUrl,
-                aspectRatio = min(1f, image.source.height.toFloat() / image.source.width.toFloat())
+@Composable fun CommentRow(isFirst: Boolean, node: HierarchicalThing, onClick: () -> Unit) {
+    val enabled = when (node) {
+        is Comment -> (node.collapsedChildren?.size ?: 0) != 0
+        is RedditMore -> true
+        else -> false
+    }
+    CommentBody(isFirst = isFirst, depth = node.depth, enabled = enabled, onClick = onClick) {
+        when (node) {
+            is Comment -> {
+                CommentContent(
+                    author = node.author,
+                    collapseCount = node.collapsedChildren?.size ?: 0,
+                    score = node.score,
+                    createdUtc = node.createdUtc,
+                    body = node.body
+                )
+            }
+            is RedditMore -> {
+                LoadMoreCommentsRow(count = node.count)
+            }
+        }
+    }
+}
+
+@Composable
+fun LinkCard(
+    title: String,
+    image: String?,
+    author: String,
+    score: Int,
+    createdAt: Long,
+    comments: Int
+) {
+    Column(Spacing(10.dp) wraps ExpandedWidth) {
+        Card(color = Color.White, shape = RoundedCornerShape(10.dp), elevation = 2.dp) {
+            Column {
+                Column(Spacing(all = 10.dp)) {
+                    Text(text = title, style = TextStyle(color = TEXT_DARK, fontSize = 21.sp))
+                }
+
+                if (image != null) {
+                    // image will at worst be square
+                    Image(
+                        url = image,
+                        aspectRatio = 16f / 9f
+                    )
+                }
+
+                Row(Spacing(all = 10.dp)) {
+                    Text(text = author, style = TextStyle(fontWeight = FontWeight.Bold, color = TEXT_MUTED))
+                    if (score != 0) {
+                        Bullet()
+                        Text(text = "$score", style = TextStyle(color = TEXT_MUTED))
+                    }
+                    Bullet()
+                    TimeAgo(date = createdAt, style = TextStyle(color = TEXT_MUTED))
+                }
+            }
+        }
+        Column(Spacing(top = 24.dp)) {
+            Text("Comments ($comments)", style = TextStyle(fontSize = 20.sp))
+        }
+    }
+}
+
+@Composable fun CommentContent(
+    author: String,
+    collapseCount: Int,
+    score: Int,
+    createdUtc: Long,
+    body: String
+) {
+    CommentAuthorLine(
+        author=author,
+        collapseCount=collapseCount,
+        score=score,
+        createdUtc=createdUtc
+    )
+    Text(text=body)
+}
+
+@Composable fun LoadMoreCommentsRow(count: Int) {
+    Text("Load $count more comment${if (count == 1) "" else "s"}", style = TextStyle(fontStyle = FontStyle.Italic))
+}
+
+@Composable fun CommentEndCap() {
+    Column(Spacing(left = 10.dp, right = 10.dp)) {
+        Card(color = Color.White, shape = RoundedCornerShape(0.dp, 0.dp, 10.dp, 10.dp), elevation = 0.dp) {
+            Column(Spacing(top = 10.dp) wraps ExpandedWidth) {
+            }
+        }
+    }
+}
+
+@Composable fun CommentBody(isFirst: Boolean, depth: Int, enabled: Boolean, onClick: () -> Unit, children: @Composable () -> Unit) {
+    if (depth == 0 && !isFirst) {
+        CommentEndCap()
+    }
+    val shape = when (depth) {
+        0 -> RoundedCornerShape(10.dp, 10.dp, 0.dp, 0.dp)
+        else -> RectangleShape
+    }
+    val outerSpacing = when (depth) {
+        0 -> Spacing(top = 10.dp, left = 10.dp, right = 10.dp)
+        else -> Spacing(left = 10.dp, right = 10.dp)
+    }
+    val innerSpacing = when (depth) {
+        0 -> Spacing(left = 10.dp, top = 10.dp, right = 10.dp)
+        else -> Spacing(left = 10.dp * (depth + 1), top = 10.dp, right = 10.dp)
+    }
+    Column(outerSpacing) {
+        Card(color = Color.White, shape = shape, elevation = 0.dp) {
+            Ripple(
+                bounded = false,
+                color = Color.Blue,
+                enabled = enabled
+            ) {
+                Clickable(onClick = onClick) {
+                    Column(innerSpacing wraps ExpandedWidth) {
+                        children()
+                    }
+                }
+            }
+        }
+        DrawIndents(depth)
+    }
+}
+
+val indentsPaint = Paint()
+
+@Composable fun DrawIndents(depth: Int) {
+    Draw { canvas, size ->
+        val dist = 10.dp.toPx().value
+
+        for (i in 1..depth) {
+            indentsPaint.color = Color.DarkGray.copy(alpha = 1f - (i * 10f) / 60f )
+            canvas.drawLine(
+                Offset(i * dist, if (i == depth) dist else 0f),
+                Offset(i * dist, size.height.value),
+                indentsPaint
             )
         }
-
-        // TODO: number of comments, subreddit, domain, etc.
-
-        Column {
-            Text(text = link.title, style = TextStyle(color = TEXT_DARK, fontSize = 21.sp))
-            Row {
-                Text(text = link.author, style = TextStyle(fontWeight = FontWeight.Bold, color = TEXT_MUTED))
-                if (link.score != 0) {
-                    Bullet()
-                    Text(text = "${link.score}", style = TextStyle(color = TEXT_MUTED))
-                }
-                Bullet()
-                TimeAgo(date = link.createdUtc, style = TextStyle(color = TEXT_MUTED))
-            }
-        }
     }
 }
 
-@Composable fun CommentRow(
-    node: HierarchicalThing,
-    onClick: () -> Unit
-) {
-    val depth = node.depth
-    Column() {
-
-    Row(Spacing(left = 8.dp * depth)) {
-        ClickableContainer(onClick = onClick) {
-            Column {
-                HorizontalDivider()
-                when (node) {
-                    is Comment -> {
-                        CommentAuthorLine(
-                            author=node.author,
-                            collapseCount=node.collapsedChildren?.size ?: 0,
-                            score=node.score,
-                            createdUtc=node.createdUtc
-                        )
-                        Text(text=node.body)
-                    }
-                    is RedditMore -> {
-                        Text(
-                            text="Load ${node.children.size} more comments",
-                            style = TextStyle(fontStyle = FontStyle.Italic)
-                        )
-                    }
-                    else -> error("unrecognized node type!")
-                }
-            }
-        }
-    }
-    }
-}
-
-@Composable fun ClickableContainer(enabled: Boolean = true, onClick: () -> Unit, children: @Composable () -> Unit) {
-    Surface(
-//        color = color,
-//        border = null,
-//        elevation = 0.dp
-    ) {
-        Ripple(
-            bounded = true,
-            color = +themeColor { primary },
-            enabled = enabled
-        ) {
-            Clickable(onClick = onClick) {
-                children()
-            }
-        }
-    }
-}
-
-
+val String.color get() = Color(android.graphics.Color.parseColor(this))
 
 object Colors2 {
-    private val String.color get() = Color(android.graphics.Color.parseColor(this))
 
     // Brand Colors
-    val WHITE = "#FFFFFF".color
     val BLACK = "#212122".color
-    val LIGHT_GRAY = "#dadada".color
     val DARK_GRAY = "#888888".color
     val ORANGE_RED = "#FF4500".color
-    val MINT = "#0DD3BB".color
-    val BLUE = "#24A0ED".color
-    val ALIEN_BLUE = "#0079D3".color
-    val TEAL = "#00A6A5".color
-    val ORANGE = "#FF8717".color
-    val MANGO = "#FFB000".color
-    val YELLOW = "#FFCA00".color
 
     // Semantic Colors
-    val TEXT_LIGHT = WHITE
     val TEXT_DARK = BLACK
     val TEXT_MUTED = DARK_GRAY
     val PRIMARY = ORANGE_RED
-    val SECONDARY = MINT
-    val DIVIDER = LIGHT_GRAY
 }
 
 @Composable fun CommentAuthorLine(
@@ -186,18 +238,9 @@ object Colors2 {
         }
         Bullet()
         TimeAgo(date = createdUtc, style = TextStyle(color = TEXT_MUTED))
+        // TODO(lmr): do a better job here
         if (collapseCount != 0) {
             Text(text = "$collapseCount")
-        }
-    }
-}
-
-@Composable
-fun HorizontalDivider() {
-    Row {
-        Draw { canvas, parentSize ->
-// TODO:
-//            canvas.drawLine(Offset.zero)
         }
     }
 }

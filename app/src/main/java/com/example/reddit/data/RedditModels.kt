@@ -223,9 +223,8 @@ class MoreChildrenResponse(val json: Json) {
 
 class SubredditResponse(
     val data: SubredditInformation
-) {
-    class SubredditInformation(
-        // Using it to infer the 'accent color' for the subreddit
-        val keyColor: String
-    )
-}
+)
+class SubredditInformation(
+    // Using it to infer the 'accent color' for the subreddit
+    val keyColor: String
+)

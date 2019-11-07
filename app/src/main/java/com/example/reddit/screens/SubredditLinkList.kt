@@ -22,10 +22,8 @@ import com.example.reddit.components.ExpandedPost
 import com.example.reddit.components.ThumbnailPost
 import com.example.reddit.data.AsyncState
 import com.example.reddit.data.Link
+import com.example.reddit.data.LinkPreview
 import com.example.reddit.data.RedditFilterType
-import com.example.reddit.data.SubredditResponse
-import retrofit2.Call
-import retrofit2.Response
 
 fun <T> subscribe(data: LiveData<T>) = effectOf<T?> {
     val current = +stateFor(data) { data.value }
@@ -50,64 +48,42 @@ private val sortOptions = listOf(
 )
 
 @Composable
-fun SubredditPage(subreddit: String) {
-    var accentColor by +state<Color?> { null }
-    val api = +ambient(Ambients.Api)
-
-    +memo(subreddit) {
-        val subredditInfo = api.getSubredditInformation(subreddit)
-        subredditInfo.enqueue(object : retrofit2.Callback<SubredditResponse> {
-            override fun onFailure(call: Call<SubredditResponse>, t: Throwable) {
-            }
-
-            override fun onResponse(
-                call: Call<SubredditResponse>,
-                response: Response<SubredditResponse>
-            ) {
-                if (response.isSuccessful) {
-                    val subredditAccentColorString = response.body()!!.data.keyColor
-                    accentColor =
-                        Color(android.graphics.Color.parseColor(subredditAccentColorString))
-                }
-            }
-        })
-    }
-
-    SubredditLinkList(subreddit, accentColor)
-}
-
-@Composable
-fun SubredditLinkList(subreddit: String, accentColor: Color?, pageSize: Int = 10) {
+fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
     val selectedSortIndex = +state { 0 }
     val repository = +ambient(Ambients.Repository)
     val model = +modelFor(subreddit, selectedSortIndex.value) {
         repository.linksOfSubreddit(subreddit, sortOptions[selectedSortIndex.value], pageSize)
     }
+    val info = +subscribe(model.info)
+    val accentColor = info?.keyColor?.let { if (!it.isBlank()) it.color else null }
+        ?: Colors2.PRIMARY
     val links = +subscribe(model.links)
 
     val networkState = +subscribe(model.networkState) ?: AsyncState.LOADING
 
-    val isLoading = networkState == AsyncState.LOADING || links == null || accentColor == null
+    val isLoading = networkState == AsyncState.LOADING || links == null
 
-    // Controls fade out of the progress spinner
-    val opacity = +animatedFloat(1f)
-
-    if (isLoading) {
-        if (opacity.value != 1f) {
-            opacity.snapTo(1f)
-        }
-    } else {
-        +memo(accentColor!!) {
-            SubredditTheme.accentColor = accentColor
-            opacity.animateTo(0f, anim = TweenBuilder<Float>().apply {
-                easing = FastOutLinearInEasing
-                duration = 500
-            })
-        }
-    }
 
     Stack(Expanded) {
         expanded {
+            // Controls fade out of the progress spinner
+            val opacity = +animatedFloat(1f)
+
+            +onCommit(isLoading, accentColor) {
+                SubredditTheme.accentColor = accentColor
+                if (!isLoading) {
+                    opacity.animateTo(0f, anim = TweenBuilder<Float>().apply {
+                        easing = FastOutLinearInEasing
+                        duration = 500
+                    })
+                }
+            }
+
+            if (isLoading) {
+                if (opacity.value != 1f) {
+                    opacity.snapTo(1f)
+                }
+            }
             if (opacity.value == 0f) {
                 PostTheme {
                     ScrollingContent(links!!)
@@ -120,6 +96,9 @@ fun SubredditLinkList(subreddit: String, accentColor: Color?, pageSize: Int = 10
         }
     }
 }
+
+val LinkPreview.imageUrl: String?
+    get() = images.firstOrNull()?.source?.decodedUrl
 
 @Composable
 fun LoadingIndicator() {
@@ -144,7 +123,8 @@ fun ScrollingContent(links: PagedList<Link>) {
                             title = title,
                             score = score,
                             author = author,
-                            comments = numComments
+                            comments = numComments,
+                            image = preview?.imageUrl
                         )
                     } else {
                         ExpandedPost(
@@ -152,7 +132,8 @@ fun ScrollingContent(links: PagedList<Link>) {
                             title = title,
                             score = score,
                             author = author,
-                            comments = numComments
+                            comments = numComments,
+                            image = preview?.imageUrl
                         )
                     }
                 }

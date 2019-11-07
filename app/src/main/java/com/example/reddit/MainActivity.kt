@@ -1,22 +1,20 @@
 package com.example.reddit
 
 import android.app.Activity
-import android.util.Log
 import android.view.Window
 import androidx.animation.AnimatedValue
 import androidx.animation.TweenBuilder
 import androidx.animation.ValueHolder
 import androidx.compose.*
 import androidx.core.os.bundleOf
+import androidx.compose.Composable
+import androidx.compose.unaryPlus
 import androidx.navigation.NavGraphBuilder
 import androidx.ui.core.FocusManagerAmbient
 import androidx.ui.core.Text
 import androidx.ui.core.TextField
 import androidx.ui.core.dp
-import androidx.ui.core.input.FocusManager
 import androidx.ui.foundation.Clickable
-import androidx.ui.foundation.shape.DrawShape
-import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
 import androidx.ui.graphics.toArgb
@@ -24,6 +22,12 @@ import androidx.ui.graphics.vector.DrawVector
 import androidx.ui.input.ImeAction
 import androidx.ui.layout.*
 import androidx.ui.material.*
+import androidx.ui.layout.Column
+import androidx.ui.layout.Container
+import androidx.ui.layout.Expanded
+import androidx.ui.material.MaterialColors
+import androidx.ui.material.MaterialTheme
+import androidx.ui.material.TopAppBar
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
 import androidx.ui.res.vectorResource
@@ -31,28 +35,12 @@ import com.example.reddit.api.RedditApi
 import com.example.reddit.data.RedditRepository
 import com.example.reddit.data.RedditRepositoryImpl
 import com.example.reddit.navigation.ComposeActivity
+import com.example.reddit.navigation.navArg
+import com.example.reddit.navigation.optionalNavArg
 import com.example.reddit.navigation.route
 import com.example.reddit.screens.PostScreen
-import com.example.reddit.screens.SubredditPage
+import com.example.reddit.screens.SubredditLinkList
 import java.util.concurrent.Executors
-
-fun <T> navArg(name: String) = effectOf<T> {
-    val nav = +ambient(Ambients.NavController)
-    val entry = nav.getBackStackEntry(nav.currentDestination!!.id)
-    val args = entry.arguments
-    val arg = args?.get(name) ?: error("No argument found with name $name")
-    @Suppress("UNCHECKED_CAST")
-    arg as T
-}
-
-fun <T> optionalNavArg(name: String) = effectOf<T?> {
-    val nav = +ambient(Ambients.NavController)
-    val entry = nav.getBackStackEntry(nav.currentDestination!!.id)
-    val args = entry.arguments
-    val arg = args?.get(name)
-    @Suppress("UNCHECKED_CAST")
-    arg as? T
-}
 
 class MainActivity : ComposeActivity() {
     private val networkExecutor = Executors.newFixedThreadPool(5)
@@ -66,7 +54,7 @@ class MainActivity : ComposeActivity() {
     override fun NavGraphBuilder.graph() {
         route(R.id.home_screen) {
             val subreddit = +optionalNavArg<String>("subreddit") ?: "androiddev"
-            SubredditPage(subreddit)
+            SubredditLinkList(subreddit)
         }
         route(R.id.post_screen) {
             val linkId = +navArg<String>("linkId")
@@ -118,7 +106,7 @@ private class AnimValueHolder<T>(
  * the [Activity]'s [Window].
  */
 @Composable
-fun AppTheme(window: Window, children: @Composable () -> Unit) {
+fun AppTheme(window: Window? = null, children: @Composable () -> Unit) {
     val primary = SubredditTheme.accentColor
     val onPrimary = if (primary == Color.White) Color.Black else Color.White
     val surface = Color(0xFFF1F1F1)
@@ -128,13 +116,17 @@ fun AppTheme(window: Window, children: @Composable () -> Unit) {
         onPrimary = onPrimary,
         surface = surface
     )
-    window.statusBarColor = primary.toArgb()
-    window.navigationBarColor = surface.toArgb()
-    window.decorView.run {
-        systemUiVisibility = if (isLightStatusBar) {
-            View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-        } else {
-            systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+    +onCommit(window) {
+        window?.apply {
+            statusBarColor = primary.toArgb()
+            navigationBarColor = surface.toArgb()
+            decorView.run {
+                systemUiVisibility = if (isLightStatusBar) {
+                    View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                } else {
+                    systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+                }
+            }
         }
     }
     MaterialTheme(colors, children = children)

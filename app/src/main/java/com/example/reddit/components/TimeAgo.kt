@@ -47,12 +47,12 @@ private fun timeAgoText(diff: Long): String {
 
     return when {
         seconds < 45 -> "now"
-        minutes < 45 -> "${minutes.roundToInt()}m"
-        hours < 24 -> "${hours.roundToInt()}h"
-        hours < 42 -> "1d"
-        days < 30 -> "${days.roundToInt()}d"
-        days < 365 -> "${(days / 30).roundToInt()}mn"
-        else -> "${years.roundToInt()}y"
+        minutes < 45 -> "${minutes.roundToInt()}m ago"
+        hours < 24 -> "${hours.roundToInt()}h ago"
+        hours < 42 -> "1d ago"
+        days < 30 -> "${days.roundToInt()}d ago"
+        days < 365 -> "${(days / 30).roundToInt()}mn ago"
+        else -> "${years.roundToInt()}y ago"
     }
 }
 

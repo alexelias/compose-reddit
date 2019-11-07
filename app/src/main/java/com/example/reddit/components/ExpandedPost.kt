@@ -29,7 +29,7 @@ import com.example.reddit.fadedOnPrimary
 import com.example.reddit.fadedPrimary
 
 @Composable
-fun ExpandedPost(id: String, title: String, score: Int, author: String, comments: Int) {
+fun ExpandedPost(id: String, title: String, score: Int, author: String, comments: Int, image: String?) {
     val voteStatus = +state<Boolean?> { null }
     val upvoteColor = Color(0xFFFF8B60)
     val downvoteColor = Color(0xFF9494FF)
@@ -54,7 +54,7 @@ fun ExpandedPost(id: String, title: String, score: Int, author: String, comments
     Container(Spacing(10.dp) wraps ExpandedWidth) {
         Card(color = Color.White, shape = RoundedCornerShape(10.dp), elevation = 2.dp) {
             DrawShape(shape = RectangleShape, color = animatedColor.value)
-            PostContent(id, title, score, author, comments, voteStatus)
+            PostContent(id, title, score, author, comments, voteStatus, image)
         }
     }
 }
@@ -66,11 +66,12 @@ private fun PostContent(
     score: Int,
     author: String,
     comments: Int,
-    voteStatus: State<Boolean?>
+    voteStatus: State<Boolean?>,
+    image: String?
 ) {
     Column {
         Container {
-            MainPostCard(id = id, title = title, author = author, comments = comments)
+            MainPostCard(id = id, title = title, author = author, comments = comments, image = image)
         }
 
         Container(ExpandedWidth, height = 40.dp) {
@@ -137,7 +138,7 @@ private fun VoteArrow(
 }
 
 @Composable
-private fun MainPostCard(id: String, title: String, author: String, comments: Int) {
+private fun MainPostCard(id: String, title: String, author: String, comments: Int, image: String?) {
     val navigator = +ambient(Ambients.NavController)
     Surface(elevation = 2.dp) {
         Ripple(bounded = true) {
@@ -163,11 +164,18 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
                             ) {
                                 Text(title, style = +themeTextStyle { h6 }, maxLines = 2, overflow = TextOverflow.Ellipsis)
                             }
-                            Container(
-                                ExpandedWidth wraps Spacing(top = 5.dp, bottom = 5.dp),
-                                height = 150.dp
-                            ) {
-                                ColoredRect(color = Color.Gray, height = 150.dp)
+//                            Container(
+//                                ExpandedWidth wraps Spacing(top = 5.dp, bottom = 5.dp),
+//                                height = 150.dp
+//                            ) {
+//                                ColoredRect(color = Color.Gray, height = 150.dp)
+//                            }
+                            if (image != null) {
+                                Image(
+                                    modifier = Spacing(top = 5.dp, bottom = 5.dp),
+                                    url = image,
+                                    aspectRatio = 16f / 9f
+                                )
                             }
                             Container(Spacing(left = 5.dp, right = 5.dp)) {
                                 Text(

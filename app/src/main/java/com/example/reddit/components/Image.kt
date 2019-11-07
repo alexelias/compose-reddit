@@ -8,15 +8,16 @@ import androidx.compose.Composable
 import androidx.compose.onCommit
 import androidx.compose.state
 import androidx.compose.unaryPlus
-import androidx.ui.core.Draw
-import androidx.ui.core.dp
+import androidx.ui.core.*
+import androidx.ui.engine.geometry.Offset
 import androidx.ui.foundation.DrawImage
-import androidx.ui.graphics.Image
-import androidx.ui.graphics.ImageConfig
-import androidx.ui.graphics.NativeImage
+import androidx.ui.foundation.shape.DrawShape
+import androidx.ui.foundation.shape.RectangleShape
+import androidx.ui.graphics.*
 import androidx.ui.graphics.colorspace.ColorSpace
 import androidx.ui.graphics.colorspace.ColorSpaces
-import androidx.ui.layout.Container
+import androidx.ui.layout.*
+import androidx.ui.tooling.preview.Preview
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 import java.lang.Exception
@@ -132,14 +133,19 @@ internal class AndroidImage(val bitmap: Bitmap) : Image {
 }
 
 @Composable
-fun Image(url: String, aspectRatio: Float) {
+fun Image(
+    modifier: Modifier = Modifier.None,
+    url: String,
+    width: Dp? = null,
+    height: Dp? = null,
+    aspectRatio: Float? = null
+) {
     var image by +state<Image?> { null }
     var drawable by +state<Drawable?> { null }
     +onCommit(url) {
         val picasso = Picasso.get()
         val target = object : Target {
             override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
-                // TODO(lmr): we could use the drawable below
                 drawable = placeHolderDrawable
             }
 
@@ -153,6 +159,8 @@ fun Image(url: String, aspectRatio: Float) {
         }
         picasso
             .load(url)
+//            .resize(100, 100)
+//            .centerCrop()
             .into(target)
 
         onDispose {
@@ -161,15 +169,128 @@ fun Image(url: String, aspectRatio: Float) {
             picasso.cancelRequest(target)
         }
     }
-    // TODO(lmr): what's the best way to do aspect ratio here, and have the image fill the available
-    // width?
-    Container(height = 100.dp * aspectRatio, width = 100.dp) {
+
+    val imageModifier = when {
+        width != null && height != null -> Size(width, height)
+        aspectRatio != null && width != null -> Size(width = width) wraps AspectRatio(aspectRatio)
+        aspectRatio != null && height != null -> Size(height = height) wraps AspectRatio(aspectRatio)
+        aspectRatio != null -> ExpandedWidth wraps AspectRatio(aspectRatio)
+        else -> Modifier.None
+    }
+
+    Row(modifier = modifier wraps imageModifier) {
         val theImage = image
         val theDrawable = drawable
         if (theImage != null) {
             DrawImage(image = theImage)
         } else if (theDrawable != null) {
-            Draw { canvas, parentSize -> theDrawable.draw(canvas.nativeCanvas) }
+            Draw { canvas, _ -> theDrawable.draw(canvas.nativeCanvas) }
+        } else {
+            DrawShape(shape = RectangleShape, color = Color.LightGray)
         }
     }
+}
+
+val p = Paint()
+
+@Composable
+fun DrawImage2(image: Image) {
+    Draw { canvas, parentSize ->
+        canvas.drawImage(image, Offset.zero, p)
+    }
+}
+//
+//@Composable
+//private fun ImageLayout(
+//    aspectRatio: Float,
+//    children: @Composable () -> Unit
+//) {
+//    Layout(children) { measurables, constraints ->
+//        var width = constraints.minWidth
+//        val height = min(constraints.maxHeight, width * aspectRatio)
+//        if (height < width * aspectRatio) {
+//            width = height / aspectRatio
+//        }
+//
+//        val childConstraints = Constraints(
+//            width, width,
+//            height, height
+//        )
+//
+//        val measurable = measurables.firstOrNull()
+//
+//        val placeable = measurable?.measure(childConstraints)
+////        placeable.height
+//
+//        layout(width, height) {
+//            placeable?.place(0.ipx, 0.ipx)
+//        }
+//    }
+//}
+
+
+@Preview("playground")
+@Composable fun TestLayout() {
+    Container(width = 300.dp, height = 600.dp, alignment = Alignment.TopLeft) {
+        background(color = Color.Blue)
+        Column {
+            Row {
+                background(color = Color.Red)
+                Column {
+                    background(color = Color.Green)
+                    Text(text = "One")
+                    Text(text = "Two")
+                    Text(text = "Three")
+                }
+                Column {
+                    background(color = Color.Yellow)
+                    Text(text = "One")
+                    Text(text = "Two")
+                    Text(text = "Three")
+                }
+            }
+                Image(
+                    url = "https://loremflickr.com/640/360",
+                    aspectRatio = 16f / 9f
+                )
+        }
+    }
+}
+
+@Composable fun background(color: Color) {
+    DrawShape(shape = RectangleShape, color = color)
+}
+
+class Size(val width: Dp? = null, val height: Dp? = null) : LayoutModifier {
+    override fun DensityScope.modifyConstraints(constraints: Constraints): Constraints {
+        return constraints.withTight(width?.toIntPx(), height?.toIntPx())
+    }
+
+    override fun DensityScope.modifySize(
+        constraints: Constraints,
+        childSize: IntPxSize
+    ): IntPxSize = childSize
+
+    override fun DensityScope.minIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
+        measurable.minIntrinsicWidth(height)
+
+    override fun DensityScope.maxIntrinsicWidthOf(measurable: Measurable, height: IntPx): IntPx =
+        measurable.maxIntrinsicWidth(height)
+
+    override fun DensityScope.minIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
+        measurable.minIntrinsicHeight(width)
+
+    override fun DensityScope.maxIntrinsicHeightOf(measurable: Measurable, width: IntPx): IntPx =
+        measurable.maxIntrinsicHeight(width)
+
+    override fun DensityScope.modifyPosition(
+        childPosition: IntPxPosition,
+        childSize: IntPxSize,
+        containerSize: IntPxSize
+    ): IntPxPosition = childPosition
+
+    override fun DensityScope.modifyAlignmentLine(line: AlignmentLine, value: IntPx?) = value
+
+    override fun DensityScope.modifyParentData(parentData: Any?): Any? = parentData
+
 }

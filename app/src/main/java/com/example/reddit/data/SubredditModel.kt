@@ -13,6 +13,7 @@ import java.util.concurrent.Executor
 
 
 data class SubredditModel(
+    val info: LiveData<SubredditInformation>,
     val links: LiveData<PagedList<Link>>,
     val networkState: LiveData<AsyncState>,
     val refreshState: LiveData<AsyncState>,

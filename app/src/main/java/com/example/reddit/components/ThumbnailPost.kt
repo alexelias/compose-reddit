@@ -27,7 +27,7 @@ import com.example.reddit.fadedOnPrimary
 import com.example.reddit.fadedPrimary
 
 @Composable
-fun ThumbnailPost(id: String, title: String, score: Int, author: String, comments: Int) {
+fun ThumbnailPost(id: String, title: String, score: Int, author: String, comments: Int, image: String?) {
     val voteStatus = +state<Boolean?> { null }
     val upvoteColor = Color(0xFFFF8B60)
     val downvoteColor = Color(0xFF9494FF)
@@ -40,7 +40,7 @@ fun ThumbnailPost(id: String, title: String, score: Int, author: String, comment
 
     val animatedColor = +animatedColor(cardColor)
 
-    +memo(cardColor) {
+    +onCommit(cardColor) {
         animatedColor.animateTo(
             cardColor,
             anim = TweenBuilder<Color>().apply { duration = 200 })
@@ -52,7 +52,7 @@ fun ThumbnailPost(id: String, title: String, score: Int, author: String, comment
     Container(Spacing(10.dp) wraps ExpandedWidth) {
         Card(color = Color.White, shape = RoundedCornerShape(10.dp), elevation = 2.dp) {
             DrawShape(shape = RectangleShape, color = animatedColor.value)
-            PostContent(id, title, score, author, comments, voteStatus)
+            PostContent(id, title, score, author, comments, voteStatus, image)
         }
     }
 }
@@ -64,7 +64,8 @@ private fun PostContent(
     score: Int,
     author: String,
     comments: Int,
-    voteStatus: State<Boolean?>
+    voteStatus: State<Boolean?>,
+    image: String?
 ) {
     HackedRow(inflexibleWidthSection = {
         Container(width = 60.dp) {
@@ -72,7 +73,7 @@ private fun PostContent(
         }
     }, mainCard = {
         Container {
-            MainPostCard(id = id, title = title, author = author, comments = comments)
+            MainPostCard(id = id, title = title, author = author, comments = comments, image = image)
         }
     }, ltr = true)
 }
@@ -213,7 +214,7 @@ private fun VoteArrow(
 }
 
 @Composable
-private fun MainPostCard(id: String, title: String, author: String, comments: Int) {
+private fun MainPostCard(id: String, title: String, author: String, comments: Int, image: String?) {
     val navigator = +ambient(Ambients.NavController)
     Surface(elevation = 4.dp) {
         Ripple(bounded = true) {
@@ -222,25 +223,24 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
             }) {
                 // Extra wrap so clickable wraps the spacing too
                 Wrap {
-                    Container(
-                        modifier = ExpandedWidth wraps Spacing(
-                            left = 10.dp,
-                            right = 10.dp,
-                            top = 5.dp,
-                            bottom = 5.dp
-                        )
-                    ) {
+                    Container(modifier = ExpandedWidth wraps Spacing(left = 10.dp)) {
                         HackedRow(inflexibleWidthSection = {
                             // Colored rect is expanded by default
-                            Container(Spacing(left = 10.dp)) {
-                                ColoredRect(color = Color.Gray, width = 50.dp, height = 50.dp)
+                            if (image != null) {
+                                Image(
+                                    url = image,
+                                    width = 90.dp,
+                                    height = 110.dp
+                                )
+                            } else {
+                                Container { }
                             }
                         }, mainCard = {
                             ConstrainedBox(
                                 modifier = ExpandedWidth,
                                 constraints = DpConstraints(minHeight = 100.dp)
                             ) {
-                                Column {
+                                Column(Spacing(top = 5.dp, bottom = 5.dp, right = 5.dp)) {
                                     Text(title, style = +themeTextStyle { subtitle1 }, maxLines = 3, overflow = TextOverflow.Ellipsis)
                                     Column(
                                         Flexible(1f),
