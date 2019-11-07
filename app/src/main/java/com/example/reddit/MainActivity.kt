@@ -2,6 +2,7 @@ package com.example.reddit
 
 import android.app.Activity
 import android.view.Window
+import android.view.WindowManager
 import androidx.animation.AnimatedValue
 import androidx.animation.TweenBuilder
 import androidx.animation.ValueHolder
@@ -10,10 +11,7 @@ import androidx.core.os.bundleOf
 import androidx.compose.Composable
 import androidx.compose.unaryPlus
 import androidx.navigation.NavGraphBuilder
-import androidx.ui.core.FocusManagerAmbient
-import androidx.ui.core.Text
-import androidx.ui.core.TextField
-import androidx.ui.core.dp
+import androidx.ui.core.*
 import androidx.ui.foundation.Clickable
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.lerp
@@ -116,19 +114,20 @@ fun AppTheme(window: Window? = null, children: @Composable () -> Unit) {
         onPrimary = onPrimary,
         surface = surface
     )
-    +onCommit(window) {
-        window?.apply {
-            statusBarColor = primary.toArgb()
-            navigationBarColor = surface.toArgb()
-            decorView.run {
-                systemUiVisibility = if (isLightStatusBar) {
-                    View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-                } else {
-                    systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
-                }
+
+    window?.run {
+        statusBarColor = primary.toArgb()
+        navigationBarColor = surface.toArgb()
+        decorView.run {
+            val someFlags = if (isLightStatusBar) {
+                View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+            } else {
+                systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
             }
+            systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR or someFlags
         }
     }
+
     MaterialTheme(colors, children = children)
 }
 
@@ -161,7 +160,9 @@ fun DrawerContent(closeDrawer: () -> Unit) {
         SubredditNavigateField(onNavigate)
         SubredditLink("/r/android", onNavigate)
         SubredditLink("/r/androiddev", onNavigate)
+        SubredditLink("/r/diy", onNavigate)
         SubredditLink("/r/programmerhumor", onNavigate)
+        SubredditLink("/r/woodworking", onNavigate)
     }
 }
 
@@ -200,7 +201,9 @@ fun MainContent(subreddit: String, openDrawer: () -> Unit, children: @Composable
         TopAppBar(title = { Text("/r/$subreddit") }, navigationIcon = {
             VectorAppBarIcon(R.drawable.ic_menu, openDrawer)
         }, actionData = listOf(R.drawable.ic_baseline_view_agenda_24)) { resId ->
-            VectorAppBarIcon(resId) { LinkStyle.thumbnails = !LinkStyle.thumbnails }
+            VectorAppBarIcon(resId) {
+                LinkStyle.thumbnails = !LinkStyle.thumbnails
+            }
         }
         Container(Flexible(1f)) {
             Surface {
@@ -214,12 +217,15 @@ fun MainContent(subreddit: String, openDrawer: () -> Unit, children: @Composable
 private fun VectorAppBarIcon(resId: Int, onClick: () -> Unit) {
     val vectorAsset = +vectorResource(resId)
     // Copied from AppBarIcon which doesn't support vector resources ATM
-    Ripple(bounded = false) {
+    Ripple(bounded = false, radius = 24.dp) {
         Clickable(onClick) {
-            Container(width = 24.dp, height = 24.dp) {
-                DrawVector(
-                    vectorImage = vectorAsset,
-                    tintColor = +themeColor { onPrimary })
+            // App bar has some default padding so touch target doesn't really work
+            Container(height = 48.dp, width = 24.dp) {
+                Container(width = 24.dp, height = 24.dp) {
+                    DrawVector(
+                        vectorImage = vectorAsset,
+                        tintColor = +themeColor { onPrimary })
+                }
             }
         }
     }

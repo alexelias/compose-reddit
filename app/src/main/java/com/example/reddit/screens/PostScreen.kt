@@ -1,9 +1,9 @@
 package com.example.reddit.screens
 
-import androidx.compose.Composable
-import androidx.compose.ambient
-import androidx.compose.modelFor
-import androidx.compose.unaryPlus
+import androidx.animation.FastOutLinearInEasing
+import androidx.animation.TweenBuilder
+import androidx.compose.*
+import androidx.ui.animation.animatedFloat
 import androidx.ui.core.*
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.foundation.Clickable
@@ -33,11 +33,41 @@ fun PostScreen(linkId: String, pageSize: Int = 10, initialLink: Link? = null) {
     val link = +subscribe(linkModel.link) ?: initialLink
     val comments = +subscribe(linkModel.comments)
     val networkState = +subscribe(linkModel.networkState)
+
+    val isLoading = networkState == AsyncState.LOADING
+    Stack(Expanded) {
+        expanded {
+            // Controls fade out of the progress spinner
+            val opacity = +animatedFloat(1f)
+
+            +onCommit(isLoading) {
+                if (isLoading) {
+                    if (opacity.value != 1f) {
+                        opacity.snapTo(1f)
+                    }
+                } else {
+                    opacity.animateTo(0f, anim = TweenBuilder<Float>().apply {
+                        easing = FastOutLinearInEasing
+                        duration = 500
+                    })
+                }
+            }
+
+            if (opacity.value == 0f) {
+                ScrollingContent(link, linkModel, comments)
+            } else {
+                Opacity(opacity.value) {
+                    LoadingIndicator()
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ScrollingContent(link: Link?, linkModel: LinkModel, comments: List<HierarchicalThing>?) {
     VerticalScroller {
         Column(Expanded, mainAxisAlignment = MainAxisAlignment.Start) {
-            if (networkState == AsyncState.LOADING)
-                LoadingIndicator()
-
             if (link != null) {
                 LinkCard(
                     title = link.title,

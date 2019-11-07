@@ -6,7 +6,6 @@ import androidx.core.os.bundleOf
 import androidx.ui.animation.animatedColor
 import androidx.ui.core.*
 import androidx.ui.foundation.Clickable
-import androidx.ui.foundation.ColoredRect
 import androidx.ui.foundation.selection.Toggleable
 import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
@@ -25,6 +24,8 @@ import com.example.reddit.Ambients
 import com.example.reddit.R
 import com.example.reddit.fadedOnPrimary
 import com.example.reddit.fadedPrimary
+import com.example.reddit.navigation.optionalNavArg
+import kotlin.math.max
 
 @Composable
 fun ThumbnailPost(id: String, title: String, score: Int, author: String, comments: Int, image: String?) {
@@ -133,12 +134,18 @@ private fun ScoreSection(score: Int, voteStatus: State<Boolean?>) {
             voteStatus.value = if (selected && voteStatus.value != true) true else null
         }
         HeightSpacer(2.dp)
+        // Simulate actual network connection to update the score
+        val adjustedScore = when(voteStatus.value) {
+            null -> score
+            true -> score + 1
+            false -> max(score - 1, 0)
+        }
         Text(
-            text = "$score",
+            text = "$adjustedScore",
             style = (+themeTextStyle { h6 }).copy(color = +themeColor { onPrimary })
         )
         Text(
-            if (score > 1) "points" else "point",
+            if (adjustedScore == 1) "point" else "points",
             style = (+themeTextStyle { overline }).copy(color = +themeColor { onPrimary })
         )
         HeightSpacer(2.dp)
@@ -190,7 +197,7 @@ private fun VoteArrow(
     onSelected: (Boolean) -> Unit
 ) {
     val vector = +androidx.ui.res.vectorResource(vectorResource)
-    Ripple(bounded = true) {
+    Ripple(bounded = false, radius = 30.dp) {
         Toggleable(checked = selected, onCheckedChange = onSelected) {
             Container(modifier wraps ExpandedWidth, alignment = alignment) {
                 Container(width = 24.dp, height = 24.dp) {
@@ -218,14 +225,14 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
     val navigator = +ambient(Ambients.NavController)
     Surface(elevation = 4.dp) {
         Ripple(bounded = true) {
+            val currentSubreddit = +optionalNavArg<String>("subreddit") ?: "androiddev"
             Clickable({
-                navigator.navigate(R.id.post_screen, bundleOf("linkId" to id))
+                navigator.navigate(R.id.post_screen, bundleOf("linkId" to id, "subreddit" to currentSubreddit))
             }) {
                 // Extra wrap so clickable wraps the spacing too
                 Wrap {
                     Container(modifier = ExpandedWidth wraps Spacing(left = 10.dp)) {
                         HackedRow(inflexibleWidthSection = {
-                            // Colored rect is expanded by default
                             if (image != null) {
                                 Image(
                                     url = image,

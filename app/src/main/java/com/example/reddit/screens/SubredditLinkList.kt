@@ -56,7 +56,7 @@ fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
     }
     val info = +subscribe(model.info)
     val accentColor = info?.keyColor?.let { if (!it.isBlank()) it.color else null }
-        ?: Colors2.PRIMARY
+
     val links = +subscribe(model.links)
 
     val networkState = +subscribe(model.networkState) ?: AsyncState.LOADING
@@ -70,7 +70,7 @@ fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
             val opacity = +animatedFloat(1f)
 
             +onCommit(isLoading, accentColor) {
-                SubredditTheme.accentColor = accentColor
+                if (accentColor != null) SubredditTheme.accentColor = accentColor
                 if (!isLoading) {
                     opacity.animateTo(0f, anim = TweenBuilder<Float>().apply {
                         easing = FastOutLinearInEasing
@@ -124,7 +124,7 @@ fun ScrollingContent(links: PagedList<Link>) {
                             score = score,
                             author = author,
                             comments = numComments,
-                            image = preview?.imageUrl
+                            image = if (!isSelf) preview?.imageUrl else null
                         )
                     } else {
                         ExpandedPost(
@@ -133,7 +133,8 @@ fun ScrollingContent(links: PagedList<Link>) {
                             score = score,
                             author = author,
                             comments = numComments,
-                            image = preview?.imageUrl
+                            image = if (!isSelf) preview?.imageUrl else null,
+                            selftext = selftext
                         )
                     }
                 }
