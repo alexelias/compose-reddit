@@ -12,9 +12,7 @@ import androidx.ui.core.dp
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.graphics.Color
 import androidx.ui.layout.*
-import androidx.ui.material.CircularProgressIndicator
-import androidx.ui.material.Colors
-import androidx.ui.material.MaterialTheme
+import androidx.ui.material.*
 import com.example.reddit.Ambients
 import com.example.reddit.LinkStyle
 import com.example.reddit.SubredditTheme
@@ -49,10 +47,10 @@ private val sortOptions = listOf(
 
 @Composable
 fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
-    val selectedSortIndex = +state { 0 }
+    var selectedSortIndex by +state { 0 }
     val repository = +ambient(Ambients.Repository)
-    val model = +modelFor(subreddit, selectedSortIndex.value) {
-        repository.linksOfSubreddit(subreddit, sortOptions[selectedSortIndex.value], pageSize)
+    val model = +modelFor(subreddit, selectedSortIndex) {
+        repository.linksOfSubreddit(subreddit, sortOptions[selectedSortIndex], pageSize)
     }
     val info = +subscribe(model.info)
     val accentColor = info?.keyColor?.let { if (!it.isBlank()) it.color else null }
@@ -63,34 +61,40 @@ fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
 
     val isLoading = networkState == AsyncState.LOADING || links == null
 
+    val tabs = listOf("Hot", "New", "Top")
 
-    Stack(Expanded) {
-        expanded {
-            // Controls fade out of the progress spinner
-            val opacity = +animatedFloat(1f)
+    Column(Expanded) {
+        TabRow(items = tabs, selectedIndex = selectedSortIndex) { index, name ->
+            Tab(text = name, selected = selectedSortIndex == index, onSelected = { selectedSortIndex = index })
+        }
+        Stack(Flexible(1f) wraps Expanded) {
+            expanded {
+                // Controls fade out of the progress spinner
+                val opacity = +animatedFloat(1f)
 
-            +onCommit(isLoading, accentColor) {
-                if (accentColor != null) SubredditTheme.accentColor = accentColor
-                if (!isLoading) {
-                    opacity.animateTo(0f, anim = TweenBuilder<Float>().apply {
-                        easing = FastOutLinearInEasing
-                        duration = 500
-                    })
+                +onCommit(isLoading, accentColor) {
+                    if (accentColor != null) SubredditTheme.accentColor = accentColor
+                    if (!isLoading) {
+                        opacity.animateTo(0f, anim = TweenBuilder<Float>().apply {
+                            easing = FastOutLinearInEasing
+                            duration = 500
+                        })
+                    }
                 }
-            }
 
-            if (isLoading) {
-                if (opacity.value != 1f) {
-                    opacity.snapTo(1f)
+                if (isLoading) {
+                    if (opacity.value != 1f) {
+                        opacity.snapTo(1f)
+                    }
                 }
-            }
-            if (opacity.value == 0f) {
-                PostTheme {
-                    ScrollingContent(links!!)
-                }
-            } else {
-                Opacity(opacity.value) {
-                    LoadingIndicator()
+                if (opacity.value == 0f) {
+                    PostTheme {
+                        ScrollingContent(links!!)
+                    }
+                } else {
+                    Opacity(opacity.value) {
+                        LoadingIndicator()
+                    }
                 }
             }
         }

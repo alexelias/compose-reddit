@@ -2,7 +2,6 @@ package com.example.reddit
 
 import android.app.Activity
 import android.view.Window
-import android.view.WindowManager
 import androidx.animation.AnimatedValue
 import androidx.animation.TweenBuilder
 import androidx.animation.ValueHolder
