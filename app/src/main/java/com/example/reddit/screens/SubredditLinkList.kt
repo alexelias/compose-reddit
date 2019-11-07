@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.paging.PagedList
 import androidx.ui.animation.animatedFloat
+import androidx.ui.core.Alignment
 import androidx.ui.core.Opacity
 import androidx.ui.core.dp
 import androidx.ui.foundation.VerticalScroller
@@ -63,12 +64,16 @@ fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
 
     val tabs = listOf("Hot", "New", "Top")
 
-    Column(Expanded) {
-        TabRow(items = tabs, selectedIndex = selectedSortIndex) { index, name ->
-            Tab(text = name, selected = selectedSortIndex == index, onSelected = { selectedSortIndex = index })
-        }
-        Stack(Flexible(1f) wraps Expanded) {
-            expanded {
+    Container(Expanded, alignment = Alignment.TopCenter) {
+        // 'fake' tabs hiding
+        VerticalScroller {
+            Column {
+                TabRow(items = tabs, selectedIndex = selectedSortIndex) { index, name ->
+                    Tab(
+                        text = name,
+                        selected = selectedSortIndex == index,
+                        onSelected = { selectedSortIndex = index })
+                }
                 // Controls fade out of the progress spinner
                 val opacity = +animatedFloat(1f)
 
@@ -106,7 +111,7 @@ val LinkPreview.imageUrl: String?
 
 @Composable
 fun LoadingIndicator() {
-    Container {
+    Container(Spacing(50.dp) wraps ExpandedWidth, alignment = Alignment.TopCenter) {
         val color = SubredditTheme.accentColor
         val indicatorColor = if (color == Color.White) Color.Black else color
         CircularProgressIndicator(color = indicatorColor)
@@ -115,36 +120,34 @@ fun LoadingIndicator() {
 
 @Composable
 fun ScrollingContent(links: PagedList<Link>) {
-    VerticalScroller {
-        Column(Expanded) {
-            HeightSpacer(height = 10.dp)
-            // do stuff here around PagedList...
-            for (item in links.snapshot()) {
-                with(item) {
-                    if (LinkStyle.thumbnails) {
-                        ThumbnailPost(
-                            id = id,
-                            title = title,
-                            score = score,
-                            author = author,
-                            comments = numComments,
-                            image = if (!isSelf) preview?.imageUrl else null
-                        )
-                    } else {
-                        ExpandedPost(
-                            id = id,
-                            title = title,
-                            score = score,
-                            author = author,
-                            comments = numComments,
-                            image = if (!isSelf) preview?.imageUrl else null,
-                            selftext = selftext
-                        )
-                    }
+    Column(Expanded) {
+        HeightSpacer(height = 10.dp)
+        // do stuff here around PagedList...
+        for (item in links.snapshot()) {
+            with(item) {
+                if (LinkStyle.thumbnails) {
+                    ThumbnailPost(
+                        id = id,
+                        title = title,
+                        score = score,
+                        author = author,
+                        comments = numComments,
+                        image = if (!isSelf) preview?.imageUrl else null
+                    )
+                } else {
+                    ExpandedPost(
+                        id = id,
+                        title = title,
+                        score = score,
+                        author = author,
+                        comments = numComments,
+                        image = if (!isSelf) preview?.imageUrl else null,
+                        selftext = selftext
+                    )
                 }
             }
-            HeightSpacer(height = 10.dp)
         }
+        HeightSpacer(height = 10.dp)
     }
 }
 
