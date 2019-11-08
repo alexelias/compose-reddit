@@ -35,6 +35,7 @@ import com.example.reddit.navigation.ComposeActivity
 import com.example.reddit.navigation.navArg
 import com.example.reddit.navigation.optionalNavArg
 import com.example.reddit.navigation.route
+import com.example.reddit.screens.LoginScreen
 import com.example.reddit.screens.PostScreen
 import com.example.reddit.screens.SubredditLinkList
 import java.util.concurrent.Executors
@@ -56,6 +57,9 @@ class MainActivity : ComposeActivity() {
         route(R.id.post_screen) {
             val linkId = +navArg<String>("linkId")
             PostScreen(linkId, 10)
+        }
+        route(R.id.login) {
+            LoginScreen()
         }
     }
 
@@ -156,13 +160,31 @@ fun DrawerContent(closeDrawer: () -> Unit) {
         closeDrawer()
     }
     Column(ExpandedHeight) {
+        LoginOrAccountItem(closeDrawer)
+        DrawerDivider()
         SubredditNavigateField(onNavigate)
+        DrawerDivider()
         SubredditLink("/r/android", onNavigate)
         SubredditLink("/r/androiddev", onNavigate)
         SubredditLink("/r/diy", onNavigate)
         SubredditLink("/r/programmerhumor", onNavigate)
         SubredditLink("/r/woodworking", onNavigate)
     }
+}
+
+private fun DrawerDivider() {
+    Container(padding = EdgeInsets(left = 8.dp, right = 8.dp)) {
+        Divider(color = Color(0xFFCCCCCC))
+    }
+}
+
+@Composable
+fun LoginOrAccountItem(closeDrawer: () -> Unit) {
+    val navigator = +ambient(Ambients.NavController)
+    ListItem(text = "Log in", onClick = {
+        navigator.navigate(R.id.login)
+        closeDrawer()
+    })
 }
 
 @Composable
