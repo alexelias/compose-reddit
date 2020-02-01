@@ -5,7 +5,7 @@ import androidx.animation.TweenBuilder
 import androidx.compose.*
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.*
-import androidx.ui.engine.geometry.Offset
+import androidx.ui.geometry.Offset
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.VerticalScroller
 import androidx.ui.foundation.shape.RectangleShape
@@ -18,6 +18,7 @@ import androidx.ui.material.surface.Card
 import androidx.ui.text.TextStyle
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.font.FontWeight
+import androidx.ui.unit.*
 import com.example.reddit.Ambients
 import com.example.reddit.components.Image
 import com.example.reddit.components.TimeAgo
@@ -27,38 +28,36 @@ import com.example.reddit.screens.Colors2.TEXT_MUTED
 
 @Composable
 fun PostScreen(linkId: String, pageSize: Int = 10, initialLink: Link? = null) {
-    val repository = +ambient(Ambients.Repository)
-    val linkModel = +modelFor(linkId, pageSize) { repository.linkDetails(linkId, pageSize) }
+    val repository = ambient(Ambients.Repository)
+    val linkModel = remember(linkId, pageSize) { repository.linkDetails(linkId, pageSize) }
 
-    val link = +subscribe(linkModel.link) ?: initialLink
-    val comments = +subscribe(linkModel.comments)
-    val networkState = +subscribe(linkModel.networkState)
+    val link = subscribe(linkModel.link) ?: initialLink
+    val comments = subscribe(linkModel.comments)
+    val networkState = subscribe(linkModel.networkState)
 
     val isLoading = networkState == AsyncState.LOADING
-    Stack(Expanded) {
-        expanded {
-            // Controls fade out of the progress spinner
-            val opacity = +animatedFloat(1f)
+    Stack(LayoutSize.Fill) {
+        // Controls fade out of the progress spinner
+        val opacity = animatedFloat(1f)
 
-            +onCommit(isLoading) {
-                if (isLoading) {
-                    if (opacity.value != 1f) {
-                        opacity.snapTo(1f)
-                    }
-                } else {
-                    opacity.animateTo(0f, anim = TweenBuilder<Float>().apply {
-                        easing = FastOutLinearInEasing
-                        duration = 500
-                    })
+        onCommit(isLoading) {
+            if (isLoading) {
+                if (opacity.value != 1f) {
+                    opacity.snapTo(1f)
                 }
-            }
-
-            if (opacity.value == 0f) {
-                ScrollingContent(link, linkModel, comments)
             } else {
-                Opacity(opacity.value) {
-                    LoadingIndicator()
-                }
+                opacity.animateTo(0f, anim = TweenBuilder<Float>().apply {
+                    easing = FastOutLinearInEasing
+                    duration = 500
+                })
+            }
+        }
+
+        if (opacity.value == 0f) {
+            ScrollingContent(link, linkModel, comments)
+        } else {
+            Opacity(opacity.value) {
+                LoadingIndicator()
             }
         }
     }
@@ -67,7 +66,7 @@ fun PostScreen(linkId: String, pageSize: Int = 10, initialLink: Link? = null) {
 @Composable
 fun ScrollingContent(link: Link?, linkModel: LinkModel, comments: List<HierarchicalThing>?) {
     VerticalScroller {
-        Column(Expanded, mainAxisAlignment = MainAxisAlignment.Start) {
+        Column(LayoutHeight.Fill + LayoutAlign.Top) {
             if (link != null) {
                 LinkCard(
                     title = link.title,
@@ -127,10 +126,10 @@ fun LinkCard(
     createdAt: Long,
     comments: Int
 ) {
-    Column(Spacing(10.dp) wraps ExpandedWidth) {
+    Column(LayoutPadding(10.dp) + LayoutWidth.Fill) {
         Card(color = Color.White, shape = RoundedCornerShape(10.dp), elevation = 2.dp) {
             Column {
-                Column(Spacing(all = 10.dp)) {
+                Column(LayoutPadding(all = 10.dp)) {
                     Text(text = title, style = TextStyle(color = TEXT_DARK, fontSize = 21.sp))
                 }
 
@@ -142,7 +141,7 @@ fun LinkCard(
                     )
                 }
 
-                Row(Spacing(all = 10.dp)) {
+                Row(LayoutPadding(all = 10.dp)) {
                     Text(text = author, style = TextStyle(fontWeight = FontWeight.Bold, color = TEXT_MUTED))
                     if (score != 0) {
                         Bullet()
@@ -153,7 +152,7 @@ fun LinkCard(
                 }
             }
         }
-        Column(Spacing(top = 24.dp)) {
+        Column(LayoutPadding(top = 24.dp)) {
             Text("Comments ($comments)", style = TextStyle(fontSize = 20.sp))
         }
     }
@@ -180,9 +179,9 @@ fun LinkCard(
 }
 
 @Composable fun CommentEndCap() {
-    Column(Spacing(left = 10.dp, right = 10.dp)) {
+    Column(LayoutPadding(left = 10.dp, right = 10.dp)) {
         Card(color = Color.White, shape = RoundedCornerShape(0.dp, 0.dp, 10.dp, 10.dp), elevation = 0.dp) {
-            Column(Spacing(top = 10.dp) wraps ExpandedWidth) {
+            Column(LayoutPadding(top = 10.dp) + LayoutWidth.Fill) {
             }
         }
     }
@@ -196,15 +195,15 @@ fun LinkCard(
         0 -> RoundedCornerShape(10.dp, 10.dp, 0.dp, 0.dp)
         else -> RectangleShape
     }
-    val outerSpacing = when (depth) {
-        0 -> Spacing(top = 10.dp, left = 10.dp, right = 10.dp)
-        else -> Spacing(left = 10.dp, right = 10.dp)
+    val outerLayoutPadding = when (depth) {
+        0 -> LayoutPadding(top = 10.dp, left = 10.dp, right = 10.dp)
+        else -> LayoutPadding(left = 10.dp, right = 10.dp)
     }
-    val innerSpacing = when (depth) {
-        0 -> Spacing(left = 10.dp, top = 10.dp, right = 10.dp)
-        else -> Spacing(left = 10.dp * (depth + 1), top = 10.dp, right = 10.dp)
+    val innerLayoutPadding = when (depth) {
+        0 -> LayoutPadding(left = 10.dp, top = 10.dp, right = 10.dp)
+        else -> LayoutPadding(left = 10.dp * (depth + 1), top = 10.dp, right = 10.dp)
     }
-    Column(outerSpacing) {
+    Column(outerLayoutPadding) {
         Card(color = Color.White, shape = shape, elevation = 0.dp) {
             Ripple(
                 bounded = false,
@@ -212,7 +211,7 @@ fun LinkCard(
                 enabled = enabled
             ) {
                 Clickable(onClick = onClick) {
-                    Column(innerSpacing wraps ExpandedWidth) {
+                    Column(innerLayoutPadding + LayoutWidth.Fill) {
                         children()
                     }
                 }

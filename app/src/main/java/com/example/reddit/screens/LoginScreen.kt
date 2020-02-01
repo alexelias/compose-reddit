@@ -5,17 +5,17 @@ import androidx.compose.state
 import androidx.compose.unaryPlus
 import androidx.ui.core.Text
 import androidx.ui.core.TextField
-import androidx.ui.core.dp
 import androidx.ui.graphics.Color
 import androidx.ui.layout.*
+import androidx.ui.unit.*
 import androidx.ui.material.Button
 import androidx.ui.material.Divider
 
 @Composable
 fun LoginScreen() {
-    val username = +state { "" }
-    val password = +state { "" }
-    Column(Expanded wraps Spacing(16.dp)) {
+    val username = state { "" }
+    val password = state { "" }
+    Column(LayoutHeight.Fill + LayoutPadding(16.dp)) {
         val dividerColor = Color(0xFFAAAAAA)
 
         Text("Username")

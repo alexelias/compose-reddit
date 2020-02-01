@@ -13,13 +13,13 @@ import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
 import androidx.ui.graphics.vector.DrawVector
 import androidx.ui.layout.*
+import androidx.ui.material.MaterialTheme
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Card
 import androidx.ui.material.surface.Surface
-import androidx.ui.material.themeColor
-import androidx.ui.material.themeTextStyle
 import androidx.ui.text.font.FontStyle
 import androidx.ui.text.style.TextOverflow
+import androidx.ui.unit.*
 import com.example.reddit.Ambients
 import com.example.reddit.R
 import com.example.reddit.fadedOnPrimary
@@ -29,19 +29,19 @@ import kotlin.math.max
 
 @Composable
 fun ThumbnailPost(id: String, title: String, score: Int, author: String, comments: Int, image: String?) {
-    val voteStatus = +state<Boolean?> { null }
+    val voteStatus = state<Boolean?> { null }
     val upvoteColor = Color(0xFFFF8B60)
     val downvoteColor = Color(0xFF9494FF)
-    val fadedPrimary = +themeColor { fadedPrimary }
+    val fadedPrimary = MaterialTheme.colors().fadedPrimary
     val cardColor = when (voteStatus.value) {
         null -> fadedPrimary
         true -> upvoteColor
         false -> downvoteColor
     }
 
-    val animatedColor = +animatedColor(cardColor)
+    val animatedColor = animatedColor(cardColor)
 
-    +onCommit(cardColor) {
+    onCommit(cardColor) {
         animatedColor.animateTo(
             cardColor,
             anim = TweenBuilder<Color>().apply { duration = 200 })
@@ -50,7 +50,7 @@ fun ThumbnailPost(id: String, title: String, score: Int, author: String, comment
     //TODO: Shouldn't have hardcoded values for height, but no idea how to make it
     // work so that whatever item is taller decides the height of this row, and then
     // the individual parts can be flexible within that overall space.
-    Container(Spacing(10.dp) wraps ExpandedWidth) {
+    Container(LayoutPadding(10.dp) + LayoutWidth.Fill) {
         Card(color = Color.White, shape = RoundedCornerShape(10.dp), elevation = 2.dp) {
             DrawShape(shape = RectangleShape, color = animatedColor.value)
             PostContent(id, title, score, author, comments, voteStatus, image)
@@ -65,7 +65,7 @@ private fun PostContent(
     score: Int,
     author: String,
     comments: Int,
-    voteStatus: State<Boolean?>,
+    voteStatus: MutableState<Boolean?>,
     image: String?
 ) {
     HackedRow(inflexibleWidthSection = {
@@ -96,21 +96,24 @@ private fun HackedRow(
     ltr: Boolean
 ) {
     val tempScoreSection = @Composable { inflexibleWidthSection() }
-    Layout(tempScoreSection, inflexibleWidthSection, mainCard) { measurables, constraints ->
-
+    Layout({
+        ParentData(object : LayoutTagParentData { override val tag: Any = "tempScoreSection" }, tempScoreSection)
+        ParentData(object : LayoutTagParentData { override val tag: Any = "inflexibleWidthSection" }, inflexibleWidthSection)
+        ParentData(object : LayoutTagParentData { override val tag: Any = "mainCard" }, mainCard)
+    }) { measurables, constraints ->
         // Measure score placeable to figure out how much width we have left
-        val tempScorePlaceable = measurables[tempScoreSection].first().measure(constraints)
+        val tempScorePlaceable = measurables.first { it.tag == "tempScoreSection" }.measure(constraints)
 
         val availableWidth = constraints.maxWidth - tempScorePlaceable.width
 
-        val postPlaceable = measurables[mainCard].first().measure(
+        val postPlaceable = measurables.first { it.tag == "mainCard" }.measure(
             // Measure with loose constraints for height as we don't want the text to take up more
             // space than it needs
-            constraints.withTight(width = availableWidth)
+            constraints.enforce(Constraints.fixedWidth(availableWidth))
         )
 
-        val scorePlaceable = measurables[inflexibleWidthSection].first()
-            .measure(constraints.withTight(height = postPlaceable.height))
+        val scorePlaceable = measurables.first { it.tag == "inflexibleWidthSection" }
+            .measure(constraints.enforce(Constraints.fixedHeight(postPlaceable.height)))
 
         layout(width = constraints.maxWidth, height = postPlaceable.height) {
             if (ltr) {
@@ -125,15 +128,15 @@ private fun HackedRow(
 }
 
 @Composable
-private fun ScoreSection(score: Int, voteStatus: State<Boolean?>) {
-    Column(Expanded, crossAxisAlignment = CrossAxisAlignment.Center) {
+private fun ScoreSection(score: Int, voteStatus: MutableState<Boolean?>) {
+    Column {
         UpVoteArrow(
-            Flexible(1f),
+            LayoutFlexible(1f),
             voteStatus.value == true
         ) { selected ->
             voteStatus.value = if (selected && voteStatus.value != true) true else null
         }
-        HeightSpacer(2.dp)
+        Spacer(LayoutHeight(2.dp))
         // Simulate actual network connection to update the score
         val adjustedScore = when(voteStatus.value) {
             null -> score
@@ -142,15 +145,17 @@ private fun ScoreSection(score: Int, voteStatus: State<Boolean?>) {
         }
         Text(
             text = "$adjustedScore",
-            style = (+themeTextStyle { h6 }).copy(color = +themeColor { onPrimary })
+            modifier = LayoutGravity.Center,
+            style = MaterialTheme.typography().h6.copy(color = MaterialTheme.colors().onPrimary)
         )
         Text(
             if (adjustedScore == 1) "point" else "points",
-            style = (+themeTextStyle { overline }).copy(color = +themeColor { onPrimary })
+            modifier = LayoutGravity.Center,
+            style = MaterialTheme.typography().overline.copy(color = MaterialTheme.colors().onPrimary)
         )
-        HeightSpacer(2.dp)
+        Spacer(LayoutHeight(2.dp))
         DownVoteArrow(
-            Flexible(1f),
+            LayoutFlexible(1f),
             voteStatus.value == false
         ) { selected ->
             voteStatus.value = if (selected && voteStatus.value != false) false else null
@@ -196,16 +201,14 @@ private fun VoteArrow(
     selected: Boolean,
     onSelected: (Boolean) -> Unit
 ) {
-    val vector = +androidx.ui.res.vectorResource(vectorResource)
+    val vector = androidx.ui.res.vectorResource(vectorResource)
     Ripple(bounded = false, radius = 30.dp) {
-        Toggleable(checked = selected, onCheckedChange = onSelected) {
-            Container(modifier wraps ExpandedWidth, alignment = alignment) {
+        Toggleable(value = selected, onValueChange = onSelected) {
+            Container(modifier + LayoutWidth.Fill, alignment = alignment) {
                 Container(width = 24.dp, height = 24.dp) {
-                    val tintColor = +themeColor {
-                        if (selected) onPrimary else fadedOnPrimary
-                    }
-                    val animatedColor = +animatedColor(tintColor)
-                    +memo(tintColor) {
+                    val tintColor = if (selected) MaterialTheme.colors().onPrimary else MaterialTheme.colors().fadedOnPrimary
+                    val animatedColor = animatedColor(tintColor)
+                    remember(tintColor) {
                         animatedColor.animateTo(
                             tintColor,
                             anim = TweenBuilder<Color>().apply { duration = 200 })
@@ -222,16 +225,16 @@ private fun VoteArrow(
 
 @Composable
 private fun MainPostCard(id: String, title: String, author: String, comments: Int, image: String?) {
-    val navigator = +ambient(Ambients.NavController)
+    val navigator = ambient(Ambients.NavController)
     Surface(elevation = 4.dp) {
         Ripple(bounded = true) {
-            val currentSubreddit = +optionalNavArg<String>("subreddit") ?: "androiddev"
+            val currentSubreddit = optionalNavArg<String>("subreddit") ?: "androiddev"
             Clickable({
                 navigator.navigate(R.id.post_screen, bundleOf("linkId" to id, "subreddit" to currentSubreddit))
             }) {
                 // Extra wrap so clickable wraps the spacing too
                 Wrap {
-                    Container(modifier = ExpandedWidth wraps Spacing(left = 10.dp)) {
+                    Container(modifier = LayoutWidth.Fill + LayoutPadding(left = 10.dp)) {
                         HackedRow(inflexibleWidthSection = {
                             if (image != null) {
                                 Image(
@@ -243,26 +246,17 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
                                 Container { }
                             }
                         }, mainCard = {
-                            ConstrainedBox(
-                                modifier = ExpandedWidth,
-                                constraints = DpConstraints(minHeight = 100.dp)
-                            ) {
-                                Column(Spacing(top = 5.dp, bottom = 5.dp, right = 5.dp)) {
-                                    Text(title, style = +themeTextStyle { subtitle1 }, maxLines = 3, overflow = TextOverflow.Ellipsis)
-                                    Column(
-                                        Flexible(1f),
-                                        mainAxisAlignment = MainAxisAlignment.End
-                                    ) {
-                                        HeightSpacer(5.dp)
-                                        Text(
-                                            text = "u/$author",
-                                            style = (+themeTextStyle { overline }).copy(fontStyle = FontStyle.Italic)
-                                        )
-                                        Text(
-                                            text = "$comments comments",
-                                            style = +themeTextStyle { overline })
-                                    }
-                                }
+                            Column(LayoutWidth.Fill + LayoutHeight.Min(100.dp) + LayoutPadding(top = 5.dp, bottom = 5.dp, right = 5.dp)) {
+                                Text(title, style = MaterialTheme.typography().subtitle1, maxLines = 3, overflow = TextOverflow.Ellipsis)
+                                Spacer(LayoutFlexible(1f))
+                                Spacer(LayoutHeight(5.dp))
+                                Text(
+                                    text = "u/$author",
+                                    style = (MaterialTheme.typography().overline).copy(fontStyle = FontStyle.Italic)
+                                )
+                                Text(
+                                    text = "$comments comments",
+                                    style = MaterialTheme.typography().overline)
                             }
                         }, ltr = false)
                     }

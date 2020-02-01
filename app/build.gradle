@@ -2,6 +2,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
+def compose_version = "0.1.0-dev04"
+
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
@@ -37,6 +39,9 @@ android {
         jvmTarget = "1.8"
     }
 
+    composeOptions {
+       kotlinCompilerExtensionVersion compose_version
+    }
 }
 
 dependencies {
@@ -48,13 +53,14 @@ dependencies {
     def picasso_version = "2.71828"
     def nav_version = "2.2.0-rc01"
     def core_ktx_version = "1.1.0"
-    def compose_version = "0.1.0-dev02"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "androidx.ui:ui-geometry:$compose_version"
     implementation "androidx.ui:ui-layout:$compose_version"
     implementation "androidx.ui:ui-material:$compose_version"
     implementation "androidx.ui:ui-tooling:$compose_version"
+    implementation "androidx.ui:ui-unit:$compose_version"
     implementation "androidx.paging:paging-runtime-ktx:$paging_version"
     implementation "androidx.recyclerview:recyclerview:$recyclerview_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"

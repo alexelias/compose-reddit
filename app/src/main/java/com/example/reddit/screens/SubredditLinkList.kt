@@ -9,11 +9,12 @@ import androidx.paging.PagedList
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Alignment
 import androidx.ui.core.Opacity
-import androidx.ui.core.dp
 import androidx.ui.foundation.VerticalScroller
+import androidx.ui.geometry.*
 import androidx.ui.graphics.Color
 import androidx.ui.layout.*
 import androidx.ui.material.*
+import androidx.ui.unit.*
 import com.example.reddit.Ambients
 import com.example.reddit.LinkStyle
 import com.example.reddit.SubredditTheme
@@ -24,10 +25,11 @@ import com.example.reddit.data.Link
 import com.example.reddit.data.LinkPreview
 import com.example.reddit.data.RedditFilterType
 
-fun <T> subscribe(data: LiveData<T>) = effectOf<T?> {
-    val current = +stateFor(data) { data.value }
+@Composable
+fun <T> subscribe(data: LiveData<T>): T? {
+    val current = stateFor(data) { data.value }
 
-    +onCommit(data) {
+    onCommit(data) {
         val observer = Observer<T> {
             current.value = data.value
         }
@@ -37,7 +39,7 @@ fun <T> subscribe(data: LiveData<T>) = effectOf<T?> {
         }
     }
 
-    current.value
+    return current.value
 }
 
 private val sortOptions = listOf(
@@ -48,23 +50,23 @@ private val sortOptions = listOf(
 
 @Composable
 fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
-    var selectedSortIndex by +state { 0 }
-    val repository = +ambient(Ambients.Repository)
-    val model = +modelFor(subreddit, selectedSortIndex) {
+    var selectedSortIndex by state { 0 }
+    val repository = ambient(Ambients.Repository)
+    val model = remember(subreddit, selectedSortIndex) {
         repository.linksOfSubreddit(subreddit, sortOptions[selectedSortIndex], pageSize)
     }
-    val info = +subscribe(model.info)
+    val info = subscribe(model.info)
     val accentColor = info?.keyColor?.let { if (!it.isBlank()) it.color else null }
 
-    val links = +subscribe(model.links)
+    val links = subscribe(model.links)
 
-    val networkState = +subscribe(model.networkState) ?: AsyncState.LOADING
+    val networkState = subscribe(model.networkState) ?: AsyncState.LOADING
 
     val isLoading = networkState == AsyncState.LOADING || links == null
 
     val tabs = listOf("Hot", "New", "Top")
 
-    Container(Expanded, alignment = Alignment.TopCenter) {
+    Container(LayoutSize.Fill, alignment = Alignment.TopCenter) {
         // 'fake' tabs hiding
         VerticalScroller {
             Column {
@@ -75,9 +77,9 @@ fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
                         onSelected = { selectedSortIndex = index })
                 }
                 // Controls fade out of the progress spinner
-                val opacity = +animatedFloat(1f)
+                val opacity = animatedFloat(1f)
 
-                +onCommit(isLoading, accentColor) {
+                onCommit(isLoading, accentColor) {
                     if (accentColor != null) SubredditTheme.accentColor = accentColor
                     if (!isLoading) {
                         opacity.animateTo(0f, anim = TweenBuilder<Float>().apply {
@@ -111,7 +113,7 @@ val LinkPreview.imageUrl: String?
 
 @Composable
 fun LoadingIndicator() {
-    Container(Spacing(50.dp) wraps ExpandedWidth, alignment = Alignment.TopCenter) {
+    Container(LayoutPadding(50.dp) + LayoutWidth.Fill, alignment = Alignment.TopCenter) {
         val color = SubredditTheme.accentColor
         val indicatorColor = if (color == Color.White) Color.Black else color
         CircularProgressIndicator(color = indicatorColor)
@@ -120,8 +122,8 @@ fun LoadingIndicator() {
 
 @Composable
 fun ScrollingContent(links: PagedList<Link>) {
-    Column(Expanded) {
-        HeightSpacer(height = 10.dp)
+    Column(LayoutHeight.Fill) {
+        Spacer(LayoutHeight(10.dp))
         // do stuff here around PagedList...
         for (item in links.snapshot()) {
             with(item) {
@@ -147,12 +149,16 @@ fun ScrollingContent(links: PagedList<Link>) {
                 }
             }
         }
-        HeightSpacer(height = 10.dp)
+        Spacer(LayoutHeight(10.dp))
     }
 }
 
 @Composable
 fun PostTheme(children: @Composable () -> Unit) {
-    val colors = (+ambient(Colors)).copy(surface = Color.White)
+    // TODO(aelias): Is there a way to start from a copy of ambient MaterialColors instead of
+    // copying the ambient's fields one by one onto a fresh lightColorPalette?
+    val colors = lightColorPalette(primary = MaterialTheme.colors().primary,
+        onPrimary = MaterialTheme.colors().onPrimary,
+        surface = Color.White)
     MaterialTheme(colors, children = children)
 }
