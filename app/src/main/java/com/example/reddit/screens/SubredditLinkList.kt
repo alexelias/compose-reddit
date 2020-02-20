@@ -51,7 +51,7 @@ private val sortOptions = listOf(
 @Composable
 fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
     var selectedSortIndex by state { 0 }
-    val repository = ambient(Ambients.Repository)
+    val repository = Ambients.Repository.current
     val model = remember(subreddit, selectedSortIndex) {
         repository.linksOfSubreddit(subreddit, sortOptions[selectedSortIndex], pageSize)
     }

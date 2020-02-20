@@ -152,7 +152,7 @@ private fun VoteArrow(
 
 @Composable
 private fun MainPostCard(id: String, title: String, author: String, comments: Int, image: String?, selftext: String?) {
-    val navigator = ambient(Ambients.NavController)
+    val navigator = Ambients.NavController.current
     Surface(elevation = 2.dp) {
         Ripple(bounded = true) {
             val currentSubreddit = optionalNavArg<String>("subreddit") ?: "androiddev"

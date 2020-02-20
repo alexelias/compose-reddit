@@ -4,6 +4,7 @@ import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import androidx.compose.Composable
+import androidx.compose.Providers
 import androidx.compose.disposeComposition
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
@@ -43,10 +44,8 @@ abstract class ComposeActivity : Activity() {
         navController = controller
 
         setContent {
-            Ambients.NavController.Provider(controller) {
-                Ambients.Navigator.Provider(navigator) {
-                    content(navigator.current)
-                }
+            Providers(Ambients.NavController provides controller, Ambients.Navigator provides navigator) {
+                content(navigator.current)
             }
         }
     }

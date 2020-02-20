@@ -34,7 +34,9 @@ fun LoginScreen() {
         Divider(color = dividerColor)
         Spacer()
 
-        Button(text = "Log in", onClick = { /* TODO */ })
+        Button(onClick = { /* TODO */ }) {
+            Text("Log in")
+        }
     }
 }
 

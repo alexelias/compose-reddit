@@ -28,7 +28,7 @@ import com.example.reddit.screens.Colors2.TEXT_MUTED
 
 @Composable
 fun PostScreen(linkId: String, pageSize: Int = 10, initialLink: Link? = null) {
-    val repository = ambient(Ambients.Repository)
+    val repository = Ambients.Repository.current
     val linkModel = remember(linkId, pageSize) { repository.linkDetails(linkId, pageSize) }
 
     val link = subscribe(linkModel.link) ?: initialLink

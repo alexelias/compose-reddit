@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
-def compose_version = "0.1.0-dev04"
+def compose_version = "0.1.0-dev05"
 
 android {
     compileSdkVersion 29

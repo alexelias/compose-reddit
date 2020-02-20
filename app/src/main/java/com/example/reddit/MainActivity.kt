@@ -64,12 +64,10 @@ class MainActivity : ComposeActivity() {
 
     @Composable
     override fun content(content: @Composable () -> Unit) {
-        Ambients.Repository.Provider(repository) {
-            Ambients.Api.Provider(api) {
-                AppTheme(window) {
-                    Scaffold(subreddit = optionalNavArg<String>("subreddit") ?: "androiddev") {
-                        content()
-                    }
+        Providers(Ambients.Repository provides repository, Ambients.Api provides api) {
+            AppTheme(window) {
+                Scaffold(subreddit = optionalNavArg<String>("subreddit") ?: "androiddev") {
+                    content()
                 }
             }
         }
@@ -146,7 +144,7 @@ fun Scaffold(subreddit: String, children: @Composable () -> Unit) {
 
 @Composable
 fun DrawerContent(closeDrawer: () -> Unit) {
-    val navigator = ambient(Ambients.NavController)
+    val navigator = Ambients.NavController.current
     val onNavigate = { subreddit: String ->
         navigator.navigate(R.id.home_screen, bundleOf("subreddit" to subreddit))
         closeDrawer()
@@ -172,7 +170,7 @@ private fun DrawerDivider() {
 
 @Composable
 fun LoginOrAccountItem(closeDrawer: () -> Unit) {
-    val navigator = ambient(Ambients.NavController)
+    val navigator = Ambients.NavController.current
     ListItem(text = "Log in", onClick = {
         navigator.navigate(R.id.login)
         closeDrawer()
@@ -187,7 +185,7 @@ fun SubredditLink(subreddit: String, onNavigate: (String) -> Unit) {
 @Composable
 fun SubredditNavigateField(onNavigate: (String) -> Unit) {
     val focusIdentifier = "subredditnavigate"
-    val focusManager = ambient(FocusManagerAmbient)
+    val focusManager = FocusManagerAmbient.current
     Clickable({ focusManager.requestFocusById(focusIdentifier) }) {
         Container(LayoutWidth.Fill + LayoutPadding(left = 16.dp, right = 16.dp), height = 96.dp) {
             Column {
