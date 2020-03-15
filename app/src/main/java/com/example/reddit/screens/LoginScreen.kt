@@ -2,7 +2,6 @@ package com.example.reddit.screens
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.Text
 import androidx.ui.core.TextField
 import androidx.ui.graphics.Color

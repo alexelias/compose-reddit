@@ -7,10 +7,9 @@ import androidx.ui.animation.animatedColor
 import androidx.ui.core.*
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.selection.Toggleable
-import androidx.ui.foundation.shape.DrawShape
-import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.compositeOver
 import androidx.ui.graphics.vector.DrawVector
 import androidx.ui.layout.*
 import androidx.ui.material.MaterialTheme
@@ -32,7 +31,7 @@ fun ThumbnailPost(id: String, title: String, score: Int, author: String, comment
     val voteStatus = state<Boolean?> { null }
     val upvoteColor = Color(0xFFFF8B60)
     val downvoteColor = Color(0xFF9494FF)
-    val fadedPrimary = MaterialTheme.colors().fadedPrimary
+    val fadedPrimary = MaterialTheme.colors().fadedPrimary.compositeOver(Color.White)
     val cardColor = when (voteStatus.value) {
         null -> fadedPrimary
         true -> upvoteColor
@@ -51,8 +50,7 @@ fun ThumbnailPost(id: String, title: String, score: Int, author: String, comment
     // work so that whatever item is taller decides the height of this row, and then
     // the individual parts can be flexible within that overall space.
     Container(LayoutPadding(10.dp) + LayoutWidth.Fill) {
-        Card(color = Color.White, shape = RoundedCornerShape(10.dp), elevation = 2.dp) {
-            DrawShape(shape = RectangleShape, color = animatedColor.value)
+        Card(color = animatedColor.value, shape = RoundedCornerShape(10.dp), elevation = 2.dp) {
             PostContent(id, title, score, author, comments, voteStatus, image)
         }
     }
@@ -234,7 +232,7 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
             }) {
                 // Extra wrap so clickable wraps the spacing too
                 Wrap {
-                    Container(modifier = LayoutWidth.Fill + LayoutPadding(left = 10.dp)) {
+                    Container(modifier = LayoutWidth.Fill + LayoutPadding(start = 10.dp)) {
                         HackedRow(inflexibleWidthSection = {
                             if (image != null) {
                                 Image(
@@ -246,7 +244,7 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
                                 Container { }
                             }
                         }, mainCard = {
-                            Column(LayoutWidth.Fill + LayoutHeight.Min(100.dp) + LayoutPadding(top = 5.dp, bottom = 5.dp, right = 5.dp)) {
+                            Column(LayoutWidth.Fill + LayoutHeight.Min(100.dp) + LayoutPadding(top = 5.dp, bottom = 5.dp, end = 5.dp)) {
                                 Text(title, style = MaterialTheme.typography().subtitle1, maxLines = 3, overflow = TextOverflow.Ellipsis)
                                 Spacer(LayoutFlexible(1f))
                                 Spacer(LayoutHeight(5.dp))

@@ -3,24 +3,20 @@ package com.example.reddit.navigation
 import android.os.Bundle
 import androidx.compose.Composable
 import androidx.compose.FrameManager
-import androidx.compose.Model
+import androidx.compose.mutableStateOf
 import androidx.navigation.*
 import java.util.*
 
 private typealias ComposableUnitLambda = @Composable () -> Unit
 private val EmptyRoute: ComposableUnitLambda = {}
 
-@Model
-class ContentHolder(var value: ComposableUnitLambda = EmptyRoute)
-
 @Navigator.Name("compose")
 class ComposableNavigator : Navigator<Destination>() {
 
-    private val stack = Stack<ComposableUnitLambda>()
-    private var content = ContentHolder()
+    private val stack = Stack<@Composable () -> Unit>()
 
-    val current: ComposableUnitLambda
-        get() = content.value
+    var current by mutableStateOf<@Composable () -> Unit>({})
+        private set
 
     override fun createDestination(): Destination {
         return Destination(this)
@@ -31,7 +27,7 @@ class ComposableNavigator : Navigator<Destination>() {
             return false
         }
 
-        content.value = stack.pop()
+        current = stack.pop()
         return true
     }
 
@@ -46,11 +42,11 @@ class ComposableNavigator : Navigator<Destination>() {
         // We always add the destination to back stack for now.
 
         // We don't want to navigate back to the Placeholder, so we don't push it to the back stack.
-        if (content.value !== EmptyRoute) {
-            stack.push(content.value)
+        if (current !== EmptyRoute) {
+            stack.push(current)
         }
 
-        content.value = destination.content
+        current = destination.content
 
         return destination
     }
@@ -83,7 +79,7 @@ fun NavGraphBuilder.route(
 class DestinationBuilder(
     navigator: ComposableNavigator,
     id: Int,
-    val content: @Composable () -> Unit)
+    private val content: @Composable () -> Unit)
     : NavDestinationBuilder<Destination>(navigator, id) {
 
     override fun build(): Destination {

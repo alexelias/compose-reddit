@@ -7,10 +7,10 @@ import androidx.ui.animation.animatedColor
 import androidx.ui.core.*
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.selection.Toggleable
-import androidx.ui.foundation.shape.DrawShape
 import androidx.ui.foundation.shape.RectangleShape
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.graphics.Color
+import androidx.ui.graphics.compositeOver
 import androidx.ui.graphics.vector.DrawVector
 import androidx.ui.layout.*
 import androidx.ui.material.ripple.Ripple
@@ -32,7 +32,7 @@ fun ExpandedPost(id: String, title: String, score: Int, author: String, comments
     val voteStatus = state<Boolean?> { null }
     val upvoteColor = Color(0xFFFF8B60)
     val downvoteColor = Color(0xFF9494FF)
-    val fadedPrimary = MaterialTheme.colors().fadedPrimary
+    val fadedPrimary = MaterialTheme.colors().fadedPrimary.compositeOver(Color.White)
     val cardColor = when (voteStatus.value) {
         null -> fadedPrimary
         true -> upvoteColor
@@ -51,8 +51,7 @@ fun ExpandedPost(id: String, title: String, score: Int, author: String, comments
     // work so that whatever item is taller decides the height of this row, and then
     // the individual parts can be flexible within that overall space.
     Container(LayoutPadding(10.dp) + LayoutWidth.Fill) {
-        Card(color = Color.White, shape = RoundedCornerShape(10.dp), elevation = 2.dp) {
-            DrawShape(shape = RectangleShape, color = animatedColor.value)
+        Card(color = animatedColor.value, shape = RoundedCornerShape(10.dp), elevation = 2.dp) {
             PostContent(id, title, score, author, comments, voteStatus, image, selftext)
         }
     }
@@ -105,7 +104,7 @@ private fun ScoreSection(score: Int, voteStatus: MutableState<Boolean?>) {
             "$adjustedScore points"
         }
         Text(
-            modifier = LayoutPadding(left = 25.dp, right = 25.dp) + LayoutGravity.Center,
+            modifier = LayoutPadding(start = 25.dp, end = 25.dp) + LayoutGravity.Center,
             text = adjustedScoreText,
             style = MaterialTheme.typography().h6.copy(color = MaterialTheme.colors().onPrimary)
         )
@@ -170,8 +169,8 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
                         Column(LayoutWidth.Fill) {
                             Container(
                                 LayoutPadding(
-                                    left = 15.dp,
-                                    right = 15.dp,
+                                    start = 15.dp,
+                                    end = 15.dp,
                                     top = 5.dp,
                                     bottom = 5.dp
                                 )
@@ -189,13 +188,13 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
                                     Text(selftext, style = MaterialTheme.typography().body2, maxLines = 10, overflow = TextOverflow.Ellipsis)
                                 }
                             }
-                            Container(LayoutPadding(left = 15.dp, right = 15.dp)) {
+                            Container(LayoutPadding(start = 15.dp, end = 15.dp)) {
                                 Text(
                                     text = "u/$author",
                                     style = MaterialTheme.typography().overline.copy(fontStyle = FontStyle.Italic)
                                 )
                             }
-                            Container(LayoutPadding(left = 15.dp, right = 15.dp)) {
+                            Container(LayoutPadding(start = 15.dp, end = 15.dp)) {
                                 Text(
                                     text = "$comments comments",
                                     style = MaterialTheme.typography().overline)

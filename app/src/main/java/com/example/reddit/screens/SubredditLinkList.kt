@@ -9,8 +9,8 @@ import androidx.paging.PagedList
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Alignment
 import androidx.ui.core.Opacity
+import androidx.ui.core.Text
 import androidx.ui.foundation.VerticalScroller
-import androidx.ui.geometry.*
 import androidx.ui.graphics.Color
 import androidx.ui.layout.*
 import androidx.ui.material.*
@@ -72,7 +72,7 @@ fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
             Column {
                 TabRow(items = tabs, selectedIndex = selectedSortIndex) { index, name ->
                     Tab(
-                        text = name,
+                        text = { Text(name) },
                         selected = selectedSortIndex == index,
                         onSelected = { selectedSortIndex = index })
                 }

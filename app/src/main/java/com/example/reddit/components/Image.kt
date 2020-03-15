@@ -5,17 +5,17 @@ import android.graphics.drawable.Drawable
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.Composable
+import androidx.compose.emptyContent
 import androidx.compose.onCommit
 import androidx.compose.state
-import androidx.compose.unaryPlus
 import androidx.ui.core.*
-import androidx.ui.geometry.Offset
-import androidx.ui.foundation.DrawImage
-import androidx.ui.foundation.shape.DrawShape
-import androidx.ui.foundation.shape.RectangleShape
+import androidx.ui.foundation.Box
+import androidx.ui.foundation.Canvas
+import androidx.ui.foundation.DrawBackground
 import androidx.ui.graphics.*
 import androidx.ui.graphics.colorspace.ColorSpace
 import androidx.ui.graphics.colorspace.ColorSpaces
+import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.layout.*
 import androidx.ui.tooling.preview.Preview
 import androidx.ui.unit.*
@@ -179,43 +179,27 @@ fun Image(
         else -> Modifier.None
     }
 
-    Row(modifier = modifier + imageModifier) {
-        val theImage = image
-        val theDrawable = drawable
-        if (theImage != null) {
-            DrawImage(image = theImage)
-        } else if (theDrawable != null) {
-            Draw { canvas, _ -> theDrawable.draw(canvas.nativeCanvas) }
-        } else {
-            DrawShape(shape = RectangleShape, color = Color.LightGray)
+    if (image == null && drawable != null) {
+        Canvas(modifier = modifier + imageModifier) {
+            drawable!!.draw(nativeCanvas)
         }
-    }
-}
-
-val p = Paint()
-
-@Composable
-fun DrawImage2(image: Image) {
-    Draw { canvas, _ ->
-        canvas.drawImage(image, Offset.zero, p)
+    } else {
+        val drawModifier = if (image != null) ImagePainter(image!!).toModifier() else DrawBackground(Color.LightGray)
+        Box(modifier = modifier + imageModifier + drawModifier, children = emptyContent())
     }
 }
 
 @Preview("playground")
 @Composable fun TestLayout() {
-    Container(width = 300.dp, height = 600.dp, alignment = Alignment.TopLeft) {
-        background(color = Color.Blue)
+    Container(modifier = DrawBackground(color = Color.Blue), width = 300.dp, height = 600.dp, alignment = Alignment.TopStart) {
         Column {
-            Row {
-                background(color = Color.Red)
-                Column {
-                    background(color = Color.Green)
+            Row(modifier = DrawBackground(color = Color.Red)) {
+                Column(modifier = DrawBackground(color = Color.Green)) {
                     Text(text = "One")
                     Text(text = "Two")
                     Text(text = "Three")
                 }
-                Column {
-                    background(color = Color.Yellow)
+                Column(modifier = DrawBackground(color = Color.Yellow)) {
                     Text(text = "One")
                     Text(text = "Two")
                     Text(text = "Three")
@@ -227,8 +211,4 @@ fun DrawImage2(image: Image) {
                 )
         }
     }
-}
-
-@Composable fun background(color: Color) {
-    DrawShape(shape = RectangleShape, color = color)
 }

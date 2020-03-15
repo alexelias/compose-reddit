@@ -5,6 +5,7 @@ import androidx.animation.TweenBuilder
 import androidx.compose.*
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.*
+import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.foundation.Clickable
 import androidx.ui.foundation.VerticalScroller
@@ -179,7 +180,7 @@ fun LinkCard(
 }
 
 @Composable fun CommentEndCap() {
-    Column(LayoutPadding(left = 10.dp, right = 10.dp)) {
+    Column(LayoutPadding(start = 10.dp, end = 10.dp)) {
         Card(color = Color.White, shape = RoundedCornerShape(0.dp, 0.dp, 10.dp, 10.dp), elevation = 0.dp) {
             Column(LayoutPadding(top = 10.dp) + LayoutWidth.Fill) {
             }
@@ -196,12 +197,12 @@ fun LinkCard(
         else -> RectangleShape
     }
     val outerLayoutPadding = when (depth) {
-        0 -> LayoutPadding(top = 10.dp, left = 10.dp, right = 10.dp)
-        else -> LayoutPadding(left = 10.dp, right = 10.dp)
+        0 -> LayoutPadding(top = 10.dp, start = 10.dp, end = 10.dp)
+        else -> LayoutPadding(start = 10.dp, end = 10.dp)
     }
     val innerLayoutPadding = when (depth) {
-        0 -> LayoutPadding(left = 10.dp, top = 10.dp, right = 10.dp)
-        else -> LayoutPadding(left = 10.dp * (depth + 1), top = 10.dp, right = 10.dp)
+        0 -> LayoutPadding(start = 10.dp, top = 10.dp, end = 10.dp)
+        else -> LayoutPadding(start = 10.dp * (depth + 1), top = 10.dp, end = 10.dp)
     }
     Column(outerLayoutPadding) {
         Card(color = Color.White, shape = shape, elevation = 0.dp) {
@@ -223,13 +224,14 @@ fun LinkCard(
 
 val indentsPaint = Paint()
 
-@Composable fun DrawIndents(depth: Int) {
-    Draw { canvas, size ->
+@Composable
+fun DrawIndents(depth: Int) {
+    Canvas(modifier = LayoutSize.Fill) {
         val dist = 10.dp.toPx().value
 
         for (i in 1..depth) {
             indentsPaint.color = Color.DarkGray.copy(alpha = 1f - (i * 10f) / 60f )
-            canvas.drawLine(
+            drawLine(
                 Offset(i * dist, if (i == depth) dist else 0f),
                 Offset(i * dist, size.height.value),
                 indentsPaint

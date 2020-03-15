@@ -1,32 +1,28 @@
 package com.example.reddit
 
 import android.app.Activity
+import android.view.View
 import android.view.Window
-import androidx.animation.*
+import androidx.animation.LinearEasing
+import androidx.animation.TweenBuilder
 import androidx.compose.*
 import androidx.core.os.bundleOf
-import androidx.compose.Composable
-import androidx.compose.unaryPlus
 import androidx.navigation.NavGraphBuilder
-import androidx.ui.animation.*
-import androidx.ui.core.*
+import androidx.ui.animation.animatedColor
+import androidx.ui.core.FocusManagerAmbient
+import androidx.ui.core.Text
+import androidx.ui.core.TextField
 import androidx.ui.foundation.Clickable
-import androidx.ui.geometry.*
 import androidx.ui.graphics.Color
-import androidx.ui.graphics.lerp
 import androidx.ui.graphics.toArgb
 import androidx.ui.graphics.vector.DrawVector
 import androidx.ui.input.ImeAction
 import androidx.ui.layout.*
 import androidx.ui.material.*
-import androidx.ui.unit.*
-import androidx.ui.layout.Column
-import androidx.ui.layout.Container
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.TopAppBar
 import androidx.ui.material.ripple.Ripple
 import androidx.ui.material.surface.Surface
 import androidx.ui.res.vectorResource
+import androidx.ui.unit.dp
 import com.example.reddit.api.RedditApi
 import com.example.reddit.data.RedditRepository
 import com.example.reddit.data.RedditRepositoryImpl
@@ -162,6 +158,7 @@ fun DrawerContent(closeDrawer: () -> Unit) {
     }
 }
 
+@Composable
 private fun DrawerDivider() {
     Container(padding = EdgeInsets(left = 8.dp, right = 8.dp)) {
         Divider(color = Color(0xFFCCCCCC))
@@ -187,7 +184,7 @@ fun SubredditNavigateField(onNavigate: (String) -> Unit) {
     val focusIdentifier = "subredditnavigate"
     val focusManager = FocusManagerAmbient.current
     Clickable({ focusManager.requestFocusById(focusIdentifier) }) {
-        Container(LayoutWidth.Fill + LayoutPadding(left = 16.dp, right = 16.dp), height = 96.dp) {
+        Container(LayoutWidth.Fill + LayoutPadding(start = 16.dp, end = 16.dp), height = 96.dp) {
             Column {
                 var text by state { "" }
                 Text("Enter subreddit")
@@ -211,11 +208,11 @@ fun MainContent(subreddit: String, openDrawer: () -> Unit, children: @Composable
     Column(LayoutHeight.Fill) {
         TopAppBar(title = { Text("/r/$subreddit") }, navigationIcon = {
             VectorAppBarIcon(R.drawable.ic_menu, openDrawer)
-        }, actionData = listOf(R.drawable.ic_baseline_view_agenda_24)) { resId ->
-            VectorAppBarIcon(resId) {
+        }, actions = {
+            VectorAppBarIcon(R.drawable.ic_baseline_view_agenda_24) {
                 LinkStyle.thumbnails = !LinkStyle.thumbnails
             }
-        }
+        })
         Container(LayoutFlexible(1f)) {
             Surface {
                 Container(LayoutSize.Fill, children = children)
