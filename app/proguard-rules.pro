@@ -19,3 +19,14 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-dontobfuscate
+-dontshrink  # workaround for:
+# java.lang.NullPointerException: throw with null exception
+#        at com.example.reddit.data.PageKeyedSubredditDataSource.loadInitial(SubredditModel.kt:21)
+#        at androidx.paging.PageKeyedDataSource.dispatchLoadInitial(PageKeyedDataSource.java:2)
+#        at androidx.paging.ContiguousPagedList.<init>(ContiguousPagedList.java:10)
+#        at androidx.paging.PagedList.create(PagedList.java:9)
+
+#-keep class androidx.paging.** { *; }
+#-keep interface androidx.paging.** { *; }
