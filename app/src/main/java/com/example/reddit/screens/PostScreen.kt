@@ -7,25 +7,19 @@ import androidx.ui.animation.animatedFloat
 import androidx.ui.core.*
 import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Offset
-import androidx.ui.foundation.Clickable
-import androidx.ui.foundation.VerticalScroller
-import androidx.ui.foundation.shape.RectangleShape
-import androidx.ui.foundation.shape.corner.RoundedCornerShape
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Paint
+import androidx.ui.foundation.*
+import androidx.ui.foundation.shape.corner.*
+import androidx.ui.graphics.*
+import androidx.ui.graphics.drawscope.Stroke
 import androidx.ui.layout.*
-import androidx.ui.material.ripple.Ripple
-import androidx.ui.material.surface.Card
-import androidx.ui.text.TextStyle
-import androidx.ui.text.font.FontStyle
-import androidx.ui.text.font.FontWeight
+import androidx.ui.material.*
+import androidx.ui.text.*
+import androidx.ui.text.font.*
 import androidx.ui.unit.*
 import com.example.reddit.Ambients
 import com.example.reddit.components.Image
 import com.example.reddit.components.TimeAgo
 import com.example.reddit.data.*
-import com.example.reddit.screens.Colors2.TEXT_DARK
-import com.example.reddit.screens.Colors2.TEXT_MUTED
 
 @Composable
 fun PostScreen(linkId: String, pageSize: Int = 10, initialLink: Link? = null) {
@@ -37,7 +31,7 @@ fun PostScreen(linkId: String, pageSize: Int = 10, initialLink: Link? = null) {
     val networkState = subscribe(linkModel.networkState)
 
     val isLoading = networkState == AsyncState.LOADING
-    Stack(LayoutSize.Fill) {
+    Stack(Modifier.fillMaxSize()) {
         // Controls fade out of the progress spinner
         val opacity = animatedFloat(1f)
 
@@ -57,9 +51,7 @@ fun PostScreen(linkId: String, pageSize: Int = 10, initialLink: Link? = null) {
         if (opacity.value == 0f) {
             ScrollingContent(link, linkModel, comments)
         } else {
-            Opacity(opacity.value) {
-                LoadingIndicator()
-            }
+            LoadingIndicator(opacity.value)
         }
     }
 }
@@ -67,7 +59,7 @@ fun PostScreen(linkId: String, pageSize: Int = 10, initialLink: Link? = null) {
 @Composable
 fun ScrollingContent(link: Link?, linkModel: LinkModel, comments: List<HierarchicalThing>?) {
     VerticalScroller {
-        Column(LayoutHeight.Fill + LayoutAlign.Top) {
+        Column(Modifier.fillMaxHeight()) {
             if (link != null) {
                 LinkCard(
                     title = link.title,
@@ -127,11 +119,11 @@ fun LinkCard(
     createdAt: Long,
     comments: Int
 ) {
-    Column(LayoutPadding(10.dp) + LayoutWidth.Fill) {
-        Card(color = Color.White, shape = RoundedCornerShape(10.dp), elevation = 2.dp) {
+    Column(Modifier.padding(10.dp).fillMaxWidth()) {
+        Card(shape = RoundedCornerShape(10.dp), elevation = 2.dp) {
             Column {
-                Column(LayoutPadding(all = 10.dp)) {
-                    Text(text = title, style = TextStyle(color = TEXT_DARK, fontSize = 21.sp))
+                Column(Modifier.padding(all = 10.dp)) {
+                    Text(text = title, style = TextStyle(fontSize = 21.sp))
                 }
 
                 if (image != null) {
@@ -142,18 +134,20 @@ fun LinkCard(
                     )
                 }
 
-                Row(LayoutPadding(all = 10.dp)) {
-                    Text(text = author, style = TextStyle(fontWeight = FontWeight.Bold, color = TEXT_MUTED))
-                    if (score != 0) {
+                Row(Modifier.padding(all = 10.dp)) {
+                    ProvideEmphasis(EmphasisAmbient.current.medium) {
+                        Text(text = author, style = TextStyle(fontWeight = FontWeight.Bold))
+                        if (score != 0) {
+                            Bullet()
+                            Text(text = "$score")
+                        }
                         Bullet()
-                        Text(text = "$score", style = TextStyle(color = TEXT_MUTED))
+                        TimeAgo(date = createdAt)
                     }
-                    Bullet()
-                    TimeAgo(date = createdAt, style = TextStyle(color = TEXT_MUTED))
                 }
             }
         }
-        Column(LayoutPadding(top = 24.dp)) {
+        Column(Modifier.padding(top = 24.dp)) {
             Text("Comments ($comments)", style = TextStyle(fontSize = 20.sp))
         }
     }
@@ -180,9 +174,9 @@ fun LinkCard(
 }
 
 @Composable fun CommentEndCap() {
-    Column(LayoutPadding(start = 10.dp, end = 10.dp)) {
-        Card(color = Color.White, shape = RoundedCornerShape(0.dp, 0.dp, 10.dp, 10.dp), elevation = 0.dp) {
-            Column(LayoutPadding(top = 10.dp) + LayoutWidth.Fill) {
+    Column(Modifier.padding(start = 10.dp, end = 10.dp)) {
+        Card(shape = RoundedCornerShape(0.dp, 0.dp, 10.dp, 10.dp), elevation = 0.dp) {
+            Column(Modifier.padding(top = 10.dp).fillMaxWidth()) {
             }
         }
     }
@@ -196,64 +190,41 @@ fun LinkCard(
         0 -> RoundedCornerShape(10.dp, 10.dp, 0.dp, 0.dp)
         else -> RectangleShape
     }
-    val outerLayoutPadding = when (depth) {
-        0 -> LayoutPadding(top = 10.dp, start = 10.dp, end = 10.dp)
-        else -> LayoutPadding(start = 10.dp, end = 10.dp)
+    val outerpadding = when (depth) {
+        0 -> Modifier.padding(top = 10.dp, start = 10.dp, end = 10.dp)
+        else -> Modifier.padding(start = 10.dp, end = 10.dp)
     }
-    val innerLayoutPadding = when (depth) {
-        0 -> LayoutPadding(start = 10.dp, top = 10.dp, end = 10.dp)
-        else -> LayoutPadding(start = 10.dp * (depth + 1), top = 10.dp, end = 10.dp)
+    val innerpadding = when (depth) {
+        0 -> Modifier.padding(start = 10.dp, top = 10.dp, end = 10.dp)
+        else -> Modifier.padding(start = 10.dp * (depth + 1), top = 10.dp, end = 10.dp)
     }
-    Column(outerLayoutPadding) {
-        Card(color = Color.White, shape = shape, elevation = 0.dp) {
-            Ripple(
-                bounded = false,
-                color = Color.Blue,
-                enabled = enabled
-            ) {
-                Clickable(onClick = onClick) {
-                    Column(innerLayoutPadding + LayoutWidth.Fill) {
-                        children()
-                    }
-                }
+    Column(outerpadding) {
+        Card(shape = shape, elevation = 2.dp) {
+            Column(innerpadding.clickable(enabled = enabled, onClick = onClick).fillMaxWidth()) {
+                children()
             }
         }
         DrawIndents(depth)
     }
 }
 
-val indentsPaint = Paint()
-
 @Composable
 fun DrawIndents(depth: Int) {
-    Canvas(modifier = LayoutSize.Fill) {
+    Canvas(modifier = Modifier.fillMaxSize()) {
         val dist = 10.dp.toPx().value
 
         for (i in 1..depth) {
-            indentsPaint.color = Color.DarkGray.copy(alpha = 1f - (i * 10f) / 60f )
             drawLine(
-                Offset(i * dist, if (i == depth) dist else 0f),
-                Offset(i * dist, size.height.value),
-                indentsPaint
+                color = Color.DarkGray.copy(alpha = 1f - (i * 10f) / 60f),
+                p1 = Offset(i * dist, if (i == depth) dist else 0f),
+                p2 = Offset(i * dist, size.height),
+                stroke = Stroke()
             )
         }
     }
 }
 
 val String.color get() = Color(android.graphics.Color.parseColor(this))
-
-object Colors2 {
-
-    // Brand Colors
-    val BLACK = "#212122".color
-    val DARK_GRAY = "#888888".color
-    val ORANGE_RED = "#FF4500".color
-
-    // Semantic Colors
-    val TEXT_DARK = BLACK
-    val TEXT_MUTED = DARK_GRAY
-    val PRIMARY = ORANGE_RED
-}
 
 @Composable fun CommentAuthorLine(
     author: String,
@@ -262,22 +233,24 @@ object Colors2 {
     collapseCount: Int = 0
 ) {
     Row {
-        Text(text = author, style = TextStyle(fontWeight = FontWeight.Bold, color = TEXT_MUTED))
-        if (score != 0) {
+        ProvideEmphasis(EmphasisAmbient.current.medium) {
+            Text(text = author, style = TextStyle(fontWeight = FontWeight.Bold))
+            if (score != 0) {
+                Bullet()
+                Text(text = "$score")
+            }
             Bullet()
-            Text(text = "$score", style = TextStyle(color = TEXT_MUTED))
-        }
-        Bullet()
-        TimeAgo(date = createdUtc, style = TextStyle(color = TEXT_MUTED))
-        // TODO(lmr): do a better job here
-        if (collapseCount != 0) {
-            Text(text = "$collapseCount")
+            TimeAgo(date = createdUtc)
+            // TODO(lmr): do a better job here
+            if (collapseCount != 0) {
+                Text(text = "$collapseCount")
+            }
         }
     }
 }
 
 @Composable
 fun Bullet() {
-    Text(text = " · ", style = TextStyle(color = TEXT_MUTED))
+    Text(text = " · ")
 }
 

@@ -1,5 +1,6 @@
 package com.example.reddit
 
+import android.os.Bundle
 import androidx.compose.ambientOf
 import androidx.navigation.NavController
 import com.example.reddit.api.RedditApi
@@ -11,6 +12,6 @@ object Ambients {
     val Repository = ambientOf<RedditRepository>()
     val Api = ambientOf<RedditApi>()
     val AuthenticationService = ambientOf<AuthenticationService>()
-    val Navigator = ambientOf<ComposableNavigator>()
+    val NavArguments = ambientOf<Bundle?> { null }
     val NavController = ambientOf<NavController>()
 }

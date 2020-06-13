@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
-def compose_version = "0.1.0-dev06"
+def compose_version = "0.1.0-dev13"
 
 android {
     compileSdkVersion 29
@@ -37,9 +37,11 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
+        apiVersion = "1.3"
     }
 
     composeOptions {
+       kotlinCompilerVersion "1.3.70-dev-withExperimentalGoogleExtensions-20200424"
        kotlinCompilerExtensionVersion compose_version
     }
 }
@@ -55,10 +57,11 @@ dependencies {
     def core_ktx_version = "1.2.0"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     implementation "androidx.ui:ui-geometry:$compose_version"
     implementation "androidx.ui:ui-layout:$compose_version"
     implementation "androidx.ui:ui-material:$compose_version"
+    implementation "androidx.ui:ui-material-icons-extended:$compose_version"
     implementation "androidx.ui:ui-tooling:$compose_version"
     implementation "androidx.ui:ui-unit:$compose_version"
     implementation "androidx.paging:paging-runtime-ktx:$paging_version"

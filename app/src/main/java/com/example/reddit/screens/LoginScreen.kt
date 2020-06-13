@@ -2,33 +2,32 @@ package com.example.reddit.screens
 
 import androidx.compose.Composable
 import androidx.compose.state
-import androidx.ui.core.Text
-import androidx.ui.core.TextField
+import androidx.ui.core.*
+import androidx.ui.foundation.*
 import androidx.ui.graphics.Color
 import androidx.ui.layout.*
 import androidx.ui.unit.*
-import androidx.ui.material.Button
-import androidx.ui.material.Divider
+import androidx.ui.material.*
 
 @Composable
 fun LoginScreen() {
     val username = state { "" }
     val password = state { "" }
-    Column(LayoutHeight.Fill + LayoutPadding(16.dp)) {
+    Column(Modifier.fillMaxHeight().padding(16.dp)) {
         val dividerColor = Color(0xFFAAAAAA)
 
-        Text("Username")
-        TextField(
+        FilledTextField(
             value = username.value,
-            onValueChange = { value -> username.value = value}
+            onValueChange = { value -> username.value = value},
+            label = { Text("Username") }
         )
         Divider(color = dividerColor)
         Spacer()
 
-        Text("Password")
-        TextField(
+        FilledTextField(
             value = password.value,
-            onValueChange = { value -> password.value = value}
+            onValueChange = { value -> password.value = value},
+            label = { Text("Password") }
         )
         Divider(color = dividerColor)
         Spacer()
@@ -41,5 +40,5 @@ fun LoginScreen() {
 
 @Composable
 private fun Spacer() {
-    Container(height = 16.dp) {}
+    Box(Modifier.preferredHeight(16.dp)) {}
 }

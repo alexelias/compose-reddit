@@ -1,11 +1,9 @@
 package com.example.reddit.navigation
 
 import android.os.Bundle
-import androidx.compose.Composable
-import androidx.compose.FrameManager
-import androidx.compose.mutableStateOf
+import androidx.compose.*
 import androidx.navigation.*
-import java.util.*
+import java.util.Stack
 
 private typealias ComposableUnitLambda = @Composable () -> Unit
 private val EmptyRoute: ComposableUnitLambda = {}
@@ -17,6 +15,8 @@ class ComposableNavigator : Navigator<Destination>() {
 
     var current by mutableStateOf<@Composable () -> Unit>({})
         private set
+
+    var args by mutableStateOf<Bundle?>(null)
 
     override fun createDestination(): Destination {
         return Destination(this)
@@ -45,6 +45,8 @@ class ComposableNavigator : Navigator<Destination>() {
         if (current !== EmptyRoute) {
             stack.push(current)
         }
+
+        this.args = args
 
         current = destination.content
 

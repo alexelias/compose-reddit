@@ -3,24 +3,24 @@ package com.example.reddit
 import android.app.Activity
 import android.view.View
 import android.view.Window
+import androidx.animation.AnimationBuilder
 import androidx.animation.LinearEasing
 import androidx.animation.TweenBuilder
 import androidx.compose.*
 import androidx.core.os.bundleOf
 import androidx.navigation.NavGraphBuilder
-import androidx.ui.animation.animatedColor
-import androidx.ui.core.FocusManagerAmbient
-import androidx.ui.core.Text
-import androidx.ui.core.TextField
-import androidx.ui.foundation.Clickable
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.toArgb
-import androidx.ui.graphics.vector.DrawVector
+import androidx.ui.animation.*
+import androidx.ui.core.*
+import androidx.ui.core.focus.*
+import androidx.ui.foundation.*
+import androidx.ui.graphics.*
+import androidx.ui.graphics.vector.*
 import androidx.ui.input.ImeAction
 import androidx.ui.layout.*
 import androidx.ui.material.*
-import androidx.ui.material.ripple.Ripple
-import androidx.ui.material.surface.Surface
+import androidx.ui.material.icons.*
+import androidx.ui.material.icons.filled.*
+import androidx.ui.material.Surface
 import androidx.ui.res.vectorResource
 import androidx.ui.unit.dp
 import com.example.reddit.api.RedditApi
@@ -70,11 +70,12 @@ class MainActivity : ComposeActivity() {
     }
 }
 
-@Model
 object LinkStyle {
-    var thumbnails = true
+    var thumbnails by mutableStateOf(true)
 }
 
+// TODO(aelias): This crashes with "setValue doesn't exist" if I change it to "by mutableStateOf"
+@Suppress("DEPRECATION")
 @Model
 object SubredditTheme {
     var accentColor = Color.White
@@ -86,27 +87,28 @@ object SubredditTheme {
  */
 @Composable
 fun AppTheme(window: Window? = null, children: @Composable () -> Unit) {
-    val primary = animatedColor(SubredditTheme.accentColor)
+    val primary = animate(SubredditTheme.accentColor)
+    val isDark = isSystemInDarkTheme()
 
-    onCommit(SubredditTheme.accentColor) {
-        primary.animateTo(SubredditTheme.accentColor, TweenBuilder<Color>().apply {
-            easing = LinearEasing
-            duration = 500
-        })
+    val isLightStatusBar = SubredditTheme.accentColor == Color.White && !isDark
+    val onPrimary = if (isLightStatusBar) Color.Black else Color.White
+    val colors = if (isDark) {
+        darkColorPalette(
+            primary = primary,
+            onPrimary = onPrimary,
+        )
+    } else {
+        lightColorPalette(
+            primary = primary,
+            onPrimary = onPrimary,
+        )
     }
 
-    val onPrimary = if (primary.targetValue == Color.White) Color.Black else Color.White
-    val surface = Color(0xFFF1F1F1)
-    val isLightStatusBar = primary.targetValue == Color.White
-    val colors = lightColorPalette(
-        primary = primary.value,
-        onPrimary = onPrimary,
-        surface = surface
-    )
-
     window?.run {
-        statusBarColor = primary.value.toArgb()
-        navigationBarColor = surface.toArgb()
+        val sysUiColor = if (isDark) colors.surface else primary
+        val animatedSysUiColor = animate(sysUiColor)
+        statusBarColor = animatedSysUiColor.toArgb()
+        navigationBarColor = animatedSysUiColor.toArgb()
         decorView.run {
             val someFlags = if (isLightStatusBar) {
                 View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
@@ -117,7 +119,7 @@ fun AppTheme(window: Window? = null, children: @Composable () -> Unit) {
         }
     }
 
-    MaterialTheme(colors, children = children)
+    MaterialTheme(colors, content = children)
 }
 
 // Washed out version of primary colour used for the score surface
@@ -128,13 +130,29 @@ val ColorPalette.fadedOnPrimary get() = onPrimary.copy(alpha = 0.55f)
 
 @Composable
 fun Scaffold(subreddit: String, children: @Composable () -> Unit) {
-    val (state, toggleDrawer) = state { DrawerState.Closed }
-    ModalDrawerLayout(
-        drawerState = state,
-        onStateChange = toggleDrawer,
-        gesturesEnabled = false,
-        drawerContent = { DrawerContent { toggleDrawer(DrawerState.Closed) } },
-        bodyContent = { MainContent(subreddit, { toggleDrawer(DrawerState.Opened) }, children) }
+    val scaffoldState = remember { ScaffoldState() }
+    Scaffold(
+        scaffoldState = scaffoldState,
+        topAppBar = {
+            TopAppBar(
+                title = { Text("/r/$subreddit") }, navigationIcon = {
+                IconButton(onClick = { scaffoldState.drawerState = DrawerState.Opened } ) {
+                    Icon(Icons.Filled.Menu)
+                }
+            }, actions = {
+                IconButton(onClick = {
+                    LinkStyle.thumbnails = !LinkStyle.thumbnails
+                }) {
+                    Icon(Icons.Filled.ViewAgenda)
+                }
+            })
+        },
+        drawerContent = {
+            DrawerContent { scaffoldState.drawerState = DrawerState.Closed }
+        },
+        bodyContent = {
+            children()
+        }
     )
 }
 
@@ -145,7 +163,7 @@ fun DrawerContent(closeDrawer: () -> Unit) {
         navigator.navigate(R.id.home_screen, bundleOf("subreddit" to subreddit))
         closeDrawer()
     }
-    Column(LayoutHeight.Fill) {
+    Column(Modifier.fillMaxHeight()) {
         LoginOrAccountItem(closeDrawer)
         DrawerDivider()
         SubredditNavigateField(onNavigate)
@@ -160,7 +178,7 @@ fun DrawerContent(closeDrawer: () -> Unit) {
 
 @Composable
 private fun DrawerDivider() {
-    Container(padding = EdgeInsets(left = 8.dp, right = 8.dp)) {
+    Box(paddingStart = 8.dp, paddingEnd = 8.dp) {
         Divider(color = Color(0xFFCCCCCC))
     }
 }
@@ -181,60 +199,21 @@ fun SubredditLink(subreddit: String, onNavigate: (String) -> Unit) {
 
 @Composable
 fun SubredditNavigateField(onNavigate: (String) -> Unit) {
-    val focusIdentifier = "subredditnavigate"
-    val focusManager = FocusManagerAmbient.current
-    Clickable({ focusManager.requestFocusById(focusIdentifier) }) {
-        Container(LayoutWidth.Fill + LayoutPadding(start = 16.dp, end = 16.dp), height = 96.dp) {
-            Column {
-                var text by state { "" }
-                Text("Enter subreddit")
-                TextField(
-                    value = text,
-                    onValueChange = { text = it },
-                    imeAction = ImeAction.Go,
-                    focusIdentifier = focusIdentifier,
-                    onImeActionPerformed = {
-                        onNavigate(text)
-                    }
-                )
-                Divider()
-            }
-        }
-    }
-}
-
-@Composable
-fun MainContent(subreddit: String, openDrawer: () -> Unit, children: @Composable () -> Unit) {
-    Column(LayoutHeight.Fill) {
-        TopAppBar(title = { Text("/r/$subreddit") }, navigationIcon = {
-            VectorAppBarIcon(R.drawable.ic_menu, openDrawer)
-        }, actions = {
-            VectorAppBarIcon(R.drawable.ic_baseline_view_agenda_24) {
-                LinkStyle.thumbnails = !LinkStyle.thumbnails
-            }
-        })
-        Container(LayoutFlexible(1f)) {
-            Surface {
-                Container(LayoutSize.Fill, children = children)
-            }
-        }
-    }
-}
-
-@Composable
-private fun VectorAppBarIcon(resId: Int, onClick: () -> Unit) {
-    val vectorAsset = vectorResource(resId)
-    // Copied from AppBarIcon which doesn't support vector resources ATM
-    Ripple(bounded = false, radius = 24.dp) {
-        Clickable(onClick) {
-            // App bar has some default padding so touch target doesn't really work
-            Container(height = 48.dp, width = 24.dp) {
-                Container(width = 24.dp, height = 24.dp) {
-                    DrawVector(
-                        vectorImage = vectorAsset,
-                        tintColor = MaterialTheme.colors().onPrimary)
+    val focusModifier = FocusModifier()
+    Box(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp).preferredHeight(96.dp)) {
+        Column {
+            var text by state { "" }
+            FilledTextField(
+                modifier = focusModifier,
+                value = text,
+                onValueChange = { text = it },
+                label = { Text("Enter subreddit") },
+                imeAction = ImeAction.Go,
+                onImeActionPerformed = { _, _ ->
+                    onNavigate(text)
                 }
-            }
+            )
+            Divider()
         }
     }
 }

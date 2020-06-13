@@ -8,9 +8,9 @@ import androidx.lifecycle.Observer
 import androidx.paging.PagedList
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.Alignment
-import androidx.ui.core.Opacity
-import androidx.ui.core.Text
-import androidx.ui.foundation.VerticalScroller
+import androidx.ui.core.Modifier
+import androidx.ui.core.drawOpacity
+import androidx.ui.foundation.*
 import androidx.ui.graphics.Color
 import androidx.ui.layout.*
 import androidx.ui.material.*
@@ -64,24 +64,43 @@ fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
 
     val isLoading = networkState == AsyncState.LOADING || links == null
 
-    val tabs = listOf("Hot", "New", "Top")
+    val tabs = listOf("HOT", "NEW", "TOP")
 
-    Container(LayoutSize.Fill, alignment = Alignment.TopCenter) {
+    Box(Modifier.fillMaxSize().wrapContentSize(Alignment.TopCenter)) {
         // 'fake' tabs hiding
         VerticalScroller {
             Column {
-                TabRow(items = tabs, selectedIndex = selectedSortIndex) { index, name ->
+                // TODO(lpf): maybe TabRow needs to expose elevation?
+                // Although conceptually it should actually be inside the app bar, not below...
+                // Need this here to ensure we get the correct elevation overlay in dark theme to
+                // match the app bar
+                Surface(color = MaterialTheme.colors.primarySurface, elevation = 4.dp) {
+                TabRow(
+                    items = tabs, selectedIndex = selectedSortIndex,
+                    indicatorContainer = { tabPositions ->
+                        TabRow.IndicatorContainer(tabPositions, selectedSortIndex) {
+                            val colors = MaterialTheme.colors
+                            val indicatorColor = if (colors.isLight) {
+                                contentColor()
+                            } else {
+                                colors.primary
+                            }
+                            TabRow.Indicator(color = indicatorColor)
+                        }
+                    }
+                ) { index, name ->
                     Tab(
                         text = { Text(name) },
                         selected = selectedSortIndex == index,
                         onSelected = { selectedSortIndex = index })
                 }
+                }
                 // Controls fade out of the progress spinner
                 val opacity = animatedFloat(1f)
 
                 onCommit(isLoading, accentColor) {
-                    if (accentColor != null) SubredditTheme.accentColor = accentColor
                     if (!isLoading) {
+                        SubredditTheme.accentColor = accentColor ?: Color.White
                         opacity.animateTo(0f, anim = TweenBuilder<Float>().apply {
                             easing = FastOutLinearInEasing
                             duration = 500
@@ -95,13 +114,9 @@ fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
                     }
                 }
                 if (opacity.value == 0f) {
-                    PostTheme {
-                        ScrollingContent(links!!)
-                    }
+                    ScrollingContent(links!!)
                 } else {
-                    Opacity(opacity.value) {
-                        LoadingIndicator()
-                    }
+                    LoadingIndicator(opacity.value)
                 }
             }
         }
@@ -112,18 +127,18 @@ val LinkPreview.imageUrl: String?
     get() = images.firstOrNull()?.source?.decodedUrl
 
 @Composable
-fun LoadingIndicator() {
-    Container(LayoutPadding(50.dp) + LayoutWidth.Fill, alignment = Alignment.TopCenter) {
-        val color = SubredditTheme.accentColor
-        val indicatorColor = if (color == Color.White) Color.Black else color
+fun LoadingIndicator(opacity: Float) {
+    Box(Modifier.drawOpacity(opacity).padding(50.dp).fillMaxWidth().wrapContentSize(Alignment.TopCenter)) {
+        val color = MaterialTheme.colors.primary
+        val indicatorColor = if (color == Color.White) MaterialTheme.colors.onSurface else color
         CircularProgressIndicator(color = indicatorColor)
     }
 }
 
 @Composable
 fun ScrollingContent(links: PagedList<Link>) {
-    Column(LayoutHeight.Fill) {
-        Spacer(LayoutHeight(10.dp))
+    Column(Modifier.fillMaxHeight()) {
+        Spacer(Modifier.preferredHeight(10.dp))
         // do stuff here around PagedList...
         for (item in links.snapshot()) {
             with(item) {
@@ -149,16 +164,6 @@ fun ScrollingContent(links: PagedList<Link>) {
                 }
             }
         }
-        Spacer(LayoutHeight(10.dp))
+        Spacer(Modifier.preferredHeight(10.dp))
     }
-}
-
-@Composable
-fun PostTheme(children: @Composable () -> Unit) {
-    // TODO(aelias): Is there a way to start from a copy of ambient MaterialColors instead of
-    // copying the ambient's fields one by one onto a fresh lightColorPalette?
-    val colors = lightColorPalette(primary = MaterialTheme.colors().primary,
-        onPrimary = MaterialTheme.colors().onPrimary,
-        surface = Color.White)
-    MaterialTheme(colors, children = children)
 }

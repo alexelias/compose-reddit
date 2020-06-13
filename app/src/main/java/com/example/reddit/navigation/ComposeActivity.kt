@@ -1,11 +1,10 @@
 package com.example.reddit.navigation
 
-import android.app.Activity
+import androidx.activity.ComponentActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.compose.Composable
 import androidx.compose.Providers
-import androidx.compose.disposeComposition
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.createGraph
@@ -13,7 +12,7 @@ import androidx.navigation.plusAssign
 import androidx.ui.core.setContent
 import com.example.reddit.Ambients
 
-abstract class ComposeActivity : Activity() {
+abstract class ComposeActivity : ComponentActivity() {
     @Composable
     abstract fun content(content: @Composable () -> Unit)
     abstract fun NavGraphBuilder.graph()
@@ -44,7 +43,7 @@ abstract class ComposeActivity : Activity() {
         navController = controller
 
         setContent {
-            Providers(Ambients.NavController provides controller, Ambients.Navigator provides navigator) {
+            Providers(Ambients.NavController provides controller, Ambients.NavArguments provides navigator.args) {
                 content(navigator.current)
             }
         }
@@ -53,6 +52,5 @@ abstract class ComposeActivity : Activity() {
     override fun onDestroy() {
         super.onDestroy()
         navController = null
-        disposeComposition()
     }
 }

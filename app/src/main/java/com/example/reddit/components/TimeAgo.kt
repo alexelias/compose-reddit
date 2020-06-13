@@ -2,19 +2,17 @@ package com.example.reddit.components
 
 import android.os.Handler
 import android.os.Looper
-import androidx.compose.Composable
-import androidx.compose.Model
-import androidx.ui.core.Text
+import androidx.compose.*
+import androidx.ui.foundation.Text
 import androidx.ui.text.TextStyle
 import java.util.*
 import kotlin.math.roundToInt
 
-@Model
 private object CurrentTime {
     private val frequencyInMs: Long = 3000
     private val handler = Handler(Looper.getMainLooper())
-    private var update: Runnable? = null
-    private fun subscribeIfNeeded() {
+    private var update by mutableStateOf<Runnable?>(null)
+    fun subscribeIfNeeded() {
         if (update == null) {
             // NOTE(lmr): in real app, you might want a smarter strategy here. You could have a
             // semaphore for understanding if someone is currently using it. Additionally, you might
@@ -27,11 +25,7 @@ private object CurrentTime {
             handler.postDelayed(update!!, frequencyInMs)
         }
     }
-    var now: Long = Date().time / 1000
-        get() {
-            subscribeIfNeeded()
-            return field
-        }
+    var now by mutableStateOf<Long>(Date().time / 1000)
 }
 
 private fun timeAgoText(diff: Long): String {
@@ -57,8 +51,9 @@ private fun timeAgoText(diff: Long): String {
 }
 
 @Composable
-fun TimeAgo(date: Long, style: TextStyle?) {
-    val current = CurrentTime.now
-    val diff = current - date
-    Text(timeAgoText(diff), style = style)
+fun TimeAgo(date: Long) {
+    onCommit {
+       CurrentTime.subscribeIfNeeded()
+    }
+    Text(timeAgoText(CurrentTime.now - date))
 }

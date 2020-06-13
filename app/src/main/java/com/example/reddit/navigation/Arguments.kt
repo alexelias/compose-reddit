@@ -5,19 +5,12 @@ import com.example.reddit.Ambients
 
 @Composable
 fun <T> navArg(name: String): T {
-    val nav = Ambients.NavController.current
-    val entry = nav.getBackStackEntry(nav.currentDestination!!.id)
-    val args = entry.arguments
-    val arg = args?.get(name) ?: error("No argument found with name $name")
-    @Suppress("UNCHECKED_CAST")
-    return arg as T
+    return optionalNavArg(name)!!
 }
 
 @Composable
 fun <T> optionalNavArg(name: String): T? {
-    val nav = Ambients.NavController.current
-    val entry = nav.getBackStackEntry(nav.currentDestination!!.id)
-    val args = entry.arguments
+    val args = Ambients.NavArguments.current
     val arg = args?.get(name)
     @Suppress("UNCHECKED_CAST")
     return arg as? T
