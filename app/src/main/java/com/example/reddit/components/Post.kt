@@ -96,9 +96,7 @@ private fun VoteArrow(
     onSelected: (Boolean) -> Unit
 ) {
     val vector = androidx.ui.res.vectorResource(vectorResource)
-    Toggleable(value = selected, onValueChange = onSelected) {
-        val tintColor = animate(if (selected) MaterialTheme.colors.onPrimary else MaterialTheme.colors.fadedOnPrimary)
-        Box(modifier.preferredSize(width = 24.dp, height = 24.dp).paint(VectorPainter(vector),
-            colorFilter = ColorFilter.tint(tintColor))) {}
-    }
+    val tintColor = animate(if (selected) MaterialTheme.colors.onPrimary else MaterialTheme.colors.fadedOnPrimary)
+    Box(modifier.toggleable(value = selected, onValueChange = onSelected).preferredSize(width = 24.dp, height = 24.dp).paint(VectorPainter(vector),
+	colorFilter = ColorFilter.tint(tintColor))) {}
 }

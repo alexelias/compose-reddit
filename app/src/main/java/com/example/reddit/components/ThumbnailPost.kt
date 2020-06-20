@@ -8,6 +8,7 @@ import androidx.ui.core.*
 import androidx.ui.foundation.*
 import androidx.ui.foundation.selection.Toggleable
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
+import androidx.ui.geometry.*
 import androidx.ui.graphics.*
 import androidx.ui.graphics.vector.*
 import androidx.ui.layout.*
@@ -90,11 +91,11 @@ private fun CrossFlexibleRow(
 
         layout(width = constraints.maxWidth, height = postPlaceable.height) {
             if (ltr) {
-                scorePlaceable.place(IntPx.Zero, IntPx.Zero)
-                postPlaceable.place(scorePlaceable.width, IntPx.Zero)
+                scorePlaceable.place(0, 0)
+                postPlaceable.place(scorePlaceable.width, 0)
             } else {
-                postPlaceable.place(IntPx.Zero, IntPx.Zero)
-                scorePlaceable.place(constraints.maxWidth - scorePlaceable.width, IntPx.Zero)
+                postPlaceable.place(0, 0)
+                scorePlaceable.place(constraints.maxWidth - scorePlaceable.width, 0)
             }
         }
     }

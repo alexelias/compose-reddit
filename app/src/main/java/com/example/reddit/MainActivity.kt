@@ -74,11 +74,8 @@ object LinkStyle {
     var thumbnails by mutableStateOf(true)
 }
 
-// TODO(aelias): This crashes with "setValue doesn't exist" if I change it to "by mutableStateOf"
-@Suppress("DEPRECATION")
-@Model
 object SubredditTheme {
-    var accentColor = Color.White
+    var accentColor by mutableStateOf(Color.White)
 }
 
 /**
@@ -133,7 +130,7 @@ fun Scaffold(subreddit: String, children: @Composable () -> Unit) {
     val scaffoldState = remember { ScaffoldState() }
     Scaffold(
         scaffoldState = scaffoldState,
-        topAppBar = {
+        topBar = {
             TopAppBar(
                 title = { Text("/r/$subreddit") }, navigationIcon = {
                 IconButton(onClick = { scaffoldState.drawerState = DrawerState.Opened } ) {

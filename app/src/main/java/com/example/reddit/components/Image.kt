@@ -13,7 +13,7 @@ import androidx.ui.graphics.colorspace.ColorSpaces
 import androidx.ui.graphics.drawscope.*
 import androidx.ui.graphics.painter.ImagePainter
 import androidx.ui.layout.*
-import androidx.ui.tooling.preview.Preview
+//import androidx.ui.tooling.preview.Preview
 import androidx.ui.unit.*
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
@@ -76,6 +76,7 @@ fun Image(
     }
 }
 
+/*
 @Preview("playground")
 @Composable fun TestLayout() {
     Box(Modifier.drawBackground(color = Color.Blue).preferredSize(width = 300.dp, height = 600.dp)) {
@@ -99,3 +100,4 @@ fun Image(
         }
     }
 }
+*/

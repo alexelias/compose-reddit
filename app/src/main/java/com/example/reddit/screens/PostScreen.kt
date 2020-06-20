@@ -211,14 +211,13 @@ fun LinkCard(
 @Composable
 fun DrawIndents(depth: Int) {
     Canvas(modifier = Modifier.fillMaxSize()) {
-        val dist = 10.dp.toPx().value
+        val dist = 10.dp.toPx()
 
         for (i in 1..depth) {
             drawLine(
                 color = Color.DarkGray.copy(alpha = 1f - (i * 10f) / 60f),
-                p1 = Offset(i * dist, if (i == depth) dist else 0f),
-                p2 = Offset(i * dist, size.height),
-                stroke = Stroke()
+                start = Offset(i * dist, if (i == depth) dist else 0f),
+                end = Offset(i * dist, size.height),
             )
         }
     }

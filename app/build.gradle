@@ -2,7 +2,8 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
-def compose_version = "0.1.0-dev13"
+//def compose_version = "0.1.0-dev13"
+def compose_version = "0.1.0-SNAPSHOT"
 
 android {
     compileSdkVersion 29
@@ -10,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.reddit"
-        minSdkVersion 26
+        minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -68,8 +69,8 @@ dependencies {
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "androidx.ui:ui-geometry:$compose_version"
-    implementation "androidx.ui:ui-layout:$compose_version"
+    implementation "androidx.ui:ui-core:$compose_version"
+    implementation "androidx.ui:ui-foundation:$compose_version"
     implementation "androidx.ui:ui-material:$compose_version"
     implementation "androidx.ui:ui-material-icons-extended:$compose_version"
     implementation "androidx.ui:ui-tooling:$compose_version"
