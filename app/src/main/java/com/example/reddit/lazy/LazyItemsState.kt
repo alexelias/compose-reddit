@@ -22,6 +22,7 @@ import androidx.compose.Composition
 import androidx.compose.CompositionReference
 import androidx.compose.ExperimentalComposeApi
 import androidx.compose.Recomposer
+import androidx.compose.Stable
 import androidx.compose.snapshots.Snapshot
 import androidx.ui.core.Constraints
 import androidx.ui.core.ExperimentalLayoutNodeApi
@@ -35,6 +36,11 @@ import androidx.ui.core.Ref
 import androidx.ui.core.subcomposeInto
 import kotlin.math.abs
 import kotlin.math.roundToInt
+
+interface LazyItemScope {
+    fun isFirstItem(): Boolean
+    fun isLastItem(): Boolean
+}
 
 private inline class ScrollDirection(val isForward: Boolean)
 
@@ -53,7 +59,7 @@ private inline class LayoutIndex(val value: Int)
 @OptIn(ExperimentalLayoutNodeApi::class)
 internal class LazyItemsState<T>(val isVertical: Boolean) {
     lateinit var recomposer: Recomposer
-    lateinit var itemContent: @Composable (T) -> Unit
+    lateinit var itemContent: @Composable LazyItemScope.(T) -> Unit
     lateinit var items: List<T>
 
     var forceRecompose = false
@@ -481,10 +487,17 @@ internal class LazyItemsState<T>(val isVertical: Boolean) {
             recomposer,
             compositionRef
         ) @ComposableContract(tracked = false) {
-            itemContent(items[dataIndex.value])
+            val scope = LazyItemScopeImpl(dataIndex.value, items.size)
+            scope.itemContent(items[dataIndex.value])
         }
         compositionsForLayoutNodes[node] = composition
         return node
+    }
+
+    @Stable
+    private class LazyItemScopeImpl(val index: Int, val numItems: Int) : LazyItemScope {
+        override fun isFirstItem(): Boolean { return index == 0 }
+        override fun isLastItem(): Boolean { return index == numItems - 1 }
     }
 
     private val ListItemMeasureBlocks =

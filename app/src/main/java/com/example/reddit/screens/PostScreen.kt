@@ -6,6 +6,8 @@ import androidx.ui.core.*
 import androidx.ui.foundation.Canvas
 import androidx.ui.geometry.Offset
 import androidx.ui.foundation.*
+//import androidx.ui.foundation.lazy.*
+import com.example.reddit.lazy.*
 import androidx.ui.foundation.shape.corner.*
 import androidx.ui.graphics.*
 import androidx.ui.graphics.drawscope.Stroke
@@ -53,30 +55,38 @@ fun PostScreen(linkId: String, pageSize: Int = 10, initialLink: Link? = null) {
 
 @Composable
 fun ScrollingContent(link: Link?, linkModel: LinkModel, comments: List<HierarchicalThing>?) {
-    VerticalScroller {
-        Column(Modifier.fillMaxHeight()) {
-            if (link != null) {
-                LinkCard(
-                    title = link.title,
-                    image = link.preview?.imageUrl,
-                    author = link.author,
-                    score = link.score,
-                    createdAt = link.createdUtc,
-                    comments = link.numComments
-                )
-            }
+    val headerComposable: @Composable () -> Unit = {
+        link?.run {
+            LinkCard(
+                title = title,
+                image = preview?.imageUrl,
+                author = author,
+                score = score,
+                createdAt = createdUtc,
+                comments = numComments
+            )
+        }
+    }
 
-            comments?.forEachIndexed { index, node ->
-                CommentRow(isFirst = index == 0, node = node, onClick = {
-                    when (node) {
-                        is RedditMore -> linkModel.loadMore(node)
-                        is Comment -> linkModel.toggleCollapsedState(node)
-                    }
-                })
+    if (comments == null || comments.size == 0) {
+        Column(Modifier.fillMaxHeight()) {
+            headerComposable()
+        }
+        return
+   }
+
+    LazyColumnItems(comments, Modifier.fillMaxHeight()) { node ->
+        if (isFirstItem()) {
+            headerComposable()
+        }
+        CommentRow(isFirst = isFirstItem(), node = node, onClick = {
+            when (node) {
+                is RedditMore -> linkModel.loadMore(node)
+                is Comment -> linkModel.toggleCollapsedState(node)
             }
-            if ((comments?.size ?: 0) > 0) {
-                CommentEndCap()
-            }
+        })
+        if (isLastItem()) {
+            CommentEndCap()
         }
     }
 }

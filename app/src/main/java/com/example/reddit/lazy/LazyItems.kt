@@ -48,7 +48,7 @@ import androidx.ui.node.UiApplier
 fun <T> LazyColumnItems(
     items: List<T>,
     modifier: Modifier = Modifier,
-    itemContent: @Composable (T) -> Unit
+    itemContent: @Composable LazyItemScope.(T) -> Unit
 ) {
     LazyItems(items, modifier, itemContent, isVertical = true)
 }
@@ -67,7 +67,7 @@ fun <T> LazyColumnItems(
 fun <T> LazyRowItems(
     items: List<T>,
     modifier: Modifier = Modifier,
-    itemContent: @Composable (T) -> Unit
+    itemContent: @Composable LazyItemScope.(T) -> Unit
 ) {
     LazyItems(items, modifier, itemContent, isVertical = false)
 }
@@ -77,7 +77,7 @@ fun <T> LazyRowItems(
 private fun <T> LazyItems(
     items: List<T>,
     modifier: Modifier = Modifier,
-    itemContent: @Composable (T) -> Unit,
+    itemContent: @Composable LazyItemScope.(T) -> Unit,
     isVertical: Boolean
 ) {
     val state = remember { LazyItemsState<T>(isVertical = isVertical) }

@@ -49,11 +49,41 @@ private val sortOptions = listOf(
 )
 
 @Composable
+fun TabStrip(selectedSortIndexState: MutableState<Int>) {
+    val tabs = listOf("HOT", "NEW", "TOP")
+
+    val (selectedSortIndex, setIndex) = selectedSortIndexState
+
+    // TODO(lpf): maybe TabRow needs to expose elevation?
+    Surface(color = MaterialTheme.colors.primarySurface, elevation = 4.dp) {
+        TabRow(
+            items = tabs, selectedIndex = selectedSortIndex,
+            indicatorContainer = { tabPositions ->
+                TabRow.IndicatorContainer(tabPositions, selectedSortIndex) {
+                    val colors = MaterialTheme.colors
+                    val indicatorColor = if (colors.isLight) {
+                        contentColor()
+                    } else {
+                        colors.primary
+                    }
+                    TabRow.Indicator(color = indicatorColor)
+                }
+            }
+        ) { index, name ->
+            Tab(
+                text = { Text(name) },
+                selected = selectedSortIndex == index,
+                onSelected = { setIndex(index) })
+        }
+    }
+}
+
+@Composable
 fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
-    var selectedSortIndex by state { 0 }
+    var selectedSortIndex = mutableStateOf(0)
     val repository = Ambients.Repository.current
-    val model = remember(subreddit, selectedSortIndex) {
-        repository.linksOfSubreddit(subreddit, sortOptions[selectedSortIndex], pageSize)
+    val model = remember(subreddit, selectedSortIndex.value) {
+        repository.linksOfSubreddit(subreddit, sortOptions[selectedSortIndex.value], pageSize)
     }
     val info = subscribe(model.info)
     val accentColor = info?.keyColor?.let { if (!it.isBlank()) it.color else null }
@@ -64,34 +94,9 @@ fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
 
     val isLoading = networkState == AsyncState.LOADING || links == null
 
-    val tabs = listOf("HOT", "NEW", "TOP")
-
     Box(Modifier.fillMaxSize().wrapContentSize(Alignment.TopCenter)) {
         Column {
-            // TODO(lpf): maybe TabRow needs to expose elevation?
-            // TODO(aelias): TabRow should ideally scroll along with the content, but this is hard to do
-            // with LazyColumn.
-            Surface(color = MaterialTheme.colors.primarySurface, elevation = 4.dp) {
-                TabRow(
-                    items = tabs, selectedIndex = selectedSortIndex,
-                    indicatorContainer = { tabPositions ->
-                        TabRow.IndicatorContainer(tabPositions, selectedSortIndex) {
-                            val colors = MaterialTheme.colors
-                            val indicatorColor = if (colors.isLight) {
-                                contentColor()
-                            } else {
-                                colors.primary
-                            }
-                            TabRow.Indicator(color = indicatorColor)
-                        }
-                    }
-                ) { index, name ->
-                    Tab(
-                        text = { Text(name) },
-                        selected = selectedSortIndex == index,
-                        onSelected = { selectedSortIndex = index })
-                }
-            }
+
             // Controls fade out of the progress spinner
             val opacity = animatedFloat(1f)
 
@@ -109,7 +114,9 @@ fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
                 }
             }
             if (opacity.value == 0f) {
-                ScrollingContent(links!!)
+                ScrollingContent(links!!) {
+                    TabStrip(selectedSortIndex)
+                }
             } else {
                 LoadingIndicator(opacity.value)
             }
@@ -130,10 +137,13 @@ fun LoadingIndicator(opacity: Float) {
 }
 
 @Composable
-fun ScrollingContent(links: PagedList<Link>) {
-    Spacer(Modifier.preferredHeight(10.dp))
+fun ScrollingContent(links: PagedList<Link>, header: @Composable () -> Unit) {
     LazyColumnItems(modifier = Modifier.fillMaxHeight(), items = links) { item ->
         with(item) {
+            if (isFirstItem()) {
+                header()
+                Spacer(Modifier.preferredHeight(10.dp))
+            }
             if (LinkStyle.thumbnails) {
                 ThumbnailPost(
                     id = id,
@@ -154,7 +164,9 @@ fun ScrollingContent(links: PagedList<Link>) {
                     selftext = selftext
                 )
             }
+            if (isLastItem()) {
+                Spacer(Modifier.preferredHeight(10.dp))
+            }
         }
     }
-    Spacer(Modifier.preferredHeight(10.dp))
 }
