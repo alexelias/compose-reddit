@@ -9,6 +9,8 @@ import androidx.ui.core.Alignment
 import androidx.ui.core.Modifier
 import androidx.ui.core.drawOpacity
 import androidx.ui.foundation.*
+//import androidx.ui.foundation.lazy.*
+import com.example.reddit.lazy.*
 import androidx.ui.graphics.Color
 import androidx.ui.layout.*
 import androidx.ui.material.*
@@ -65,14 +67,11 @@ fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
     val tabs = listOf("HOT", "NEW", "TOP")
 
     Box(Modifier.fillMaxSize().wrapContentSize(Alignment.TopCenter)) {
-        // 'fake' tabs hiding
-        VerticalScroller {
-            Column {
-                // TODO(lpf): maybe TabRow needs to expose elevation?
-                // Although conceptually it should actually be inside the app bar, not below...
-                // Need this here to ensure we get the correct elevation overlay in dark theme to
-                // match the app bar
-                Surface(color = MaterialTheme.colors.primarySurface, elevation = 4.dp) {
+        Column {
+            // TODO(lpf): maybe TabRow needs to expose elevation?
+            // TODO(aelias): TabRow should ideally scroll along with the content, but this is hard to do
+            // with LazyColumn.
+            Surface(color = MaterialTheme.colors.primarySurface, elevation = 4.dp) {
                 TabRow(
                     items = tabs, selectedIndex = selectedSortIndex,
                     indicatorContainer = { tabPositions ->
@@ -92,27 +91,27 @@ fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
                         selected = selectedSortIndex == index,
                         onSelected = { selectedSortIndex = index })
                 }
-                }
-                // Controls fade out of the progress spinner
-                val opacity = animatedFloat(1f)
+            }
+            // Controls fade out of the progress spinner
+            val opacity = animatedFloat(1f)
 
-                onCommit(isLoading, accentColor) {
-                    if (!isLoading) {
-                        SubredditTheme.accentColor = accentColor ?: Color.White
-                        opacity.animateTo(0f)
-                    }
+            onCommit(isLoading, accentColor) {
+                if (!isLoading) {
+// TODO(aelias): Fix accent color (as of June 30 dev15, crashes with setAccentColor not found)
+//                        SubredditTheme.accentColor = accentColor ?: Color.White
+                    opacity.animateTo(0f)
                 }
+            }
 
-                if (isLoading) {
-                    if (opacity.value != 1f) {
-                        opacity.snapTo(1f)
-                    }
+            if (isLoading) {
+                if (opacity.value != 1f) {
+                    opacity.snapTo(1f)
                 }
-                if (opacity.value == 0f) {
-                    ScrollingContent(links!!)
-                } else {
-                    LoadingIndicator(opacity.value)
-                }
+            }
+            if (opacity.value == 0f) {
+                ScrollingContent(links!!)
+            } else {
+                LoadingIndicator(opacity.value)
             }
         }
     }
@@ -132,33 +131,30 @@ fun LoadingIndicator(opacity: Float) {
 
 @Composable
 fun ScrollingContent(links: PagedList<Link>) {
-    Column(Modifier.fillMaxHeight()) {
-        Spacer(Modifier.preferredHeight(10.dp))
-        // do stuff here around PagedList...
-        for (item in links.snapshot()) {
-            with(item) {
-                if (LinkStyle.thumbnails) {
-                    ThumbnailPost(
-                        id = id,
-                        title = title,
-                        score = score,
-                        author = author,
-                        comments = numComments,
-                        image = if (!isSelf) preview?.imageUrl else null
-                    )
-                } else {
-                    ExpandedPost(
-                        id = id,
-                        title = title,
-                        score = score,
-                        author = author,
-                        comments = numComments,
-                        image = if (!isSelf) preview?.imageUrl else null,
-                        selftext = selftext
-                    )
-                }
+    Spacer(Modifier.preferredHeight(10.dp))
+    LazyColumnItems(modifier = Modifier.fillMaxHeight(), items = links) { item ->
+        with(item) {
+            if (LinkStyle.thumbnails) {
+                ThumbnailPost(
+                    id = id,
+                    title = title,
+                    score = score,
+                    author = author,
+                    comments = numComments,
+                    image = if (!isSelf) preview?.imageUrl else null
+                )
+            } else {
+                ExpandedPost(
+                    id = id,
+                    title = title,
+                    score = score,
+                    author = author,
+                    comments = numComments,
+                    image = if (!isSelf) preview?.imageUrl else null,
+                    selftext = selftext
+                )
             }
         }
-        Spacer(Modifier.preferredHeight(10.dp))
     }
+    Spacer(Modifier.preferredHeight(10.dp))
 }
