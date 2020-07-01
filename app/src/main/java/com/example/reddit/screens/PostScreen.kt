@@ -1,7 +1,5 @@
 package com.example.reddit.screens
 
-import androidx.animation.FastOutLinearInEasing
-import androidx.animation.TweenBuilder
 import androidx.compose.*
 import androidx.ui.animation.animatedFloat
 import androidx.ui.core.*
@@ -41,10 +39,7 @@ fun PostScreen(linkId: String, pageSize: Int = 10, initialLink: Link? = null) {
                     opacity.snapTo(1f)
                 }
             } else {
-                opacity.animateTo(0f, anim = TweenBuilder<Float>().apply {
-                    easing = FastOutLinearInEasing
-                    duration = 500
-                })
+                opacity.animateTo(0f)
             }
         }
 

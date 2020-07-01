@@ -1,12 +1,10 @@
 package com.example.reddit.components
 
-import androidx.animation.TweenBuilder
 import androidx.compose.*
 import androidx.core.os.bundleOf
 import androidx.ui.animation.*
 import androidx.ui.core.*
 import androidx.ui.foundation.*
-import androidx.ui.foundation.selection.Toggleable
 import androidx.ui.foundation.shape.corner.RoundedCornerShape
 import androidx.ui.geometry.*
 import androidx.ui.graphics.*
@@ -71,22 +69,22 @@ private fun CrossFlexibleRow(
 ) {
     val tempScoreSection = @Composable { inflexibleWidthSection() }
     Layout({
-        Box(Modifier.tag("tempScoreSection"), children = tempScoreSection)
-        Box(Modifier.tag("inflexibleWidthSection"), children = inflexibleWidthSection)
-        Box(Modifier.tag("mainCard"), children = mainCard)
-    }) { measurables, constraints, _ ->
+        Box(Modifier.layoutId("tempScoreSection"), children = tempScoreSection)
+        Box(Modifier.layoutId("inflexibleWidthSection"), children = inflexibleWidthSection)
+        Box(Modifier.layoutId("mainCard"), children = mainCard)
+    }) { measurables, constraints ->
         // Measure score placeable to figure out how much width we have left
-        val tempScorePlaceable = measurables.first { it.tag == "tempScoreSection" }.measure(constraints)
+        val tempScorePlaceable = measurables.first { it.id == "tempScoreSection" }.measure(constraints)
 
         val availableWidth = constraints.maxWidth - tempScorePlaceable.width
 
-        val postPlaceable = measurables.first { it.tag == "mainCard" }.measure(
+        val postPlaceable = measurables.first { it.id == "mainCard" }.measure(
             // Measure with loose constraints for height as we don't want the text to take up more
             // space than it needs
             constraints.enforce(Constraints.fixedWidth(availableWidth))
         )
 
-        val scorePlaceable = measurables.first { it.tag == "inflexibleWidthSection" }
+        val scorePlaceable = measurables.first { it.id == "inflexibleWidthSection" }
             .measure(constraints.enforce(Constraints.fixedHeight(postPlaceable.height)))
 
         layout(width = constraints.maxWidth, height = postPlaceable.height) {

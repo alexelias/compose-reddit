@@ -3,9 +3,7 @@ package com.example.reddit
 import android.app.Activity
 import android.view.View
 import android.view.Window
-import androidx.animation.AnimationBuilder
 import androidx.animation.LinearEasing
-import androidx.animation.TweenBuilder
 import androidx.compose.*
 import androidx.core.os.bundleOf
 import androidx.navigation.NavGraphBuilder

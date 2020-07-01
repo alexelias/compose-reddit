@@ -1,7 +1,5 @@
 package com.example.reddit.screens
 
-import androidx.animation.FastOutLinearInEasing
-import androidx.animation.TweenBuilder
 import androidx.compose.*
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
@@ -101,10 +99,7 @@ fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
                 onCommit(isLoading, accentColor) {
                     if (!isLoading) {
                         SubredditTheme.accentColor = accentColor ?: Color.White
-                        opacity.animateTo(0f, anim = TweenBuilder<Float>().apply {
-                            easing = FastOutLinearInEasing
-                            duration = 500
-                        })
+                        opacity.animateTo(0f)
                     }
                 }
 

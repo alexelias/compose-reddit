@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
-//def compose_version = "0.1.0-dev13"
+//def compose_version = "0.1.0-dev15"
 def compose_version = "0.1.0-SNAPSHOT"
 
 android {

@@ -3,6 +3,7 @@ package com.example.reddit.data
 import android.annotation.SuppressLint
 import android.os.Parcelable
 import android.text.Html
+import androidx.compose.NoLiveLiterals
 import androidx.recyclerview.widget.DiffUtil
 import com.google.gson.*
 import com.google.gson.annotations.SerializedName
@@ -52,6 +53,7 @@ enum class AsyncState {
     FAILED
 }
 
+@NoLiveLiterals
 enum class RedditFilterType(private val text: String, val displayText: String) {
     HOT("hot", "Hot Posts"),
     NEW("new", "New Posts"),

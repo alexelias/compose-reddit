@@ -21,7 +21,12 @@ allprojects {
         google()
         jcenter()
         maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
-        maven { url 'https://androidx.dev/snapshots/builds/6602655/artifacts/ui/repository' }
+// Find valid snapshot IDs here: https://androidx.dev/snapshots/builds
+        maven { url 'https://androidx.dev/snapshots/builds/6643654/artifacts/ui/repository' }
+
+// Command to populate the following from frameworks/support/ui:
+// ./gradlew createArchive && unzip -o -d /usr/local/google/android-src/DevRel/composesnapshot /usr/local/google/android-src/ax3/out/dist/ui/top-of-tree-m2repository-all-0.zip
+//        maven { url '/usr/local/google/android-src/DevRel/composesnapshot/m2repository' }
     }
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
         kotlinOptions {
