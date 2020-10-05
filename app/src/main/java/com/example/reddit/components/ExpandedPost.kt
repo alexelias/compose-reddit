@@ -1,21 +1,21 @@
 package com.example.reddit.components
 
-import androidx.compose.*
+import androidx.compose.runtime.*
 import androidx.core.os.bundleOf
-import androidx.ui.animation.*
-import androidx.ui.core.*
-import androidx.ui.foundation.*
-import androidx.ui.foundation.selection.*
-import androidx.ui.foundation.shape.corner.*
-import androidx.ui.graphics.*
-import androidx.ui.graphics.vector.*
-import androidx.ui.layout.*
-import androidx.ui.material.Card
-import androidx.ui.material.Surface
-import androidx.ui.material.MaterialTheme
-import androidx.ui.text.font.FontStyle
-import androidx.ui.text.style.TextOverflow
-import androidx.ui.unit.*
+import androidx.compose.animation.*
+import androidx.compose.ui.*
+import androidx.compose.foundation.*
+import androidx.compose.foundation.selection.*
+import androidx.compose.foundation.shape.*
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.vector.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Card
+import androidx.compose.material.Surface
+import androidx.compose.material.MaterialTheme
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.*
 import com.example.reddit.Ambients
 import com.example.reddit.R
 import com.example.reddit.fadedOnPrimary
@@ -24,6 +24,7 @@ import com.example.reddit.navigation.optionalNavArg
 import kotlin.math.max
 
 @Composable
+@Suppress("DEPRECATION")
 fun ExpandedPost(id: String, title: String, score: Int, author: String, comments: Int, image: String?, selftext: String?) {
     val voteStatus = state<VoteStatus> { VoteStatus.UNVOTED }
     Post(voteStatus) {
@@ -49,6 +50,7 @@ private fun ColumnPostContent(
 }
 
 @Composable
+@Suppress("DEPRECATION")
 private fun RowScoreSection(score: Int, voteStatus: MutableState<VoteStatus>) {
     Row(Modifier.preferredHeight(40.dp).fillMaxHeight()) {
         val modifier = Modifier.gravity(Alignment.CenterVertically)
@@ -73,7 +75,8 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
             Modifier
                 .clickable { navigator.navigate(R.id.post_screen, bundleOf("linkId" to id, "subreddit" to currentSubreddit)) }
                 .fillMaxWidth()
-                .padding(top = 5.dp, bottom = 5.dp)
+                .padding(top = 5.dp, bottom = 5.dp),
+            Alignment.TopStart
         ) {
             Column(Modifier.fillMaxWidth()) {
                 Box(
@@ -82,7 +85,8 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
                         end = 15.dp,
                         top = 5.dp,
                         bottom = 5.dp
-                    )
+                    ),
+                    Alignment.TopStart
                 ) {
                     Text(title, style = MaterialTheme.typography.h6, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 }
@@ -93,17 +97,17 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
                         aspectRatio = 16f / 9f
                     )
                 } else if (selftext != null) {
-                    Box(Modifier.padding(15.dp)) {
+                    Box(Modifier.padding(15.dp), Alignment.TopStart) {
                         Text(selftext, style = MaterialTheme.typography.body2, maxLines = 10, overflow = TextOverflow.Ellipsis)
                     }
                 }
-                Box(Modifier.padding(start = 15.dp, end = 15.dp)) {
+                Box(Modifier.padding(start = 15.dp, end = 15.dp), Alignment.TopStart) {
                     Text(
                         text = "u/$author",
                         style = MaterialTheme.typography.overline.copy(fontStyle = FontStyle.Italic)
                     )
                 }
-                Box(Modifier.padding(start = 15.dp, end = 15.dp)) {
+                Box(Modifier.padding(start = 15.dp, end = 15.dp), Alignment.TopStart) {
                     Text(
                         text = "$comments comments",
                         style = MaterialTheme.typography.overline)

@@ -1,21 +1,22 @@
 package com.example.reddit.components
 
-import androidx.compose.*
+import androidx.compose.runtime.*
 import androidx.core.os.bundleOf
-import androidx.ui.animation.*
-import androidx.ui.core.*
-import androidx.ui.foundation.*
-import androidx.ui.foundation.shape.corner.RoundedCornerShape
-import androidx.ui.geometry.*
-import androidx.ui.graphics.*
-import androidx.ui.graphics.vector.*
-import androidx.ui.layout.*
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.Card
-import androidx.ui.material.Surface
-import androidx.ui.text.font.FontStyle
-import androidx.ui.text.style.TextOverflow
-import androidx.ui.unit.*
+import androidx.compose.animation.*
+import androidx.compose.ui.*
+import androidx.compose.foundation.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.geometry.*
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.vector.*
+import androidx.compose.ui.layout.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Card
+import androidx.compose.material.Surface
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.*
 import com.example.reddit.Ambients
 import com.example.reddit.R
 import com.example.reddit.fadedOnPrimary
@@ -24,6 +25,7 @@ import com.example.reddit.navigation.optionalNavArg
 import kotlin.math.max
 
 @Composable
+@Suppress("DEPRECATION")
 fun ThumbnailPost(id: String, title: String, score: Int, author: String, comments: Int, image: String?) {
     val voteStatus = state<VoteStatus> { VoteStatus.UNVOTED }
     Post(voteStatus) {
@@ -62,6 +64,7 @@ private fun RowPostContent(
  * right of the [mainCard]
  */
 @Composable
+@Suppress("DEPRECATION")
 private fun CrossFlexibleRow(
     inflexibleWidthSection: @Composable () -> Unit,
     mainCard: @Composable () -> Unit,
@@ -100,6 +103,7 @@ private fun CrossFlexibleRow(
 }
 
 @Composable
+@Suppress("DEPRECATION")
 private fun ColumnScoreSection(score: Int, voteStatus: MutableState<VoteStatus>) {
     Column(Modifier.preferredWidth(60.dp).fillMaxWidth()) {
         val modifier = Modifier.gravity(Alignment.CenterHorizontally)
@@ -123,6 +127,7 @@ private fun ColumnScoreSection(score: Int, voteStatus: MutableState<VoteStatus>)
 }
 
 @Composable
+@Suppress("DEPRECATION")
 private fun MainPostCard(id: String, title: String, author: String, comments: Int, image: String?) {
     val navigator = Ambients.NavController.current
     Surface(elevation = 4.dp) {
@@ -131,7 +136,8 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
             Modifier
                 .clickable { navigator.navigate(R.id.post_screen, bundleOf("linkId" to id, "subreddit" to currentSubreddit)) }
                 .fillMaxWidth()
-                .padding(start = 10.dp)) {
+                .padding(start = 10.dp),
+            Alignment.TopStart) {
             CrossFlexibleRow(inflexibleWidthSection = {
                 if (image != null) {
                     Image(
@@ -140,11 +146,11 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
                         height = 110.dp
                     )
                 } else {
-                    Box {}
+                    Box()
                 }
             }, mainCard = {
                 Column(
-                    Modifier.fillMaxWidth().preferredHeightIn(minHeight = 100.dp).padding(
+                    Modifier.fillMaxWidth().preferredHeightIn(min = 100.dp).padding(
                         top = 5.dp,
                         bottom = 5.dp,
                         end = 5.dp

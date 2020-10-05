@@ -4,22 +4,23 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.*
-import androidx.ui.core.*
-import androidx.ui.foundation.*
-import androidx.ui.graphics.*
-import androidx.ui.graphics.colorspace.ColorSpace
-import androidx.ui.graphics.colorspace.ColorSpaces
-import androidx.ui.graphics.drawscope.*
-import androidx.ui.graphics.painter.ImagePainter
-import androidx.ui.layout.*
-//import androidx.ui.tooling.preview.Preview
-import androidx.ui.unit.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.*
+import androidx.compose.foundation.*
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.colorspace.ColorSpace
+import androidx.compose.ui.graphics.colorspace.ColorSpaces
+import androidx.compose.ui.graphics.drawscope.*
+import androidx.compose.ui.graphics.painter.ImagePainter
+import androidx.compose.foundation.layout.*
+//import androidx.compose.tooling.preview.Preview
+import androidx.compose.ui.unit.*
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 import java.lang.Exception
 
 @Composable
+@Suppress("DEPRECATION")
 fun Image(
     modifier: Modifier = Modifier,
     url: String,
@@ -69,7 +70,7 @@ fun Image(
         }
     } else {
         if (image == null) {
-            Box(modifier = imageModifier.drawBackground(Color.LightGray), children = emptyContent())
+            Box(modifier = imageModifier.background(Color.LightGray), children = emptyContent())
         } else {
             Image(image!!, imageModifier)
         }

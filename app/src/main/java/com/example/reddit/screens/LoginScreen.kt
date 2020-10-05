@@ -1,22 +1,23 @@
 package com.example.reddit.screens
 
-import androidx.compose.Composable
-import androidx.compose.state
-import androidx.ui.core.*
-import androidx.ui.foundation.*
-import androidx.ui.graphics.Color
-import androidx.ui.layout.*
-import androidx.ui.unit.*
-import androidx.ui.material.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.state
+import androidx.compose.ui.*
+import androidx.compose.foundation.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.*
+import androidx.compose.ui.unit.*
+import androidx.compose.material.*
 
 @Composable
+@Suppress("DEPRECATION")
 fun LoginScreen() {
     val username = state { "" }
     val password = state { "" }
     Column(Modifier.fillMaxHeight().padding(16.dp)) {
         val dividerColor = Color(0xFFAAAAAA)
 
-        FilledTextField(
+        TextField(
             value = username.value,
             onValueChange = { value -> username.value = value},
             label = { Text("Username") }
@@ -24,7 +25,7 @@ fun LoginScreen() {
         Divider(color = dividerColor)
         Spacer()
 
-        FilledTextField(
+        TextField(
             value = password.value,
             onValueChange = { value -> password.value = value},
             label = { Text("Password") }
@@ -40,5 +41,5 @@ fun LoginScreen() {
 
 @Composable
 private fun Spacer() {
-    Box(Modifier.preferredHeight(16.dp)) {}
+    Spacer(Modifier.preferredHeight(16.dp) )
 }

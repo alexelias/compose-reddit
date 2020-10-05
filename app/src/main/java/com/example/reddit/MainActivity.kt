@@ -3,24 +3,24 @@ package com.example.reddit
 import android.app.Activity
 import android.view.View
 import android.view.Window
-import androidx.animation.LinearEasing
-import androidx.compose.*
+import androidx.compose.runtime.*
 import androidx.core.os.bundleOf
 import androidx.navigation.NavGraphBuilder
-import androidx.ui.animation.*
-import androidx.ui.core.*
-import androidx.ui.core.focus.*
-import androidx.ui.foundation.*
-import androidx.ui.graphics.*
-import androidx.ui.graphics.vector.*
-import androidx.ui.input.ImeAction
-import androidx.ui.layout.*
-import androidx.ui.material.*
-import androidx.ui.material.icons.*
-import androidx.ui.material.icons.filled.*
-import androidx.ui.material.Surface
-import androidx.ui.res.vectorResource
-import androidx.ui.unit.dp
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.ui.*
+import androidx.compose.ui.focus.*
+import androidx.compose.foundation.*
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.vector.*
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.*
+import androidx.compose.material.*
+import androidx.compose.material.icons.*
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.Surface
+import androidx.compose.ui.unit.dp
 import com.example.reddit.api.RedditApi
 import com.example.reddit.data.RedditRepository
 import com.example.reddit.data.RedditRepositoryImpl
@@ -81,6 +81,7 @@ object SubredditTheme {
  * the [Activity]'s [Window].
  */
 @Composable
+@Suppress("DEPRECATION")
 fun AppTheme(window: Window? = null, children: @Composable () -> Unit) {
     val primary = animate(SubredditTheme.accentColor)
     val isDark = isSystemInDarkTheme()
@@ -88,12 +89,12 @@ fun AppTheme(window: Window? = null, children: @Composable () -> Unit) {
     val isLightStatusBar = SubredditTheme.accentColor == Color.White && !isDark
     val onPrimary = if (isLightStatusBar) Color.Black else Color.White
     val colors = if (isDark) {
-        darkColorPalette(
+        darkColors(
             primary = primary,
             onPrimary = onPrimary,
         )
     } else {
-        lightColorPalette(
+        lightColors(
             primary = primary,
             onPrimary = onPrimary,
         )
@@ -118,20 +119,19 @@ fun AppTheme(window: Window? = null, children: @Composable () -> Unit) {
 }
 
 // Washed out version of primary colour used for the score surface
-val ColorPalette.fadedPrimary get() = primary.copy(alpha = 0.75f)
-
+val Colors.fadedPrimary get() = primary.copy(alpha = 0.75f)
 // Washed out version of primary colour used for the vote buttons
-val ColorPalette.fadedOnPrimary get() = onPrimary.copy(alpha = 0.55f)
+val Colors.fadedOnPrimary get() = onPrimary.copy(alpha = 0.55f)
 
 @Composable
 fun Scaffold(subreddit: String, children: @Composable () -> Unit) {
-    val scaffoldState = remember { ScaffoldState() }
+    val scaffoldState = rememberScaffoldState()
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
                 title = { Text("/r/$subreddit") }, navigationIcon = {
-                IconButton(onClick = { scaffoldState.drawerState = DrawerState.Opened } ) {
+                IconButton(onClick = { scaffoldState.drawerState.open() } ) {
                     Icon(Icons.Filled.Menu)
                 }
             }, actions = {
@@ -143,7 +143,7 @@ fun Scaffold(subreddit: String, children: @Composable () -> Unit) {
             })
         },
         drawerContent = {
-            DrawerContent { scaffoldState.drawerState = DrawerState.Closed }
+            DrawerContent { scaffoldState.drawerState.close() }
         },
         bodyContent = {
             children()
@@ -172,6 +172,7 @@ fun DrawerContent(closeDrawer: () -> Unit) {
 }
 
 @Composable
+@Suppress("DEPRECATION")
 private fun DrawerDivider() {
     Box(paddingStart = 8.dp, paddingEnd = 8.dp) {
         Divider(color = Color(0xFFCCCCCC))
@@ -181,7 +182,7 @@ private fun DrawerDivider() {
 @Composable
 fun LoginOrAccountItem(closeDrawer: () -> Unit) {
     val navigator = Ambients.NavController.current
-    ListItem(text = "Log in", onClick = {
+    ListItem(text = { Text("Log in") }, modifier = Modifier.clickable {
         navigator.navigate(R.id.login)
         closeDrawer()
     })
@@ -189,17 +190,19 @@ fun LoginOrAccountItem(closeDrawer: () -> Unit) {
 
 @Composable
 fun SubredditLink(subreddit: String, onNavigate: (String) -> Unit) {
-    ListItem(text = subreddit, onClick = { onNavigate(subreddit.substring(3)) })
+    ListItem(text = { Text(subreddit) }, modifier = Modifier.clickable { onNavigate(subreddit.substring(3)) })
 }
 
 @Composable
+@Suppress("DEPRECATION")
 fun SubredditNavigateField(onNavigate: (String) -> Unit) {
-    val focusModifier = FocusModifier()
-    Box(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp).preferredHeight(96.dp)) {
+    Box(
+        Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp).preferredHeight(96.dp),
+        Alignment.TopStart
+    ) {
         Column {
             var text by state { "" }
-            FilledTextField(
-                modifier = focusModifier,
+            TextField(
                 value = text,
                 onValueChange = { text = it },
                 label = { Text("Enter subreddit") },

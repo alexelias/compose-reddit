@@ -3,7 +3,7 @@ package com.example.reddit.data
 import android.annotation.SuppressLint
 import android.os.Parcelable
 import android.text.Html
-import androidx.compose.NoLiveLiterals
+import androidx.compose.runtime.NoLiveLiterals
 import androidx.recyclerview.widget.DiffUtil
 import com.google.gson.*
 import com.google.gson.annotations.SerializedName

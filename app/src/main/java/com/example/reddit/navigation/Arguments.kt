@@ -1,6 +1,6 @@
 package com.example.reddit.navigation
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import com.example.reddit.Ambients
 
 @Composable

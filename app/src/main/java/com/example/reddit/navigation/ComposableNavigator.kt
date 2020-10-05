@@ -1,7 +1,7 @@
 package com.example.reddit.navigation
 
 import android.os.Bundle
-import androidx.compose.*
+import androidx.compose.runtime.*
 import androidx.navigation.*
 import java.util.Stack
 

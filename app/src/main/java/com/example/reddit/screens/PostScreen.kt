@@ -1,27 +1,27 @@
 package com.example.reddit.screens
 
-import androidx.compose.*
-import androidx.ui.animation.animatedFloat
-import androidx.ui.core.*
-import androidx.ui.foundation.Canvas
-import androidx.ui.geometry.Offset
-import androidx.ui.foundation.*
-//import androidx.ui.foundation.lazy.*
-import com.example.reddit.lazy.*
-import androidx.ui.foundation.shape.corner.*
-import androidx.ui.graphics.*
-import androidx.ui.graphics.drawscope.Stroke
-import androidx.ui.layout.*
-import androidx.ui.material.*
-import androidx.ui.text.*
-import androidx.ui.text.font.*
-import androidx.ui.unit.*
+import androidx.compose.runtime.*
+import androidx.compose.animation.animatedFloat
+import androidx.compose.ui.*
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.foundation.*
+import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.shape.*
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.ui.text.*
+import androidx.compose.ui.text.font.*
+import androidx.compose.ui.unit.*
 import com.example.reddit.Ambients
 import com.example.reddit.components.Image
 import com.example.reddit.components.TimeAgo
 import com.example.reddit.data.*
 
 @Composable
+@Suppress("DEPRECATION")
 fun PostScreen(linkId: String, pageSize: Int = 10, initialLink: Link? = null) {
     val repository = Ambients.Repository.current
     val linkModel = remember(linkId, pageSize) { repository.linkDetails(linkId, pageSize) }
@@ -54,6 +54,7 @@ fun PostScreen(linkId: String, pageSize: Int = 10, initialLink: Link? = null) {
 }
 
 @Composable
+@OptIn(ExperimentalLazyDsl::class)
 fun ScrollingContent(link: Link?, linkModel: LinkModel, comments: List<HierarchicalThing>?) {
     val headerComposable: @Composable () -> Unit = {
         link?.run {
@@ -75,17 +76,19 @@ fun ScrollingContent(link: Link?, linkModel: LinkModel, comments: List<Hierarchi
         return
    }
 
-    LazyColumnItems(comments, Modifier.fillMaxHeight()) { node ->
-        if (isFirstItem()) {
+    LazyColumn(Modifier.fillMaxHeight()) {
+        item {
             headerComposable()
         }
-        CommentRow(isFirst = isFirstItem(), node = node, onClick = {
-            when (node) {
-                is RedditMore -> linkModel.loadMore(node)
-                is Comment -> linkModel.toggleCollapsedState(node)
-            }
-        })
-        if (isLastItem()) {
+        itemsIndexed(comments) { index, node ->
+            CommentRow(isFirst = (index == 0), node = node, onClick = {
+                when (node) {
+                    is RedditMore -> linkModel.loadMore(node)
+                    is Comment -> linkModel.toggleCollapsedState(node)
+                }
+            })
+        }
+        item {
             CommentEndCap()
         }
     }

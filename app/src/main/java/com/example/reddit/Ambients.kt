@@ -1,7 +1,7 @@
 package com.example.reddit
 
 import android.os.Bundle
-import androidx.compose.ambientOf
+import androidx.compose.runtime.ambientOf
 import androidx.navigation.NavController
 import com.example.reddit.api.RedditApi
 import com.example.reddit.data.AuthenticationService

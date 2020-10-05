@@ -1,20 +1,19 @@
 package com.example.reddit.screens
 
-import androidx.compose.*
+import androidx.compose.runtime.*
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.paging.PagedList
-import androidx.ui.animation.animatedFloat
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
-import androidx.ui.core.drawOpacity
-import androidx.ui.foundation.*
-//import androidx.ui.foundation.lazy.*
-import com.example.reddit.lazy.*
-import androidx.ui.graphics.Color
-import androidx.ui.layout.*
-import androidx.ui.material.*
-import androidx.ui.unit.*
+import androidx.compose.animation.animatedFloat
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawOpacity
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material.*
+import androidx.compose.ui.unit.*
 import com.example.reddit.Ambients
 import com.example.reddit.LinkStyle
 import com.example.reddit.SubredditTheme
@@ -26,6 +25,7 @@ import com.example.reddit.data.LinkPreview
 import com.example.reddit.data.RedditFilterType
 
 @Composable
+@Suppress("DEPRECATION")
 fun <T> subscribe(data: LiveData<T>): T? {
     val current = stateFor(data) { data.value }
 
@@ -55,6 +55,7 @@ fun TabStrip(selectedSortIndexState: MutableState<Int>) {
     val (selectedSortIndex, setIndex) = selectedSortIndexState
 
     // TODO(lpf): maybe TabRow needs to expose elevation?
+    /*
     Surface(color = MaterialTheme.colors.primarySurface, elevation = 4.dp) {
         TabRow(
             items = tabs, selectedIndex = selectedSortIndex,
@@ -76,6 +77,17 @@ fun TabStrip(selectedSortIndexState: MutableState<Int>) {
                 onSelected = { setIndex(index) })
         }
     }
+    */
+
+    TabRow(selectedTabIndex = selectedSortIndex) {
+        tabs.forEachIndexed { index, name ->
+            Tab(
+                text = { Text(name) },
+                selected = selectedSortIndex == index,
+                onClick = { setIndex(index) }
+            )
+        }
+    }
 }
 
 @Composable
@@ -94,7 +106,7 @@ fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
 
     val isLoading = networkState == AsyncState.LOADING || links == null
 
-    Box(Modifier.fillMaxSize().wrapContentSize(Alignment.TopCenter)) {
+    Box(Modifier.fillMaxSize().wrapContentSize(Alignment.TopCenter), Alignment.TopStart) {
         Column {
 
             // Controls fade out of the progress spinner
@@ -129,7 +141,8 @@ val LinkPreview.imageUrl: String?
 
 @Composable
 fun LoadingIndicator(opacity: Float) {
-    Box(Modifier.drawOpacity(opacity).padding(50.dp).fillMaxWidth().wrapContentSize(Alignment.TopCenter)) {
+    Box(Modifier.drawOpacity(opacity).padding(50.dp).fillMaxWidth().wrapContentSize(Alignment.TopCenter),
+        Alignment.TopStart) {
         val color = MaterialTheme.colors.primary
         val indicatorColor = if (color == Color.White) MaterialTheme.colors.onSurface else color
         CircularProgressIndicator(color = indicatorColor)
@@ -137,36 +150,39 @@ fun LoadingIndicator(opacity: Float) {
 }
 
 @Composable
+@OptIn(ExperimentalLazyDsl::class)
 fun ScrollingContent(links: PagedList<Link>, header: @Composable () -> Unit) {
-    LazyColumnItems(modifier = Modifier.fillMaxHeight(), items = links) { item ->
-        with(item) {
-            if (isFirstItem()) {
-                header()
-                Spacer(Modifier.preferredHeight(10.dp))
+    LazyColumn(modifier = Modifier.fillMaxHeight()) {
+        item {
+            header()
+            Spacer(Modifier.preferredHeight(10.dp))
+        }
+        items(links) {
+            with(it) {
+                if (LinkStyle.thumbnails) {
+                    ThumbnailPost(
+                        id = id,
+                        title = title,
+                        score = score,
+                        author = author,
+                        comments = numComments,
+                        image = if (!isSelf) preview?.imageUrl else null
+                    )
+                } else {
+                    ExpandedPost(
+                        id = id,
+                        title = title,
+                        score = score,
+                        author = author,
+                        comments = numComments,
+                        image = if (!isSelf) preview?.imageUrl else null,
+                        selftext = selftext
+                    )
+                }
             }
-            if (LinkStyle.thumbnails) {
-                ThumbnailPost(
-                    id = id,
-                    title = title,
-                    score = score,
-                    author = author,
-                    comments = numComments,
-                    image = if (!isSelf) preview?.imageUrl else null
-                )
-            } else {
-                ExpandedPost(
-                    id = id,
-                    title = title,
-                    score = score,
-                    author = author,
-                    comments = numComments,
-                    image = if (!isSelf) preview?.imageUrl else null,
-                    selftext = selftext
-                )
-            }
-            if (isLastItem()) {
-                Spacer(Modifier.preferredHeight(10.dp))
-            }
+        }
+        item {
+            Spacer(Modifier.preferredHeight(10.dp))
         }
     }
 }

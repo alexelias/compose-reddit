@@ -2,9 +2,9 @@ package com.example.reddit.components
 
 import android.os.Handler
 import android.os.Looper
-import androidx.compose.*
-import androidx.ui.foundation.Text
-import androidx.ui.text.TextStyle
+import androidx.compose.runtime.*
+import androidx.compose.foundation.Text
+import androidx.compose.ui.text.TextStyle
 import java.util.*
 import kotlin.math.roundToInt
 

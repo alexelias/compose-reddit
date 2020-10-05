@@ -3,13 +3,13 @@ package com.example.reddit.navigation
 import androidx.activity.ComponentActivity
 import android.os.Bundle
 import android.util.Log
-import androidx.compose.Composable
-import androidx.compose.Providers
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Providers
+import androidx.compose.ui.platform.setContent
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.createGraph
 import androidx.navigation.plusAssign
-import androidx.ui.core.setContent
 import com.example.reddit.Ambients
 
 abstract class ComposeActivity : ComponentActivity() {
