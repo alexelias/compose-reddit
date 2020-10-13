@@ -1,28 +1,27 @@
 package com.example.reddit.components
 
-import androidx.compose.runtime.*
-import androidx.core.os.bundleOf
-import androidx.compose.animation.*
-import androidx.compose.ui.*
-import androidx.compose.foundation.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.geometry.*
-import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.vector.*
-import androidx.compose.ui.layout.*
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Card
 import androidx.compose.material.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.id
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.enforce
+import androidx.core.os.bundleOf
 import com.example.reddit.Ambients
 import com.example.reddit.R
-import com.example.reddit.fadedOnPrimary
-import com.example.reddit.fadedPrimary
 import com.example.reddit.navigation.optionalNavArg
-import kotlin.math.max
 
 @Composable
 fun ThumbnailPost(id: String, title: String, score: Int, author: String, comments: Int, image: String?) {
@@ -70,9 +69,9 @@ private fun CrossFlexibleRow(
 ) {
     val tempScoreSection: @Composable BoxScope.() -> Unit = { inflexibleWidthSection() }
     Layout({
-        Box(Modifier.layoutId("tempScoreSection"), Alignment.TopStart, children = tempScoreSection)
-        Box(Modifier.layoutId("inflexibleWidthSection"), Alignment.TopStart, children = inflexibleWidthSection)
-        Box(Modifier.layoutId("mainCard"), Alignment.TopStart, children = mainCard)
+        Box(Modifier.layoutId("tempScoreSection"), children = tempScoreSection)
+        Box(Modifier.layoutId("inflexibleWidthSection"), children = inflexibleWidthSection)
+        Box(Modifier.layoutId("mainCard"), children = mainCard)
     }) { measurables, constraints ->
         // Measure score placeable to figure out how much width we have left
         val tempScorePlaceable = measurables.first { it.id == "tempScoreSection" }.measure(constraints)
@@ -132,8 +131,7 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
             Modifier
                 .clickable { navigator.navigate(R.id.post_screen, bundleOf("linkId" to id, "subreddit" to currentSubreddit)) }
                 .fillMaxWidth()
-                .padding(start = 10.dp),
-            Alignment.TopStart) {
+                .padding(start = 10.dp)) {
             CrossFlexibleRow(inflexibleWidthSection = {
                 if (image != null) {
                     Image(

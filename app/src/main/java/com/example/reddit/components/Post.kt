@@ -1,28 +1,28 @@
 package com.example.reddit.components
 
-import androidx.compose.runtime.*
-import androidx.core.os.bundleOf
-import androidx.compose.animation.*
-import androidx.compose.ui.*
-import androidx.compose.foundation.*
-import androidx.compose.foundation.selection.*
-import androidx.compose.foundation.shape.*
-import androidx.compose.ui.draw.paint
-import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.vector.*
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.foundation.layout.*
+import androidx.compose.animation.animate
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.Surface
 import androidx.compose.material.MaterialTheme
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.*
-import com.example.reddit.Ambients
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.vector.VectorPainter
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.unit.dp
 import com.example.reddit.R
 import com.example.reddit.fadedOnPrimary
 import com.example.reddit.fadedPrimary
-import com.example.reddit.navigation.optionalNavArg
 import kotlin.math.max
 
 enum class VoteStatus {
@@ -52,7 +52,7 @@ fun Post(voteStatus: MutableState<VoteStatus>, children: @Composable () -> Unit)
     }
     val animatedColor = animate(cardColor)
 
-    Box(Modifier.padding(10.dp).fillMaxWidth(), Alignment.TopStart) {
+    Box(Modifier.padding(10.dp).fillMaxWidth()) {
         Card(backgroundColor = animatedColor, shape = RoundedCornerShape(10.dp), elevation = 2.dp) {
             children()
         }

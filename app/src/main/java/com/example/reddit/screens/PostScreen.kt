@@ -1,20 +1,29 @@
 package com.example.reddit.screens
 
-import androidx.compose.runtime.*
 import androidx.compose.animation.animatedFloat
-import androidx.compose.ui.*
 import androidx.compose.foundation.Canvas
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.foundation.*
-import androidx.compose.foundation.lazy.*
-import androidx.compose.foundation.shape.*
-import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
-import androidx.compose.ui.text.*
-import androidx.compose.ui.text.font.*
-import androidx.compose.ui.unit.*
+import androidx.compose.foundation.lazy.ExperimentalLazyDsl
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Card
+import androidx.compose.material.EmphasisAmbient
+import androidx.compose.material.ProvideEmphasis
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.onCommit
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.reddit.Ambients
 import com.example.reddit.components.Image
 import com.example.reddit.components.TimeAgo
@@ -30,7 +39,7 @@ fun PostScreen(linkId: String, pageSize: Int = 10, initialLink: Link? = null) {
     val networkState = subscribe(linkModel.networkState)
 
     val isLoading = networkState == AsyncState.LOADING
-    Box(Modifier.fillMaxSize(), Alignment.TopStart) {
+    Box(Modifier.fillMaxSize()) {
         // Controls fade out of the progress spinner
         val opacity = animatedFloat(1f)
 

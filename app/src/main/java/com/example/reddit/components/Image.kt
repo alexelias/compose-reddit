@@ -1,23 +1,25 @@
 package com.example.reddit.components
 
+//import androidx.compose.tooling.preview.Preview
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.compose.runtime.*
-import androidx.compose.ui.*
-import androidx.compose.foundation.*
-import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.colorspace.ColorSpace
-import androidx.compose.ui.graphics.colorspace.ColorSpaces
-import androidx.compose.ui.graphics.drawscope.*
-import androidx.compose.ui.graphics.painter.ImagePainter
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-//import androidx.compose.tooling.preview.Preview
-import androidx.compose.ui.unit.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.onCommit
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageAsset
+import androidx.compose.ui.graphics.asImageAsset
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.unit.Dp
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
-import java.lang.Exception
 
 @Composable
 fun Image(

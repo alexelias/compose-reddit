@@ -5,8 +5,8 @@ import android.os.Parcelable
 import android.text.Html
 import androidx.compose.runtime.NoLiveLiterals
 import androidx.recyclerview.widget.DiffUtil
-import com.google.gson.*
-import com.google.gson.annotations.SerializedName
+import com.google.gson.JsonArray
+import com.google.gson.JsonElement
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 

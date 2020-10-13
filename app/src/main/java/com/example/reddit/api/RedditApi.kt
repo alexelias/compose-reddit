@@ -1,8 +1,8 @@
 package com.example.reddit.api
 
 import android.util.Log
-import com.google.gson.*
 import com.example.reddit.data.*
+import com.google.gson.*
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
@@ -12,7 +12,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.*
 import java.lang.reflect.Type
-
 
 
 /**

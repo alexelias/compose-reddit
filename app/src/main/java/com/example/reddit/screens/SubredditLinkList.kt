@@ -1,22 +1,25 @@
 package com.example.reddit.screens
 
-import androidx.compose.runtime.*
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
-import androidx.paging.PagedList
 import androidx.compose.animation.animatedFloat
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.ExperimentalLazyDsl
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Tab
+import androidx.compose.material.TabRow
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawOpacity
-import androidx.compose.foundation.*
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
 import androidx.compose.ui.graphics.Color
-import androidx.compose.material.*
-import androidx.compose.ui.unit.*
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import androidx.paging.PagedList
 import com.example.reddit.Ambients
 import com.example.reddit.LinkStyle
-import com.example.reddit.SubredditTheme
 import com.example.reddit.components.ExpandedPost
 import com.example.reddit.components.ThumbnailPost
 import com.example.reddit.data.AsyncState
@@ -105,7 +108,7 @@ fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
 
     val isLoading = networkState == AsyncState.LOADING || links == null
 
-    Box(Modifier.fillMaxSize().wrapContentSize(Alignment.TopCenter), Alignment.TopStart) {
+    Box(Modifier.fillMaxSize().wrapContentSize(Alignment.TopCenter)) {
         Column {
 
             // Controls fade out of the progress spinner
@@ -140,8 +143,7 @@ val LinkPreview.imageUrl: String?
 
 @Composable
 fun LoadingIndicator(opacity: Float) {
-    Box(Modifier.drawOpacity(opacity).padding(50.dp).fillMaxWidth().wrapContentSize(Alignment.TopCenter),
-        Alignment.TopStart) {
+    Box(Modifier.drawOpacity(opacity).padding(50.dp).fillMaxWidth().wrapContentSize(Alignment.TopCenter)) {
         val color = MaterialTheme.colors.primary
         val indicatorColor = if (color == Color.White) MaterialTheme.colors.onSurface else color
         CircularProgressIndicator(color = indicatorColor)

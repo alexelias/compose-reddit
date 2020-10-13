@@ -1,9 +1,9 @@
 package com.example.reddit.navigation
 
 import android.os.Bundle
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.navigation.*
-import java.util.Stack
 
 private typealias ComposableUnitLambda = @Composable () -> Unit
 private val EmptyRoute: ComposableUnitLambda = {}
@@ -11,7 +11,7 @@ private val EmptyRoute: ComposableUnitLambda = {}
 @Navigator.Name("compose")
 class ComposableNavigator : Navigator<Destination>() {
 
-    private val stack = Stack<@Composable () -> Unit>()
+    private val stack = java.util.Stack<@Composable () -> Unit>()
 
     var current by mutableStateOf<@Composable () -> Unit>({})
         private set

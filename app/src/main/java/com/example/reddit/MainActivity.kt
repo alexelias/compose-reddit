@@ -3,24 +3,26 @@ package com.example.reddit
 import android.app.Activity
 import android.view.View
 import android.view.Window
+import androidx.compose.animation.animate
+import androidx.compose.foundation.Icon
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.ViewAgenda
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.navigation.NavGraphBuilder
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
-import androidx.compose.ui.*
-import androidx.compose.ui.focus.*
-import androidx.compose.foundation.*
-import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.vector.*
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.*
-import androidx.compose.material.*
-import androidx.compose.material.icons.*
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.Surface
-import androidx.compose.ui.unit.dp
+import com.example.reddit.Scaffold
 import com.example.reddit.api.RedditApi
 import com.example.reddit.data.RedditRepository
 import com.example.reddit.data.RedditRepositoryImpl
@@ -173,7 +175,7 @@ fun DrawerContent(closeDrawer: () -> Unit) {
 
 @Composable
 private fun DrawerDivider() {
-    Box(Modifier.padding(start = 8.dp, end = 8.dp), Alignment.TopStart) {
+    Box(Modifier.padding(start = 8.dp, end = 8.dp)) {
         Divider(color = Color(0xFFCCCCCC))
     }
 }
@@ -195,8 +197,7 @@ fun SubredditLink(subreddit: String, onNavigate: (String) -> Unit) {
 @Composable
 fun SubredditNavigateField(onNavigate: (String) -> Unit) {
     Box(
-        Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp).preferredHeight(96.dp),
-        Alignment.TopStart
+        Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp).preferredHeight(96.dp)
     ) {
         Column {
             var (text, setText) = remember { mutableStateOf("") }
