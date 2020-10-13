@@ -21,7 +21,6 @@ import com.example.reddit.components.TimeAgo
 import com.example.reddit.data.*
 
 @Composable
-@Suppress("DEPRECATION")
 fun PostScreen(linkId: String, pageSize: Int = 10, initialLink: Link? = null) {
     val repository = Ambients.Repository.current
     val linkModel = remember(linkId, pageSize) { repository.linkDetails(linkId, pageSize) }
@@ -31,7 +30,7 @@ fun PostScreen(linkId: String, pageSize: Int = 10, initialLink: Link? = null) {
     val networkState = subscribe(linkModel.networkState)
 
     val isLoading = networkState == AsyncState.LOADING
-    Stack(Modifier.fillMaxSize()) {
+    Box(Modifier.fillMaxSize(), Alignment.TopStart) {
         // Controls fade out of the progress spinner
         val opacity = animatedFloat(1f)
 

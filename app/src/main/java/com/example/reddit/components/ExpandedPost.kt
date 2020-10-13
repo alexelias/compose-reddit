@@ -24,9 +24,8 @@ import com.example.reddit.navigation.optionalNavArg
 import kotlin.math.max
 
 @Composable
-@Suppress("DEPRECATION")
 fun ExpandedPost(id: String, title: String, score: Int, author: String, comments: Int, image: String?, selftext: String?) {
-    val voteStatus = state<VoteStatus> { VoteStatus.UNVOTED }
+    val voteStatus = remember { mutableStateOf(VoteStatus.UNVOTED) }
     Post(voteStatus) {
         ColumnPostContent(id, title, score, author, comments, voteStatus, image, selftext)
     }
@@ -50,10 +49,9 @@ private fun ColumnPostContent(
 }
 
 @Composable
-@Suppress("DEPRECATION")
 private fun RowScoreSection(score: Int, voteStatus: MutableState<VoteStatus>) {
     Row(Modifier.preferredHeight(40.dp).fillMaxHeight()) {
-        val modifier = Modifier.gravity(Alignment.CenterVertically)
+        val modifier = Modifier.align(Alignment.CenterVertically)
         ScoreSection(modifier.weight(1f), voteStatus) {
             // Simulate actual network connection to update the score
             val adjustedScore = score.adjustScore(voteStatus.value)

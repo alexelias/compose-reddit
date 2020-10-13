@@ -1,19 +1,21 @@
 package com.example.reddit.screens
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.ui.*
-import androidx.compose.foundation.*
-import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.*
-import androidx.compose.ui.unit.*
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.Divider
+import androidx.compose.material.TextField
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 
 @Composable
-@Suppress("DEPRECATION")
 fun LoginScreen() {
-    val username = state { "" }
-    val password = state { "" }
+    val username = remember { mutableStateOf("") }
+    val password = remember { mutableStateOf("") }
     Column(Modifier.fillMaxHeight().padding(16.dp)) {
         val dividerColor = Color(0xFFAAAAAA)
 

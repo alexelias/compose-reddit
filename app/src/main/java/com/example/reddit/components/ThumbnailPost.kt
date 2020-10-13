@@ -25,9 +25,8 @@ import com.example.reddit.navigation.optionalNavArg
 import kotlin.math.max
 
 @Composable
-@Suppress("DEPRECATION")
 fun ThumbnailPost(id: String, title: String, score: Int, author: String, comments: Int, image: String?) {
-    val voteStatus = state<VoteStatus> { VoteStatus.UNVOTED }
+    val voteStatus = remember { mutableStateOf(VoteStatus.UNVOTED) }
     Post(voteStatus) {
         RowPostContent(id, title, score, author, comments, voteStatus, image)
     }
@@ -64,17 +63,16 @@ private fun RowPostContent(
  * right of the [mainCard]
  */
 @Composable
-@Suppress("DEPRECATION")
 private fun CrossFlexibleRow(
-    inflexibleWidthSection: @Composable () -> Unit,
-    mainCard: @Composable () -> Unit,
+    inflexibleWidthSection: @Composable BoxScope.() -> Unit,
+    mainCard: @Composable BoxScope.() -> Unit,
     ltr: Boolean
 ) {
-    val tempScoreSection = @Composable { inflexibleWidthSection() }
+    val tempScoreSection: @Composable BoxScope.() -> Unit = { inflexibleWidthSection() }
     Layout({
-        Box(Modifier.layoutId("tempScoreSection"), children = tempScoreSection)
-        Box(Modifier.layoutId("inflexibleWidthSection"), children = inflexibleWidthSection)
-        Box(Modifier.layoutId("mainCard"), children = mainCard)
+        Box(Modifier.layoutId("tempScoreSection"), Alignment.TopStart, children = tempScoreSection)
+        Box(Modifier.layoutId("inflexibleWidthSection"), Alignment.TopStart, children = inflexibleWidthSection)
+        Box(Modifier.layoutId("mainCard"), Alignment.TopStart, children = mainCard)
     }) { measurables, constraints ->
         // Measure score placeable to figure out how much width we have left
         val tempScorePlaceable = measurables.first { it.id == "tempScoreSection" }.measure(constraints)
@@ -103,10 +101,9 @@ private fun CrossFlexibleRow(
 }
 
 @Composable
-@Suppress("DEPRECATION")
 private fun ColumnScoreSection(score: Int, voteStatus: MutableState<VoteStatus>) {
     Column(Modifier.preferredWidth(60.dp).fillMaxWidth()) {
-        val modifier = Modifier.gravity(Alignment.CenterHorizontally)
+        val modifier = Modifier.align(Alignment.CenterHorizontally)
         ScoreSection(modifier.weight(1f), voteStatus) {
             // Simulate actual network connection to update the score
             val adjustedScore = score.adjustScore(voteStatus.value)
@@ -127,7 +124,6 @@ private fun ColumnScoreSection(score: Int, voteStatus: MutableState<VoteStatus>)
 }
 
 @Composable
-@Suppress("DEPRECATION")
 private fun MainPostCard(id: String, title: String, author: String, comments: Int, image: String?) {
     val navigator = Ambients.NavController.current
     Surface(elevation = 4.dp) {
@@ -146,7 +142,7 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
                         height = 110.dp
                     )
                 } else {
-                    Box()
+                    Box(Modifier)
                 }
             }, mainCard = {
                 Column(

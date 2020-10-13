@@ -20,7 +20,6 @@ import com.squareup.picasso.Target
 import java.lang.Exception
 
 @Composable
-@Suppress("DEPRECATION")
 fun Image(
     modifier: Modifier = Modifier,
     url: String,
@@ -28,21 +27,21 @@ fun Image(
     height: Dp? = null,
     aspectRatio: Float? = null
 ) {
-    var image by state<ImageAsset?> { null }
-    var drawable by state<Drawable?> { null }
+    var (image, setImage) = remember { mutableStateOf<ImageAsset?>(null) }
+    var (drawable, setDrawable) = remember { mutableStateOf<Drawable?>(null) }
     onCommit(url) {
         val picasso = Picasso.get()
         val target = object : Target {
             override fun onPrepareLoad(placeHolderDrawable: Drawable?) {
-                drawable = placeHolderDrawable
+                setDrawable(placeHolderDrawable)
             }
 
             override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
-                drawable = errorDrawable
+                setDrawable(errorDrawable)
             }
 
             override fun onBitmapLoaded(bitmap: Bitmap?, from: Picasso.LoadedFrom?) {
-                image = bitmap?.asImageAsset()
+                setImage(bitmap?.asImageAsset())
             }
         }
         picasso
@@ -56,21 +55,21 @@ fun Image(
         }
     }
 
-    val imageModifier = modifier + when {
+    val imageModifier = modifier.then(when {
         width != null && height != null -> Modifier.preferredSize(width, height)
         aspectRatio != null && width != null -> Modifier.preferredWidth(width).aspectRatio(aspectRatio)
         aspectRatio != null && height != null -> Modifier.preferredHeight(height).aspectRatio(aspectRatio)
         aspectRatio != null -> Modifier.fillMaxWidth().aspectRatio(aspectRatio)
         else -> Modifier
-    }
+    })
 
     if (image == null && drawable != null) {
         Canvas(modifier = imageModifier) {
-            drawCanvas { canvas, _ -> drawable!!.draw(canvas.nativeCanvas) }
+            drawIntoCanvas { canvas -> drawable!!.draw(canvas.nativeCanvas) }
         }
     } else {
         if (image == null) {
-            Box(modifier = imageModifier.background(Color.LightGray), children = emptyContent())
+            Box(imageModifier.background(Color.LightGray))
         } else {
             Image(image!!, imageModifier)
         }

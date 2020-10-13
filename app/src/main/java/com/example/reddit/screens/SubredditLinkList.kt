@@ -25,9 +25,8 @@ import com.example.reddit.data.LinkPreview
 import com.example.reddit.data.RedditFilterType
 
 @Composable
-@Suppress("DEPRECATION")
 fun <T> subscribe(data: LiveData<T>): T? {
-    val current = stateFor(data) { data.value }
+    val current = remember(data) { mutableStateOf(data.value) }
 
     onCommit(data) {
         val observer = Observer<T> {

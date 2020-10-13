@@ -172,9 +172,8 @@ fun DrawerContent(closeDrawer: () -> Unit) {
 }
 
 @Composable
-@Suppress("DEPRECATION")
 private fun DrawerDivider() {
-    Box(paddingStart = 8.dp, paddingEnd = 8.dp) {
+    Box(Modifier.padding(start = 8.dp, end = 8.dp), Alignment.TopStart) {
         Divider(color = Color(0xFFCCCCCC))
     }
 }
@@ -194,17 +193,16 @@ fun SubredditLink(subreddit: String, onNavigate: (String) -> Unit) {
 }
 
 @Composable
-@Suppress("DEPRECATION")
 fun SubredditNavigateField(onNavigate: (String) -> Unit) {
     Box(
         Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp).preferredHeight(96.dp),
         Alignment.TopStart
     ) {
         Column {
-            var text by state { "" }
+            var (text, setText) = remember { mutableStateOf("") }
             TextField(
                 value = text,
-                onValueChange = { text = it },
+                onValueChange = { setText(it) },
                 label = { Text("Enter subreddit") },
                 imeAction = ImeAction.Go,
                 onImeActionPerformed = { _, _ ->
