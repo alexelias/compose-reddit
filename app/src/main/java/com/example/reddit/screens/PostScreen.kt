@@ -9,7 +9,7 @@ import androidx.compose.foundation.lazy.ExperimentalLazyDsl
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
-import androidx.compose.material.EmphasisAmbient
+import androidx.compose.material.AmbientEmphasisLevels
 import androidx.compose.material.ProvideEmphasis
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.onCommit
@@ -151,7 +151,7 @@ fun LinkCard(
                 }
 
                 Row(Modifier.padding(all = 10.dp)) {
-                    ProvideEmphasis(EmphasisAmbient.current.medium) {
+                    ProvideEmphasis(AmbientEmphasisLevels.current.medium) {
                         Text(text = author, style = TextStyle(fontWeight = FontWeight.Bold))
                         if (score != 0) {
                             Bullet()
@@ -248,7 +248,7 @@ val String.color get() = Color(android.graphics.Color.parseColor(this))
     collapseCount: Int = 0
 ) {
     Row {
-        ProvideEmphasis(EmphasisAmbient.current.medium) {
+        ProvideEmphasis(AmbientEmphasisLevels.current.medium) {
             Text(text = author, style = TextStyle(fontWeight = FontWeight.Bold))
             if (score != 0) {
                 Bullet()
