@@ -1,7 +1,8 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.4.10'
+    ext.kotlin_version = '1.4.0'
+    ext.kotlin_studio_version = '1.4.10'
     ext.compose_version = "1.0.0-alpha05"
 //def compose_version = "0.1.0-SNAPSHOT"
 
@@ -12,7 +13,7 @@ buildscript {
     }
     dependencies {
         classpath "com.android.tools.build:gradle:4.2.0-alpha13"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_studio_version"
     }
 }
 
