@@ -5,10 +5,7 @@ import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.ExperimentalLazyDsl
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Tab
-import androidx.compose.material.TabRow
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -57,44 +54,22 @@ fun TabStrip(selectedSortIndexState: MutableState<Int>) {
     val (selectedSortIndex, setIndex) = selectedSortIndexState
 
     // TODO(lpf): maybe TabRow needs to expose elevation?
-    /*
-    Surface(color = MaterialTheme.colors.primarySurface, elevation = 4.dp) {
-        TabRow(
-            items = tabs, selectedIndex = selectedSortIndex,
-            indicatorContainer = { tabPositions ->
-                TabRow.IndicatorContainer(tabPositions, selectedSortIndex) {
-                    val colors = MaterialTheme.colors
-                    val indicatorColor = if (colors.isLight) {
-                        contentColor()
-                    } else {
-                        colors.primary
-                    }
-                    TabRow.Indicator(color = indicatorColor)
-                }
+    Surface(elevation = 4.dp) {
+        TabRow(selectedTabIndex = selectedSortIndex) {
+            tabs.forEachIndexed { index, name ->
+                Tab(
+                    text = { Text(name) },
+                    selected = selectedSortIndex == index,
+                    onClick = { setIndex(index) }
+                )
             }
-        ) { index, name ->
-            Tab(
-                text = { Text(name) },
-                selected = selectedSortIndex == index,
-                onSelected = { setIndex(index) })
-        }
-    }
-    */
-
-    TabRow(selectedTabIndex = selectedSortIndex) {
-        tabs.forEachIndexed { index, name ->
-            Tab(
-                text = { Text(name) },
-                selected = selectedSortIndex == index,
-                onClick = { setIndex(index) }
-            )
         }
     }
 }
 
 @Composable
 fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
-    var selectedSortIndex = mutableStateOf(0)
+    var selectedSortIndex = remember { mutableStateOf(0) }
     val repository = Ambients.Repository.current
     val model = remember(subreddit, selectedSortIndex.value) {
         repository.linksOfSubreddit(subreddit, sortOptions[selectedSortIndex.value], pageSize)
