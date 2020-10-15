@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.enforce
 import androidx.core.os.bundleOf
 import com.example.reddit.Ambients
 import com.example.reddit.R
+import com.example.reddit.navigation.currentSubreddit
 import com.example.reddit.navigation.optionalNavArg
 
 @Composable
@@ -126,7 +127,7 @@ private fun ColumnScoreSection(score: Int, voteStatus: MutableState<VoteStatus>)
 private fun MainPostCard(id: String, title: String, author: String, comments: Int, image: String?) {
     val navigator = Ambients.NavController.current
     Surface(elevation = 4.dp) {
-        val currentSubreddit = optionalNavArg<String>("subreddit") ?: "androiddev"
+        val currentSubreddit = currentSubreddit()
         Box(
             Modifier
                 .clickable { navigator.navigate(R.id.post_screen, bundleOf("linkId" to id, "subreddit" to currentSubreddit)) }

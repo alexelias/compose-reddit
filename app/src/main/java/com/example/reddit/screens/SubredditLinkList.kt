@@ -17,6 +17,7 @@ import androidx.lifecycle.Observer
 import androidx.paging.PagedList
 import com.example.reddit.Ambients
 import com.example.reddit.LinkStyle
+import com.example.reddit.SubredditTheme
 import com.example.reddit.components.ExpandedPost
 import com.example.reddit.components.ThumbnailPost
 import com.example.reddit.data.AsyncState
@@ -86,8 +87,7 @@ fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
 
             onCommit(isLoading, accentColor) {
                 if (!isLoading) {
-// TODO(aelias): Fix accent color (as of June 30 dev15, crashes with setAccentColor not found)
-//                        SubredditTheme.accentColor = accentColor ?: Color.White
+                    SubredditTheme.accentColor = accentColor ?: Color.White
                     opacity.animateTo(0f)
                 }
             }

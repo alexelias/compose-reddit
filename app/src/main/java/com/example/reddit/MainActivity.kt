@@ -29,10 +29,7 @@ import androidx.navigation.NavGraphBuilder
 import com.example.reddit.api.RedditApi
 import com.example.reddit.data.RedditRepository
 import com.example.reddit.data.RedditRepositoryImpl
-import com.example.reddit.navigation.ComposeActivity
-import com.example.reddit.navigation.navArg
-import com.example.reddit.navigation.optionalNavArg
-import com.example.reddit.navigation.route
+import com.example.reddit.navigation.*
 import com.example.reddit.screens.LoginScreen
 import com.example.reddit.screens.PostScreen
 import com.example.reddit.screens.SubredditLinkList
@@ -49,7 +46,7 @@ class MainActivity : ComposeActivity() {
 
     override fun NavGraphBuilder.graph() {
         route(R.id.home_screen) {
-            val subreddit = optionalNavArg<String>("subreddit") ?: "androiddev"
+            val subreddit = currentSubreddit()
             SubredditLinkList(subreddit)
         }
         route(R.id.post_screen) {
@@ -65,7 +62,7 @@ class MainActivity : ComposeActivity() {
     override fun content(content: @Composable () -> Unit) {
         Providers(Ambients.Repository provides repository, Ambients.Api provides api) {
             AppTheme(window) {
-                Scaffold(subreddit = optionalNavArg<String>("subreddit") ?: "androiddev") {
+                Scaffold(subreddit = currentSubreddit()) {
                     content()
                 }
             }
@@ -86,7 +83,6 @@ object SubredditTheme {
  * the [Activity]'s [Window].
  */
 @Composable
-@Suppress("DEPRECATION")
 fun AppTheme(window: Window? = null, children: @Composable () -> Unit) {
     val primary = animate(SubredditTheme.accentColor)
     val isDark = isSystemInDarkTheme()
@@ -110,6 +106,7 @@ fun AppTheme(window: Window? = null, children: @Composable () -> Unit) {
         val animatedSysUiColor = animate(sysUiColor)
         statusBarColor = animatedSysUiColor.toArgb()
         navigationBarColor = animatedSysUiColor.toArgb()
+        @Suppress("DEPRECATION")
         decorView.run {
             val someFlags = if (isLightStatusBar) {
                 View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR

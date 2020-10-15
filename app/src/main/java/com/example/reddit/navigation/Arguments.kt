@@ -1,6 +1,7 @@
 package com.example.reddit.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ComposeCompilerApi
 import com.example.reddit.Ambients
 
 @Composable
@@ -14,4 +15,9 @@ fun <T> optionalNavArg(name: String): T? {
     val arg = args?.get(name)
     @Suppress("UNCHECKED_CAST")
     return arg as? T
+}
+
+@Composable
+fun currentSubreddit(): String {
+    return optionalNavArg<String>("subreddit") ?: "android"
 }
