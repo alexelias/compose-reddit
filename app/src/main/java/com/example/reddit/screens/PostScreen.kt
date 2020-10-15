@@ -102,7 +102,8 @@ fun ScrollingContent(link: Link?, linkModel: LinkModel, comments: List<Hierarchi
     }
 }
 
-@Composable fun CommentRow(isFirst: Boolean, node: HierarchicalThing, onClick: () -> Unit) {
+@Composable
+fun CommentRow(isFirst: Boolean, node: HierarchicalThing, onClick: () -> Unit) {
     val enabled = when (node) {
         is Comment -> (node.collapsedChildren?.size ?: 0) != 0
         is RedditMore -> true

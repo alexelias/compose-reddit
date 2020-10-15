@@ -99,5 +99,9 @@ private fun VoteArrow(
 ) {
     val vector = vectorResource(vectorResource)
     val tintColor = animate(if (selected) MaterialTheme.colors.onPrimary else MaterialTheme.colors.fadedOnPrimary)
-    Box(modifier.toggleable(value = selected, onValueChange = onSelected).preferredSize(width = 24.dp, height = 24.dp).paint(VectorPainter(vector), colorFilter = ColorFilter.tint(tintColor)))
+    Box(
+        modifier.toggleable(value = selected, onValueChange = onSelected)
+            .preferredSize(width = 24.dp, height = 24.dp)
+            .paint(VectorPainter(vector),
+        colorFilter = ColorFilter.tint(tintColor)))
 }

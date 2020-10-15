@@ -5,43 +5,33 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Divider
 import androidx.compose.material.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun LoginScreen() {
-    val username = remember { mutableStateOf("") }
-    val password = remember { mutableStateOf("") }
-    Column(Modifier.fillMaxHeight().padding(16.dp)) {
-        val dividerColor = Color(0xFFAAAAAA)
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
 
-        TextField(
-            value = username.value,
-            onValueChange = { value -> username.value = value},
+    Column(Modifier.fillMaxHeight().padding(16.dp)) {
+         TextField(
+            value = username,
+            onValueChange = { value -> username = value },
             label = { Text("Username") }
         )
-        Divider(color = dividerColor)
-        Spacer()
+        Spacer(Modifier.preferredHeight(16.dp))
 
         TextField(
-            value = password.value,
-            onValueChange = { value -> password.value = value},
+            value = password,
+            onValueChange = { value -> password = value},
             label = { Text("Password") }
         )
-        Divider(color = dividerColor)
-        Spacer()
+        Spacer(Modifier.preferredHeight(16.dp))
 
         Button(onClick = { /* TODO */ }) {
-            Text("Log in")
+            Text("Log in (not implemented yet)")
         }
     }
-}
-
-@Composable
-private fun Spacer() {
-    Spacer(Modifier.preferredHeight(16.dp) )
 }

@@ -48,19 +48,14 @@ private val sortOptions = listOf(
 )
 
 @Composable
-fun TabStrip(selectedSortIndexState: MutableState<Int>) {
-    val tabs = listOf("HOT", "NEW", "TOP")
-
-    val (selectedSortIndex, setIndex) = selectedSortIndexState
-
-    // TODO(lpf): maybe TabRow needs to expose elevation?
+fun TabStrip(selectedSortIndex: MutableState<Int>) {
     Surface(elevation = 4.dp) {
-        TabRow(selectedTabIndex = selectedSortIndex) {
-            tabs.forEachIndexed { index, name ->
+        TabRow(selectedTabIndex = selectedSortIndex.value) {
+            sortOptions.forEachIndexed { index, filterType ->
                 Tab(
-                    text = { Text(name) },
-                    selected = selectedSortIndex == index,
-                    onClick = { setIndex(index) }
+                    text = { Text(filterType.displayText) },
+                    selected = selectedSortIndex.value == index,
+                    onClick = { selectedSortIndex.value = index }
                 )
             }
         }
@@ -69,9 +64,9 @@ fun TabStrip(selectedSortIndexState: MutableState<Int>) {
 
 @Composable
 fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
-    var selectedSortIndex = remember { mutableStateOf(0) }
+    val selectedSortIndex = remember { mutableStateOf(0) }
     val repository = Ambients.Repository.current
-    val model = remember(subreddit, selectedSortIndex.value) {
+    val model = remember(subreddit, selectedSortIndex.value, pageSize) {
         repository.linksOfSubreddit(subreddit, sortOptions[selectedSortIndex.value], pageSize)
     }
     val info = subscribe(model.info)
@@ -107,6 +102,7 @@ fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
                     TabStrip(selectedSortIndex)
                 }
             } else {
+                TabStrip(selectedSortIndex)
                 LoadingIndicator(opacity.value)
             }
         }

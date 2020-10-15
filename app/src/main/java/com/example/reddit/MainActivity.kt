@@ -12,17 +12,20 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.ViewAgenda
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.navigation.NavGraphBuilder
-import com.example.reddit.Scaffold
 import com.example.reddit.api.RedditApi
 import com.example.reddit.data.RedditRepository
 import com.example.reddit.data.RedditRepositoryImpl
@@ -162,14 +165,25 @@ fun DrawerContent(closeDrawer: () -> Unit) {
     }
     Column(Modifier.fillMaxHeight()) {
         LoginOrAccountItem(closeDrawer)
-        DrawerDivider()
         SubredditNavigateField(onNavigate)
-        DrawerDivider()
-        SubredditLink("/r/android", onNavigate)
-        SubredditLink("/r/androiddev", onNavigate)
-        SubredditLink("/r/diy", onNavigate)
-        SubredditLink("/r/programmerhumor", onNavigate)
-        SubredditLink("/r/woodworking", onNavigate)
+
+        ListItem  {
+            Row {
+                Icon(Icons.Filled.Star)
+                Spacer(Modifier.preferredWidth(6.dp))
+                Text(text = "Favorites:", style = TextStyle(fontWeight = FontWeight.Bold))
+            }
+        }
+        Row {
+            Spacer(Modifier.preferredWidth(50.dp))
+            Column {
+                SubredditLink("/r/android", onNavigate)
+                SubredditLink("/r/androiddev", onNavigate)
+                SubredditLink("/r/diy", onNavigate)
+                SubredditLink("/r/programmerhumor", onNavigate)
+                SubredditLink("/r/woodworking", onNavigate)
+            }
+        }
     }
 }
 
@@ -181,12 +195,23 @@ private fun DrawerDivider() {
 }
 
 @Composable
-fun LoginOrAccountItem(closeDrawer: () -> Unit) {
+fun ColumnScope.LoginOrAccountItem(closeDrawer: () -> Unit) {
     val navigator = Ambients.NavController.current
-    ListItem(text = { Text("Log in") }, modifier = Modifier.clickable {
-        navigator.navigate(R.id.login)
-        closeDrawer()
-    })
+
+    Button(
+        modifier = Modifier.align(Alignment.End).padding(12.dp),
+/*        colors = ButtonConstants.defaultButtonColors(
+            backgroundColor = MaterialTheme.colors.secondary
+        ), */ // should work in alpha06 to use generic reddit color instead of subreddit color
+        onClick = {
+            navigator.navigate(R.id.login)
+            closeDrawer()
+        }
+    ) {
+        Icon(Icons.Filled.Person)
+        Spacer(Modifier.preferredWidth(6.dp))
+        Text("Log in")
+    }
 }
 
 @Composable
@@ -197,20 +222,19 @@ fun SubredditLink(subreddit: String, onNavigate: (String) -> Unit) {
 @Composable
 fun SubredditNavigateField(onNavigate: (String) -> Unit) {
     Box(
-        Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp).preferredHeight(96.dp)
+        Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp).preferredHeight(70.dp)
     ) {
         Column {
-            var (text, setText) = remember { mutableStateOf("") }
+            var text by remember { mutableStateOf("") }
             TextField(
                 value = text,
-                onValueChange = { setText(it) },
+                onValueChange = { text = it },
                 label = { Text("Enter subreddit") },
                 imeAction = ImeAction.Go,
                 onImeActionPerformed = { _, _ ->
                     onNavigate(text)
                 }
             )
-            Divider()
         }
     }
 }

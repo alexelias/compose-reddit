@@ -55,9 +55,9 @@ enum class AsyncState {
 
 @NoLiveLiterals
 enum class RedditFilterType(private val text: String, val displayText: String) {
-    HOT("hot", "Hot Posts"),
-    NEW("new", "New Posts"),
-    TOP("top", "Top Posts");
+    HOT("hot", "HOT"),
+    NEW("new", "NEW"),
+    TOP("top", "TOP");
 
     override fun toString() = text
 }
