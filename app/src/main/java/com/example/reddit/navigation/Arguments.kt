@@ -18,6 +18,8 @@ fun <T> navArg(name: String, backStackEntry: NavBackStackEntry?): T? {
 }
 
 val defaultSubreddit = "android"
+val defaultSort = 0
+val defaultLinkStyle = true
 
 @Composable
 fun currentSubreddit(): String {

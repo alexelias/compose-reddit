@@ -12,11 +12,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawOpacity
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.core.os.bundleOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import androidx.navigation.compose.navigate
 import androidx.paging.PagedList
 import com.example.reddit.Ambients
 import com.example.reddit.LinkStyle
+import com.example.reddit.Screen
 import com.example.reddit.SubredditTheme
 import com.example.reddit.components.ExpandedPost
 import com.example.reddit.components.ThumbnailPost
@@ -24,6 +27,7 @@ import com.example.reddit.data.AsyncState
 import com.example.reddit.data.Link
 import com.example.reddit.data.LinkPreview
 import com.example.reddit.data.RedditFilterType
+import com.example.reddit.navigation.currentSubreddit
 
 @Composable
 fun <T> subscribe(data: LiveData<T>): T? {
@@ -49,14 +53,23 @@ private val sortOptions = listOf(
 )
 
 @Composable
-fun TabStrip(selectedSortIndex: MutableState<Int>) {
+fun TabStrip(selectedSortIndex: Int) {
+    val navController = Ambients.NavController.current
+    val currentSubreddit = currentSubreddit()
     Surface(elevation = 4.dp) {
-        TabRow(selectedTabIndex = selectedSortIndex.value) {
+        TabRow(selectedTabIndex = selectedSortIndex) {
             sortOptions.forEachIndexed { index, filterType ->
                 Tab(
                     text = { Text(filterType.displayText) },
-                    selected = selectedSortIndex.value == index,
-                    onClick = { selectedSortIndex.value = index }
+                    selected = selectedSortIndex == index,
+                    onClick = {
+                        if (index != selectedSortIndex) {
+                           navController.navigate(
+                                Screen.Subreddit,
+                                bundleOf("subreddit" to currentSubreddit, "sort" to index, "linkStyle" to LinkStyle.thumbnails)
+                            )
+                        }
+                    }
                 )
             }
         }
@@ -64,11 +77,10 @@ fun TabStrip(selectedSortIndex: MutableState<Int>) {
 }
 
 @Composable
-fun SubredditLinkList(subreddit: String, pageSize: Int = 10) {
-    val selectedSortIndex = remember { mutableStateOf(0) }
+fun SubredditLinkList(subreddit: String, selectedSortIndex: Int, pageSize: Int) {
     val repository = Ambients.Repository.current
-    val model = remember(subreddit, selectedSortIndex.value, pageSize) {
-        repository.linksOfSubreddit(subreddit, sortOptions[selectedSortIndex.value], pageSize)
+    val model = remember(subreddit, selectedSortIndex, pageSize) {
+        repository.linksOfSubreddit(subreddit, sortOptions[selectedSortIndex], pageSize)
     }
     val info = subscribe(model.info)
     val accentColor = info?.keyColor?.let { if (!it.isBlank()) it.color else null }

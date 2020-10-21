@@ -10,10 +10,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.ViewAgenda
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,9 +28,7 @@ import androidx.navigation.compose.navigate
 import com.example.reddit.api.RedditApi
 import com.example.reddit.data.RedditRepository
 import com.example.reddit.data.RedditRepositoryImpl
-import com.example.reddit.navigation.ComposeActivity
-import com.example.reddit.navigation.defaultSubreddit
-import com.example.reddit.navigation.navArg
+import com.example.reddit.navigation.*
 import com.example.reddit.screens.LoginScreen
 import com.example.reddit.screens.PostScreen
 import com.example.reddit.screens.SubredditLinkList
@@ -58,7 +53,17 @@ class MainActivity : ComposeActivity() {
             AppTheme(window) {
                 Scaffold(subreddit = SubredditTheme.subredditTitle) {
                     NavHost(Ambients.NavController.current, startDestination = Screen.Subreddit) {
-                        composable(Screen.Subreddit) { SubredditLinkList(navArg("subreddit", it) ?: defaultSubreddit) }
+                        composable(Screen.Subreddit) {
+                            val subreddit = navArg("subreddit", it) ?: defaultSubreddit
+                            val sort = navArg("sort", it) ?: defaultSort
+                            val linkStyle = navArg("linkStyle", it) ?: defaultLinkStyle
+                            onCommit(subreddit, sort, linkStyle) {
+                                SubredditTheme.subredditTitle = subreddit
+                                LinkStyle.sort = sort
+                                LinkStyle.thumbnails = linkStyle
+                            }
+                            SubredditLinkList(subreddit, sort,10)
+                        }
                         composable(Screen.Post) { PostScreen(navArg("linkId", it)!!, 10) }
                         composable(Screen.Login) { LoginScreen() }
                     }
@@ -70,7 +75,8 @@ class MainActivity : ComposeActivity() {
 
 
 object LinkStyle {
-    var thumbnails by mutableStateOf(true)
+    var sort by mutableStateOf(defaultSort)
+    var thumbnails by mutableStateOf(defaultLinkStyle)
 }
 
 object SubredditTheme {
@@ -127,6 +133,7 @@ val Colors.fadedOnPrimary get() = onPrimary.copy(alpha = 0.55f)
 
 @Composable
 fun Scaffold(subreddit: String, children: @Composable () -> Unit) {
+    val navigator: NavController = Ambients.NavController.current
     val scaffoldState = rememberScaffoldState()
     Scaffold(
         scaffoldState = scaffoldState,
@@ -138,9 +145,13 @@ fun Scaffold(subreddit: String, children: @Composable () -> Unit) {
                 }
             }, actions = {
                 IconButton(onClick = {
-                    LinkStyle.thumbnails = !LinkStyle.thumbnails
+                    navigator.navigate(Screen.Subreddit, bundleOf("subreddit" to subreddit, "sort" to LinkStyle.sort, "linkStyle" to !LinkStyle.thumbnails))
                 }) {
-                    Icon(Icons.Filled.ViewAgenda)
+                    if (LinkStyle.thumbnails == true) {
+                        Icon(Icons.Filled.ViewAgenda)
+                    } else {
+                        Icon(Icons.Filled.ViewHeadline)
+                    }
                 }
             })
         },
@@ -157,8 +168,7 @@ fun Scaffold(subreddit: String, children: @Composable () -> Unit) {
 fun DrawerContent(closeDrawer: () -> Unit) {
     val navigator: NavController = Ambients.NavController.current
     val onNavigate = { subreddit: String ->
-        SubredditTheme.subredditTitle = subreddit
-        navigator.navigate(Screen.Subreddit, bundleOf("subreddit" to subreddit))
+        navigator.navigate(Screen.Subreddit, bundleOf("subreddit" to subreddit, "sort" to defaultSort, "linkStyle" to defaultLinkStyle))
         closeDrawer()
     }
     Column(Modifier.fillMaxHeight()) {
