@@ -3,11 +3,11 @@ package com.example.reddit.screens
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
-import androidx.compose.material.Divider
+import androidx.compose.material.ButtonConstants
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -30,7 +30,9 @@ fun LoginScreen() {
         )
         Spacer(Modifier.preferredHeight(16.dp))
 
-        Button(onClick = { /* TODO */ }) {
+        Button(colors = ButtonConstants.defaultButtonColors(
+            backgroundColor = MaterialTheme.colors.secondary),
+            onClick = { /* TODO */ }) {
             Text("Log in (not implemented yet)")
         }
     }

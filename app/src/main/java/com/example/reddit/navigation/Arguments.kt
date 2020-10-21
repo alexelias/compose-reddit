@@ -1,23 +1,25 @@
 package com.example.reddit.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ComposeCompilerApi
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavHostController
 import com.example.reddit.Ambients
 
 @Composable
-fun <T> navArg(name: String): T {
-    return optionalNavArg(name)!!
+fun <T> navArg(name: String, navController: NavHostController? = null): T? {
+    val args = navController ?: Ambients.NavController.current
+    return navArg(name, args.getCurrentBackStackEntry())
 }
 
-@Composable
-fun <T> optionalNavArg(name: String): T? {
-    val args = Ambients.NavArguments.current
-    val arg = args?.get(name)
+fun <T> navArg(name: String, backStackEntry: NavBackStackEntry?): T? {
+    val arg = backStackEntry?.getArguments()?.get(name)
     @Suppress("UNCHECKED_CAST")
     return arg as? T
 }
 
+val defaultSubreddit = "android"
+
 @Composable
 fun currentSubreddit(): String {
-    return optionalNavArg<String>("subreddit") ?: "android"
+    return navArg("subreddit") ?: defaultSubreddit
 }

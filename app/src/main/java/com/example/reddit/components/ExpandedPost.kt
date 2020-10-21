@@ -15,10 +15,10 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
+import androidx.navigation.compose.navigate
 import com.example.reddit.Ambients
-import com.example.reddit.R
+import com.example.reddit.Screen
 import com.example.reddit.navigation.currentSubreddit
-import com.example.reddit.navigation.optionalNavArg
 
 @Composable
 fun ExpandedPost(id: String, title: String, score: Int, author: String, comments: Int, image: String?, selftext: String?) {
@@ -68,7 +68,7 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
         val currentSubreddit = currentSubreddit()
         Box(
             Modifier
-                .clickable { navigator.navigate(R.id.post_screen, bundleOf("linkId" to id, "subreddit" to currentSubreddit)) }
+                .clickable { navigator.navigate(Screen.Post, bundleOf("linkId" to id, "subreddit" to currentSubreddit)) }
                 .fillMaxWidth()
                 .padding(top = 5.dp, bottom = 5.dp)
         ) {

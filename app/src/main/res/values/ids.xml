@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <item name="home_screen" type="id" />
-    <item name="post_screen" type="id" />
-    <item name="go_to_post_detail" type="id" />
-    <item name="login" type="id" />
-</resources>

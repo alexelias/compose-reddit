@@ -1,31 +1,23 @@
 package com.example.reddit.navigation
 
-import androidx.activity.ComponentActivity
 import android.os.Bundle
-import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Providers
+import androidx.compose.runtime.onCommit
 import androidx.compose.ui.platform.setContent
 import androidx.navigation.NavController
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.createGraph
-import androidx.navigation.plusAssign
+import androidx.navigation.compose.rememberNavController
 import com.example.reddit.Ambients
 
 abstract class ComposeActivity : ComponentActivity() {
     @Composable
-    abstract fun content(content: @Composable () -> Unit)
-    abstract fun NavGraphBuilder.graph()
-    abstract val initialRoute: Int
+    abstract fun content()
 
-    private val graphId = 100
     private var navController: NavController? = null
-    private val navigator = ComposableNavigator()
 
     override fun onBackPressed() {
-        if (navController?.popBackStack() == true) {
-            Log.v("Navigation", "Successfully navigated back")
-        } else {
+        if (navController?.popBackStack() != true) {
             super.onBackPressed()
         }
     }
@@ -33,24 +25,17 @@ abstract class ComposeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val controller = NavController(this).also {
-            it.navigatorProvider += navigator
-            it.graph = it.createGraph(graphId, initialRoute) {
-                graph()
-            }
-        }
-
-        navController = controller
-
         setContent {
-            Providers(Ambients.NavController provides controller, Ambients.NavArguments provides navigator.args) {
-                content(navigator.current)
+            val controller = rememberNavController()
+            onCommit(controller) {
+                navController = controller
+                onDispose {
+                    navController = null
+                }
+            }
+            Providers(Ambients.NavController provides controller) {
+                content()
             }
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        navController = null
     }
 }

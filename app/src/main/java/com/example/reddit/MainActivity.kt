@@ -24,15 +24,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
-import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigate
 import com.example.reddit.api.RedditApi
 import com.example.reddit.data.RedditRepository
 import com.example.reddit.data.RedditRepositoryImpl
-import com.example.reddit.navigation.*
+import com.example.reddit.navigation.ComposeActivity
+import com.example.reddit.navigation.defaultSubreddit
+import com.example.reddit.navigation.navArg
 import com.example.reddit.screens.LoginScreen
 import com.example.reddit.screens.PostScreen
 import com.example.reddit.screens.SubredditLinkList
 import java.util.concurrent.Executors
+
+sealed class Screen {
+    object Subreddit : Screen()
+    object Post : Screen()
+    object Login : Screen()
+}
 
 class MainActivity : ComposeActivity() {
     private val networkExecutor = Executors.newFixedThreadPool(5)
@@ -41,33 +52,22 @@ class MainActivity : ComposeActivity() {
 
     private val repository: RedditRepository by lazy { RedditRepositoryImpl(api, networkExecutor) }
 
-    override val initialRoute = R.id.home_screen
-
-    override fun NavGraphBuilder.graph() {
-        route(R.id.home_screen) {
-            val subreddit = currentSubreddit()
-            SubredditLinkList(subreddit)
-        }
-        route(R.id.post_screen) {
-            val linkId = navArg<String>("linkId")
-            PostScreen(linkId, 10)
-        }
-        route(R.id.login) {
-            LoginScreen()
-        }
-    }
-
     @Composable
-    override fun content(content: @Composable () -> Unit) {
+    override fun content() {
         Providers(Ambients.Repository provides repository, Ambients.Api provides api) {
             AppTheme(window) {
-                Scaffold(subreddit = currentSubreddit()) {
-                    content()
+                Scaffold(subreddit = SubredditTheme.subredditTitle) {
+                    NavHost(Ambients.NavController.current, startDestination = Screen.Subreddit) {
+                        composable(Screen.Subreddit) { SubredditLinkList(navArg("subreddit", it) ?: defaultSubreddit) }
+                        composable(Screen.Post) { PostScreen(navArg("linkId", it)!!, 10) }
+                        composable(Screen.Login) { LoginScreen() }
+                    }
                 }
             }
         }
     }
 }
+
 
 object LinkStyle {
     var thumbnails by mutableStateOf(true)
@@ -75,6 +75,7 @@ object LinkStyle {
 
 object SubredditTheme {
     var accentColor by mutableStateOf(Color.White)
+    var subredditTitle by mutableStateOf(defaultSubreddit)
 }
 
 /**
@@ -154,9 +155,10 @@ fun Scaffold(subreddit: String, children: @Composable () -> Unit) {
 
 @Composable
 fun DrawerContent(closeDrawer: () -> Unit) {
-    val navigator = Ambients.NavController.current
+    val navigator: NavController = Ambients.NavController.current
     val onNavigate = { subreddit: String ->
-        navigator.navigate(R.id.home_screen, bundleOf("subreddit" to subreddit))
+        SubredditTheme.subredditTitle = subreddit
+        navigator.navigate(Screen.Subreddit, bundleOf("subreddit" to subreddit))
         closeDrawer()
     }
     Column(Modifier.fillMaxHeight()) {
@@ -196,11 +198,11 @@ fun ColumnScope.LoginOrAccountItem(closeDrawer: () -> Unit) {
 
     Button(
         modifier = Modifier.align(Alignment.End).padding(12.dp),
-/*        colors = ButtonConstants.defaultButtonColors(
+        colors = ButtonConstants.defaultButtonColors(
             backgroundColor = MaterialTheme.colors.secondary
-        ), */ // should work in alpha06 to use generic reddit color instead of subreddit color
+        ),
         onClick = {
-            navigator.navigate(R.id.login)
+            navigator.navigate(Screen.Login)
             closeDrawer()
         }
     ) {
