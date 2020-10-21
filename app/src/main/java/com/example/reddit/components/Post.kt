@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.vector.VectorPainter
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.example.reddit.R
@@ -99,9 +100,10 @@ private fun VoteArrow(
 ) {
     val vector = vectorResource(vectorResource)
     val tintColor = animate(if (selected) MaterialTheme.colors.onPrimary else MaterialTheme.colors.fadedOnPrimary)
+    val painter = rememberVectorPainter(vector)
     Box(
         modifier.toggleable(value = selected, onValueChange = onSelected)
             .preferredSize(width = 24.dp, height = 24.dp)
-            .paint(VectorPainter(vector),
-        colorFilter = ColorFilter.tint(tintColor)))
+            .paint(painter, colorFilter = ColorFilter.tint(tintColor))
+    )
 }

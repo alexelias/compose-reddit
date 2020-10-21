@@ -3,8 +3,8 @@
 buildscript {
     ext.kotlin_version = '1.4.0'
     ext.kotlin_studio_version = '1.4.10'
-    ext.compose_version = "1.0.0-alpha05"
-//def compose_version = "0.1.0-SNAPSHOT"
+//    ext.compose_version = "1.0.0-alpha05"
+    ext.compose_version = "1.0.0-SNAPSHOT"
 
     repositories {
         google()
@@ -23,7 +23,7 @@ allprojects {
         jcenter()
 //        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
 // Find valid snapshot IDs here: https://androidx.dev/snapshots/builds
-//        maven { url 'https://androidx.dev/snapshots/builds/6643654/artifacts/ui/repository' }
+        maven { url 'https://androidx.dev/snapshots/builds/6921732/artifacts/repository' }
 
 // Command to populate the following from frameworks/support/ui:
 // ./gradlew createArchive && unzip -o -d /usr/local/google/android-src/DevRel/composesnapshot /usr/local/google/android-src/ax3/out/dist/ui/top-of-tree-m2repository-all-0.zip
