@@ -17,7 +17,7 @@ package com.example.reddit.components
 import android.os.Handler
 import android.os.Looper
 import androidx.compose.runtime.*
-import androidx.compose.foundation.Text
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.ui.text.TextStyle
 import java.util.*
 import kotlin.math.roundToInt
@@ -69,5 +69,5 @@ fun TimeAgo(date: Long) {
     onCommit {
        CurrentTime.subscribeIfNeeded()
     }
-    Text(timeAgoText(CurrentTime.now - date))
+    BasicText(timeAgoText(CurrentTime.now - date))
 }

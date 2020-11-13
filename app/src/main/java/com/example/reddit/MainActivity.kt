@@ -18,7 +18,7 @@ import android.app.Activity
 import android.view.View
 import android.view.Window
 import androidx.compose.animation.animate
-import androidx.compose.foundation.Text
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
@@ -153,7 +153,7 @@ fun Scaffold(subreddit: String, children: @Composable () -> Unit) {
         scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
-                title = { Text("/r/$subreddit") }, navigationIcon = {
+                title = { BasicText("/r/$subreddit") }, navigationIcon = {
                 IconButton(onClick = { scaffoldState.drawerState.open() } ) {
                     Icon(Icons.Filled.Menu)
                 }
@@ -193,7 +193,7 @@ fun DrawerContent(closeDrawer: () -> Unit) {
             Row {
                 Icon(Icons.Filled.Star)
                 Spacer(Modifier.preferredWidth(6.dp))
-                Text(text = "Favorites:", style = TextStyle(fontWeight = FontWeight.Bold))
+                BasicText(text = "Favorites:", style = TextStyle(fontWeight = FontWeight.Bold))
             }
         }
         Row {
@@ -232,13 +232,13 @@ fun ColumnScope.LoginOrAccountItem(closeDrawer: () -> Unit) {
     ) {
         Icon(Icons.Filled.Person)
         Spacer(Modifier.preferredWidth(6.dp))
-        Text("Log in")
+        BasicText("Log in")
     }
 }
 
 @Composable
 fun SubredditLink(subreddit: String, onNavigate: (String) -> Unit) {
-    ListItem(text = { Text(subreddit) }, modifier = Modifier.clickable { onNavigate(subreddit.substring(3)) })
+    ListItem(text = { BasicText(subreddit) }, modifier = Modifier.clickable { onNavigate(subreddit.substring(3)) })
 }
 
 @Composable
@@ -251,8 +251,8 @@ fun SubredditNavigateField(onNavigate: (String) -> Unit) {
             TextField(
                 value = text,
                 onValueChange = { text = it },
-                label = { Text("Enter subreddit") },
-                imeAction = ImeAction.Go,
+                label = { BasicText("Enter subreddit") },
+//                imeAction = ImeAction.Go,
                 onImeActionPerformed = { _, _ ->
                     onNavigate(text)
                 }

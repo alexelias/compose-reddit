@@ -15,9 +15,8 @@
 package com.example.reddit.screens
 
 import androidx.compose.animation.animatedFloat
-import androidx.compose.foundation.Text
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.ExperimentalLazyDsl
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -74,7 +73,7 @@ fun TabStrip(selectedSortIndex: Int) {
         TabRow(selectedTabIndex = selectedSortIndex) {
             sortOptions.forEachIndexed { index, filterType ->
                 Tab(
-                    text = { Text(filterType.displayText) },
+                    text = { BasicText(filterType.displayText) },
                     selected = selectedSortIndex == index,
                     onClick = {
                         if (index != selectedSortIndex) {
@@ -148,7 +147,6 @@ fun LoadingIndicator(opacity: Float) {
 }
 
 @Composable
-@OptIn(ExperimentalLazyDsl::class)
 fun ScrollingContent(links: PagedList<Link>, header: @Composable () -> Unit) {
     LazyColumn(modifier = Modifier.fillMaxHeight()) {
         item {

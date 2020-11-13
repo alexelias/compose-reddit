@@ -14,12 +14,14 @@
 
 package com.example.reddit.screens
 
+import androidx.compose.material.AmbientContentAlpha
+import androidx.compose.material.ContentAlpha
+import androidx.compose.runtime.Providers
 import androidx.compose.animation.animatedFloat
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Text
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.ExperimentalLazyDsl
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AmbientEmphasisLevels
@@ -75,7 +77,6 @@ fun PostScreen(linkId: String, pageSize: Int = 10, initialLink: Link? = null) {
 }
 
 @Composable
-@OptIn(ExperimentalLazyDsl::class)
 fun ScrollingContent(link: Link?, linkModel: LinkModel, comments: List<HierarchicalThing>?) {
     val headerComposable: @Composable () -> Unit = {
         link?.run {
@@ -153,7 +154,7 @@ fun LinkCard(
         Card(shape = RoundedCornerShape(10.dp), elevation = 2.dp) {
             Column {
                 Column(Modifier.padding(all = 10.dp)) {
-                    Text(text = title, style = TextStyle(fontSize = 21.sp))
+                    BasicText(text = title, style = TextStyle(fontSize = 21.sp))
                 }
 
                 if (image != null) {
@@ -165,11 +166,11 @@ fun LinkCard(
                 }
 
                 Row(Modifier.padding(all = 10.dp)) {
-                    ProvideEmphasis(AmbientEmphasisLevels.current.medium) {
-                        Text(text = author, style = TextStyle(fontWeight = FontWeight.Bold))
+                    Providers(AmbientContentAlpha provides ContentAlpha.medium) {
+                        BasicText(text = author, style = TextStyle(fontWeight = FontWeight.Bold))
                         if (score != 0) {
                             Bullet()
-                            Text(text = "$score")
+                            BasicText(text = "$score")
                         }
                         Bullet()
                         TimeAgo(date = createdAt)
@@ -178,7 +179,7 @@ fun LinkCard(
             }
         }
         Column(Modifier.padding(top = 24.dp)) {
-            Text("Comments ($comments)", style = TextStyle(fontSize = 20.sp))
+            BasicText("Comments ($comments)", style = TextStyle(fontSize = 20.sp))
         }
     }
 }
@@ -196,11 +197,11 @@ fun LinkCard(
         score=score,
         createdUtc=createdUtc
     )
-    Text(text=body)
+    BasicText(text=body)
 }
 
 @Composable fun LoadMoreCommentsRow(count: Int) {
-    Text("Load $count more comment${if (count == 1) "" else "s"}", style = TextStyle(fontStyle = FontStyle.Italic))
+    BasicText("Load $count more comment${if (count == 1) "" else "s"}", style = TextStyle(fontStyle = FontStyle.Italic))
 }
 
 @Composable fun CommentEndCap() {
@@ -262,17 +263,17 @@ val String.color get() = Color(android.graphics.Color.parseColor(this))
     collapseCount: Int = 0
 ) {
     Row {
-        ProvideEmphasis(AmbientEmphasisLevels.current.medium) {
-            Text(text = author, style = TextStyle(fontWeight = FontWeight.Bold))
+        Providers(AmbientContentAlpha provides ContentAlpha.medium) {
+            BasicText(text = author, style = TextStyle(fontWeight = FontWeight.Bold))
             if (score != 0) {
                 Bullet()
-                Text(text = "$score")
+                BasicText(text = "$score")
             }
             Bullet()
             TimeAgo(date = createdUtc)
             // TODO(lmr): do a better job here
             if (collapseCount != 0) {
-                Text(text = "$collapseCount")
+                BasicText(text = "$collapseCount")
             }
         }
     }
@@ -280,6 +281,6 @@ val String.color get() = Color(android.graphics.Color.parseColor(this))
 
 @Composable
 fun Bullet() {
-    Text(text = " · ")
+    BasicText(text = " · ")
 }
 

@@ -14,7 +14,7 @@
 
 package com.example.reddit.components
 
-import androidx.compose.foundation.Text
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
@@ -66,7 +66,7 @@ private fun RowScoreSection(score: Int, voteStatus: MutableState<VoteStatus>) {
         ScoreSection(modifier.weight(1f), voteStatus) {
             // Simulate actual network connection to update the score
             val adjustedScore = score.adjustScore(voteStatus.value)
-            Text(
+            BasicText(
                 modifier = modifier.padding(start = 25.dp, end = 25.dp),
                 text = if (adjustedScore == 1) "$adjustedScore point" else "$adjustedScore points",
                 style = MaterialTheme.typography.h6.copy(color = MaterialTheme.colors.onPrimary)
@@ -95,7 +95,7 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
                         bottom = 5.dp
                     )
                 ) {
-                    Text(title, style = MaterialTheme.typography.h6, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    BasicText(title, style = MaterialTheme.typography.h6, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 }
                 if (image != null) {
                     Image(
@@ -105,17 +105,17 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
                     )
                 } else if (selftext != null) {
                     Box(Modifier.padding(15.dp)) {
-                        Text(selftext, style = MaterialTheme.typography.body2, maxLines = 10, overflow = TextOverflow.Ellipsis)
+                        BasicText(selftext, style = MaterialTheme.typography.body2, maxLines = 10, overflow = TextOverflow.Ellipsis)
                     }
                 }
                 Box(Modifier.padding(start = 15.dp, end = 15.dp)) {
-                    Text(
+                    BasicText(
                         text = "u/$author",
                         style = MaterialTheme.typography.overline.copy(fontStyle = FontStyle.Italic)
                     )
                 }
                 Box(Modifier.padding(start = 15.dp, end = 15.dp)) {
-                    Text(
+                    BasicText(
                         text = "$comments comments",
                         style = MaterialTheme.typography.overline)
                 }

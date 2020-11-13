@@ -14,7 +14,7 @@
 
 package com.example.reddit.components
 
-import androidx.compose.foundation.Text
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
@@ -24,8 +24,8 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Layout
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.id
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.text.font.FontStyle
@@ -122,12 +122,12 @@ private fun ColumnScoreSection(score: Int, voteStatus: MutableState<VoteStatus>)
             // Simulate actual network connection to update the score
             val adjustedScore = score.adjustScore(voteStatus.value)
             Spacer(modifier.preferredHeight(2.dp))
-            Text(
+            BasicText(
                 modifier = modifier,
                 text = "$adjustedScore",
                 style = MaterialTheme.typography.h6.copy(color = MaterialTheme.colors.onPrimary)
             )
-            Text(
+            BasicText(
                 modifier = modifier,
                 text = if (adjustedScore == 1) "point" else "points",
                 style = MaterialTheme.typography.overline.copy(color = MaterialTheme.colors.onPrimary)
@@ -165,17 +165,17 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
                         end = 5.dp
                     )
                 ) {
-                    Text(
+                    BasicText(
                         title,
                         style = MaterialTheme.typography.subtitle1
                     )
                     Spacer(Modifier.weight(1f))
                     Spacer(Modifier.preferredHeight(5.dp))
-                    Text(
+                    BasicText(
                         text = "u/$author",
                         style = (MaterialTheme.typography.overline).copy(fontStyle = FontStyle.Italic)
                     )
-                    Text(
+                    BasicText(
                         text = "$comments comments",
                         style = MaterialTheme.typography.overline
                     )

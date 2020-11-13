@@ -99,14 +99,14 @@ fun Image(
         Column {
             Row(Modifier.drawBackground(Color.Red)) {
                 Column(Modifier.drawBackground(Color.Green)) {
-                    Text(text = "One")
-                    Text(text = "Two")
-                    Text(text = "Three")
+                    BasicText(text = "One")
+                    BasicText(text = "Two")
+                    BasicText(text = "Three")
                 }
                 Column(Modifier.drawBackground(Color.Yellow)) {
-                    Text(text = "One")
-                    Text(text = "Two")
-                    Text(text = "Three")
+                    BasicText(text = "One")
+                    BasicText(text = "Two")
+                    BasicText(text = "Three")
                 }
             }
                 Image(
