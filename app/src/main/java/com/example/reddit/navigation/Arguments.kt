@@ -14,10 +14,23 @@
 
 package com.example.reddit.navigation
 
+import android.os.Bundle
 import androidx.compose.runtime.Composable
+import androidx.core.net.toUri
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.navigate
 import com.example.reddit.Ambients
+
+fun NavController.navigate(route: String, b: Bundle) {
+    var s: String = "$route?"
+    for (k in b.keySet()) {
+        s += "$k=${b.get(k).toString()}&"
+    }
+    s = s.dropLast(1)
+    navigate(s)
+}
 
 @Composable
 fun <T> navArg(name: String, navController: NavHostController? = null): T? {

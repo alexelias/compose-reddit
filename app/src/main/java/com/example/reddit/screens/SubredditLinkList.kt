@@ -14,6 +14,7 @@
 
 package com.example.reddit.screens
 
+import com.example.reddit.navigation.navigate
 import androidx.compose.animation.animatedFloat
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.layout.*
@@ -78,7 +79,7 @@ fun TabStrip(selectedSortIndex: Int) {
                     onClick = {
                         if (index != selectedSortIndex) {
                            navController.navigate(
-                                Screen.Subreddit,
+                                Screen.Subreddit.route,
                                 bundleOf("subreddit" to currentSubreddit, "sort" to index, "linkStyle" to LinkStyle.thumbnails)
                             )
                         }

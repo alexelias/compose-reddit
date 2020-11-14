@@ -74,7 +74,8 @@ dependencies {
     def nav_version = "2.3.1"
     def core_ktx_version = "1.2.0"
 
-    implementation "androidx.navigation:navigation-compose:1.0.0-SNAPSHOT"
+    implementation "androidx.navigation:navigation-compose:1.0.0-alpha02"
+//    implementation "androidx.navigation:navigation-compose:1.0.0-SNAPSHOT"
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
@@ -85,6 +86,7 @@ dependencies {
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
     implementation "androidx.compose.foundation:foundation:$compose_version"
     implementation "androidx.compose.animation:animation:$compose_version"
+
     implementation "androidx.ui:ui-tooling:$compose_version"
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
     implementation "androidx.paging:paging-runtime-ktx:$paging_version"

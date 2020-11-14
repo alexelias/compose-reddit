@@ -14,7 +14,11 @@
 
 package com.example.reddit
 
+import com.example.reddit.navigation.navigate
+import androidx.navigation.compose.navArgument
+
 import android.app.Activity
+import android.os.Bundle
 import android.view.View
 import android.view.Window
 import androidx.compose.animation.animate
@@ -34,8 +38,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.core.os.bundleOf
-import androidx.navigation.NavController
+import androidx.navigation.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigate
@@ -48,10 +53,10 @@ import com.example.reddit.screens.PostScreen
 import com.example.reddit.screens.SubredditLinkList
 import java.util.concurrent.Executors
 
-sealed class Screen {
-    object Subreddit : Screen()
-    object Post : Screen()
-    object Login : Screen()
+sealed class Screen(val route: String) {
+    object Subreddit : Screen("Subreddit")
+    object Post : Screen("Post")
+    object Login : Screen("Login")
 }
 
 class MainActivity : ComposeActivity() {
@@ -63,14 +68,19 @@ class MainActivity : ComposeActivity() {
 
     @Composable
     override fun content() {
+        val subredditDest = "${Screen.Subreddit.route}?linkStyle={linkStyle}&sort={sort}&subreddit={subreddit}"
         Providers(Ambients.Repository provides repository, Ambients.Api provides api) {
             AppTheme(window) {
                 Scaffold(subreddit = SubredditTheme.subredditTitle) {
-                    NavHost(Ambients.NavController.current, startDestination = Screen.Subreddit) {
-                        composable(Screen.Subreddit) {
-                            val subreddit = navArg("subreddit", it) ?: defaultSubreddit
-                            val sort = navArg("sort", it) ?: defaultSort
-                            val linkStyle = navArg("linkStyle", it) ?: defaultLinkStyle
+                    NavHost(Ambients.NavController.current, startDestination = subredditDest) {
+                        composable(subredditDest, listOf(
+                            navArgument("linkStyle") { defaultValue = defaultLinkStyle; type = NavType.BoolType },
+                            navArgument("sort") { defaultValue = defaultSort; type = NavType.IntType },
+                            navArgument("subreddit") { defaultValue = defaultSubreddit; type = NavType.StringType },
+                        )) {
+                            val subreddit: String = navArg("subreddit", it)!!
+                            val sort: Int = navArg("sort", it)!!
+                            val linkStyle: Boolean = navArg("linkStyle", it)!!
                             onCommit(subreddit, sort, linkStyle) {
                                 SubredditTheme.subredditTitle = subreddit
                                 LinkStyle.sort = sort
@@ -78,14 +88,17 @@ class MainActivity : ComposeActivity() {
                             }
                             SubredditLinkList(subreddit, sort,10)
                         }
-                        composable(Screen.Post) { PostScreen(navArg("linkId", it)!!, 10) }
-                        composable(Screen.Login) { LoginScreen() }
+                        composable("${Screen.Post.route}?linkId={linkId}&subreddit={subreddit}") {
+                            PostScreen(navArg("linkId", it)!!, 10)
+                        }
+                        composable(Screen.Login.route) { LoginScreen() }
                     }
                 }
             }
         }
     }
 }
+
 
 
 object LinkStyle {
@@ -159,7 +172,7 @@ fun Scaffold(subreddit: String, children: @Composable () -> Unit) {
                 }
             }, actions = {
                 IconButton(onClick = {
-                    navigator.navigate(Screen.Subreddit, bundleOf("subreddit" to subreddit, "sort" to LinkStyle.sort, "linkStyle" to !LinkStyle.thumbnails))
+                    navigator.navigate(Screen.Subreddit.route, bundleOf("subreddit" to subreddit, "sort" to LinkStyle.sort, "linkStyle" to !LinkStyle.thumbnails))
                 }) {
                     if (LinkStyle.thumbnails == true) {
                         Icon(Icons.Filled.ViewAgenda)
@@ -182,7 +195,7 @@ fun Scaffold(subreddit: String, children: @Composable () -> Unit) {
 fun DrawerContent(closeDrawer: () -> Unit) {
     val navigator: NavController = Ambients.NavController.current
     val onNavigate = { subreddit: String ->
-        navigator.navigate(Screen.Subreddit, bundleOf("subreddit" to subreddit, "sort" to defaultSort, "linkStyle" to defaultLinkStyle))
+        navigator.navigate(Screen.Subreddit.route, bundleOf("subreddit" to subreddit, "sort" to defaultSort, "linkStyle" to defaultLinkStyle))
         closeDrawer()
     }
     Column(Modifier.fillMaxHeight()) {
@@ -226,7 +239,7 @@ fun ColumnScope.LoginOrAccountItem(closeDrawer: () -> Unit) {
             backgroundColor = MaterialTheme.colors.secondary
         ),
         onClick = {
-            navigator.navigate(Screen.Login)
+            navigator.navigate(Screen.Login.route)
             closeDrawer()
         }
     ) {
@@ -252,7 +265,6 @@ fun SubredditNavigateField(onNavigate: (String) -> Unit) {
                 value = text,
                 onValueChange = { text = it },
                 label = { BasicText("Enter subreddit") },
-//                imeAction = ImeAction.Go,
                 onImeActionPerformed = { _, _ ->
                     onNavigate(text)
                 }

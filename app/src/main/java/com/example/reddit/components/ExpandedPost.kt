@@ -14,6 +14,7 @@
 
 package com.example.reddit.components
 
+import com.example.reddit.navigation.navigate
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -82,7 +83,7 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
         val currentSubreddit = currentSubreddit()
         Box(
             Modifier
-                .clickable { navigator.navigate(Screen.Post, bundleOf("linkId" to id, "subreddit" to currentSubreddit)) }
+                .clickable { navigator.navigate(Screen.Post.route, bundleOf("linkId" to id, "subreddit" to currentSubreddit)) }
                 .fillMaxWidth()
                 .padding(top = 5.dp, bottom = 5.dp)
         ) {
