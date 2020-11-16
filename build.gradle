@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.4.0'
+    ext.kotlin_version = '1.4.10'
     ext.kotlin_studio_version = '1.4.10'
     ext.compose_version = "1.0.0-alpha07"
 //    ext.compose_version = "1.0.0-SNAPSHOT"
@@ -9,7 +9,6 @@ buildscript {
     repositories {
         google()
         jcenter()
-        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     }
     dependencies {
         classpath "com.android.tools.build:gradle:4.2.0-alpha13"
@@ -17,18 +16,18 @@ buildscript {
     }
 }
 
-allprojects {
+subprojects {
     repositories {
-        google()
-        jcenter()
-//        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
-// Find valid snapshot IDs here: https://androidx.dev/snapshots/builds
-        maven { url 'https://androidx.dev/snapshots/builds/6921732/artifacts/repository' }
+        // Find valid snapshot IDs here: https://androidx.dev/snapshots/builds
+        maven { def snapshot = "6973133"; url "https://androidx.dev/snapshots/builds/$snapshot/artifacts/repository" }
 
 // Command to populate the following from frameworks/support/ui:
 // ./gradlew createArchive && unzip -o -d /usr/local/google/android-src/DevRel/composesnapshot /usr/local/google/android-src/ax3/out/dist/ui/top-of-tree-m2repository-all-0.zip
 //        maven { url '/usr/local/google/android-src/DevRel/composesnapshot/m2repository' }
-    }
+
+        google()
+        jcenter()
+   }
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
         kotlinOptions {
             allWarningsAsErrors = true
