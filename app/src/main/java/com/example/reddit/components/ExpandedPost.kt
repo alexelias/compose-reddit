@@ -34,6 +34,7 @@ import androidx.navigation.compose.navigate
 import com.example.reddit.Ambients
 import com.example.reddit.Screen
 import com.example.reddit.navigation.currentSubreddit
+import dev.chrisbanes.accompanist.coil.CoilImage
 
 @Composable
 fun ExpandedPost(id: String, title: String, score: Int, author: String, comments: Int, image: String?, selftext: String?) {
@@ -99,11 +100,7 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
                     BasicText(title, style = MaterialTheme.typography.h6, maxLines = 2, overflow = TextOverflow.Ellipsis)
                 }
                 if (image != null) {
-                    Image(
-                        modifier = Modifier.padding(top = 5.dp, bottom = 5.dp),
-                        url = image,
-                        aspectRatio = 16f / 9f
-                    )
+                    CoilImage(data = image, modifier = Modifier.padding(top = 5.dp, bottom = 5.dp).aspectRatio(16f / 9f))
                 } else if (selftext != null) {
                     Box(Modifier.padding(15.dp)) {
                         BasicText(selftext, style = MaterialTheme.typography.body2, maxLines = 10, overflow = TextOverflow.Ellipsis)

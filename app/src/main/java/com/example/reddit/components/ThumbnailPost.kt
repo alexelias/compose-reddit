@@ -38,6 +38,7 @@ import androidx.navigation.compose.navigate
 import com.example.reddit.Ambients
 import com.example.reddit.Screen
 import com.example.reddit.navigation.currentSubreddit
+import dev.chrisbanes.accompanist.coil.CoilImage
 
 @Composable
 fun ThumbnailPost(id: String, title: String, score: Int, author: String, comments: Int, image: String?) {
@@ -150,11 +151,7 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
                 .padding(start = 10.dp)) {
             CrossFlexibleRow(inflexibleWidthSection = {
                 if (image != null) {
-                    Image(
-                        url = image,
-                        width = 90.dp,
-                        height = 110.dp
-                    )
+                    CoilImage(data = image, modifier = Modifier.preferredSize(90.dp, 110.dp))
                 } else {
                     Box(Modifier)
                 }

@@ -40,9 +40,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.reddit.Ambients
-import com.example.reddit.components.Image
 import com.example.reddit.components.TimeAgo
 import com.example.reddit.data.*
+import dev.chrisbanes.accompanist.coil.CoilImage
 
 @Composable
 fun PostScreen(linkId: String, pageSize: Int = 10, initialLink: Link? = null) {
@@ -158,11 +158,7 @@ fun LinkCard(
                 }
 
                 if (image != null) {
-                    // image will at worst be square
-                    Image(
-                        url = image,
-                        aspectRatio = 16f / 9f
-                    )
+                    CoilImage(data = image, modifier = Modifier.aspectRatio(16f / 9f))
                 }
 
                 Row(Modifier.padding(all = 10.dp)) {

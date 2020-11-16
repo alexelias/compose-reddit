@@ -149,6 +149,12 @@ fun LoadingIndicator(opacity: Float) {
 
 @Composable
 fun ScrollingContent(links: PagedList<Link>, header: @Composable () -> Unit) {
+/*
+    if (!LinkStyle.thumbnails) {
+        ImageGrid(links, header)
+        return
+    }
+*/
     LazyColumn(modifier = Modifier.fillMaxHeight()) {
         item {
             header()
@@ -182,4 +188,20 @@ fun ScrollingContent(links: PagedList<Link>, header: @Composable () -> Unit) {
             Spacer(Modifier.preferredHeight(10.dp))
         }
     }
+}
+
+@Composable
+fun ImageGrid(links: PagedList<Link>, header: @Composable () -> Unit) {
+    LazyColumn(modifier = Modifier.fillMaxHeight()) {
+        item {
+            header()
+            Spacer(Modifier.preferredHeight(10.dp))
+        }
+        item {
+            for (l in links) {
+                Text(l.title)
+            }
+        }
+    }
+
 }
