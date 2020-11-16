@@ -16,6 +16,8 @@ package com.example.reddit.screens
 
 import com.example.reddit.navigation.navigate
 import androidx.compose.animation.animatedFloat
+import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.background
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawOpacity
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.lifecycle.LiveData
@@ -42,6 +45,7 @@ import com.example.reddit.data.Link
 import com.example.reddit.data.LinkPreview
 import com.example.reddit.data.RedditFilterType
 import com.example.reddit.navigation.currentSubreddit
+import dev.chrisbanes.accompanist.coil.CoilImage
 
 @Composable
 fun <T> subscribe(data: LiveData<T>): T? {
@@ -149,12 +153,12 @@ fun LoadingIndicator(opacity: Float) {
 
 @Composable
 fun ScrollingContent(links: PagedList<Link>, header: @Composable () -> Unit) {
-/*
+
     if (!LinkStyle.thumbnails) {
         ImageGrid(links, header)
         return
     }
-*/
+
     LazyColumn(modifier = Modifier.fillMaxHeight()) {
         item {
             header()
@@ -192,14 +196,20 @@ fun ScrollingContent(links: PagedList<Link>, header: @Composable () -> Unit) {
 
 @Composable
 fun ImageGrid(links: PagedList<Link>, header: @Composable () -> Unit) {
-    LazyColumn(modifier = Modifier.fillMaxHeight()) {
+    LazyColumn(modifier = Modifier.fillMaxHeight().background(Color.Black)) {
         item {
             header()
-            Spacer(Modifier.preferredHeight(10.dp))
         }
-        item {
-            for (l in links) {
-                Text(l.title)
+        items(links.filter { it.preview?.imageUrl != null }.chunked(4)) { row ->
+            Row(Modifier.fillMaxWidth().height(100.dp)) {
+                for (l in row) {
+                    Box(Modifier.weight(1f).aspectRatio(1f)) {
+                        CoilImage(
+                            data = l.preview!!.imageUrl!!,
+                            contentScale = ContentScale.Crop,
+                        )
+                    }
+                }
             }
         }
     }

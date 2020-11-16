@@ -213,9 +213,8 @@ fun DrawerContent(closeDrawer: () -> Unit) {
             Spacer(Modifier.preferredWidth(50.dp))
             Column {
                 SubredditLink("/r/android", onNavigate)
-                SubredditLink("/r/androiddev", onNavigate)
+                SubredditLink("/r/EarthPorn", onNavigate)
                 SubredditLink("/r/diy", onNavigate)
-                SubredditLink("/r/programmerhumor", onNavigate)
                 SubredditLink("/r/woodworking", onNavigate)
             }
         }
