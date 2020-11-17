@@ -40,7 +40,6 @@ fun ImageGrid(links: PagedList<Link>, header: @Composable () -> Unit) {
 
 }
 
-
 @OptIn(ExperimentalPointerInput::class)
 @Composable
 fun DetectMultitouchGesturesExample() {
