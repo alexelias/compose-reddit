@@ -39,6 +39,7 @@ import com.example.reddit.LinkStyle
 import com.example.reddit.Screen
 import com.example.reddit.SubredditTheme
 import com.example.reddit.components.ExpandedPost
+import com.example.reddit.components.ImageGrid
 import com.example.reddit.components.ThumbnailPost
 import com.example.reddit.data.AsyncState
 import com.example.reddit.data.Link
@@ -153,7 +154,6 @@ fun LoadingIndicator(opacity: Float) {
 
 @Composable
 fun ScrollingContent(links: PagedList<Link>, header: @Composable () -> Unit) {
-
     if (!LinkStyle.thumbnails) {
         ImageGrid(links, header)
         return
@@ -194,24 +194,3 @@ fun ScrollingContent(links: PagedList<Link>, header: @Composable () -> Unit) {
     }
 }
 
-@Composable
-fun ImageGrid(links: PagedList<Link>, header: @Composable () -> Unit) {
-    LazyColumn(modifier = Modifier.fillMaxHeight().background(Color.Black)) {
-        item {
-            header()
-        }
-        items(links.filter { it.preview?.imageUrl != null }.chunked(4)) { row ->
-            Row(Modifier.fillMaxWidth().height(100.dp)) {
-                for (l in row) {
-                    Box(Modifier.weight(1f).aspectRatio(1f)) {
-                        CoilImage(
-                            data = l.preview!!.imageUrl!!,
-                            contentScale = ContentScale.Crop,
-                        )
-                    }
-                }
-            }
-        }
-    }
-
-}
