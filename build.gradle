@@ -5,6 +5,7 @@ buildscript {
     ext.kotlin_studio_version = '1.4.10'
 //    ext.compose_version = "1.0.0-alpha07"
     ext.compose_version = "1.0.0-SNAPSHOT"
+    ext.compose_snapshot = "6979516"
 
     repositories {
         google()
@@ -19,8 +20,10 @@ buildscript {
 subprojects {
     repositories {
         // Find valid snapshot IDs here: https://androidx.dev/snapshots/builds
-        maven { def snapshot = "6978625"; url "https://androidx.dev/snapshots/builds/$snapshot/artifacts/repository" }
+        maven { url "https://androidx.dev/snapshots/builds/$compose_snapshot/artifacts/repository" }
 
+        // Accompanist snapshots
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 // Command to populate the following from frameworks/support/ui:
 // ./gradlew createArchive && unzip -o -d /usr/local/google/android-src/DevRel/composesnapshot /usr/local/google/android-src/ax3/out/dist/ui/top-of-tree-m2repository-all-0.zip
 //        maven { url '/usr/local/google/android-src/DevRel/composesnapshot/m2repository' }
