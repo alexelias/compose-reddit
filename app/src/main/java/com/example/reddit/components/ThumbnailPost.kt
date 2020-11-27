@@ -86,22 +86,22 @@ private fun CrossFlexibleRow(
 ) {
     val tempScoreSection: @Composable BoxScope.() -> Unit = { inflexibleWidthSection() }
     Layout({
-        Box(Modifier.layoutId("tempScoreSection"), children = tempScoreSection)
-        Box(Modifier.layoutId("inflexibleWidthSection"), children = inflexibleWidthSection)
-        Box(Modifier.layoutId("mainCard"), children = mainCard)
+        Box(Modifier.layoutId("tempScoreSection"), content = tempScoreSection)
+        Box(Modifier.layoutId("inflexibleWidthSection"), content = inflexibleWidthSection)
+        Box(Modifier.layoutId("mainCard"), content = mainCard)
     }) { measurables, constraints ->
         // Measure score placeable to figure out how much width we have left
-        val tempScorePlaceable = measurables.first { it.id == "tempScoreSection" }.measure(constraints)
+        val tempScorePlaceable = measurables.first { it.layoutId == "tempScoreSection" }.measure(constraints)
 
         val availableWidth = constraints.maxWidth - tempScorePlaceable.width
 
-        val postPlaceable = measurables.first { it.id == "mainCard" }.measure(
+        val postPlaceable = measurables.first { it.layoutId == "mainCard" }.measure(
             // Measure with loose constraints for height as we don't want the text to take up more
             // space than it needs
             constraints.enforce(Constraints.fixedWidth(availableWidth))
         )
 
-        val scorePlaceable = measurables.first { it.id == "inflexibleWidthSection" }
+        val scorePlaceable = measurables.first { it.layoutId == "inflexibleWidthSection" }
             .measure(constraints.enforce(Constraints.fixedHeight(postPlaceable.height)))
 
         layout(width = constraints.maxWidth, height = postPlaceable.height) {

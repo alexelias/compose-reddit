@@ -71,9 +71,10 @@ dependencies {
     def core_ktx_version = "1.2.0"
 //    def accompanist_version = "0.3.3.1"
     // see https://github.com/chrisbanes/accompanist/blob/main/docs/using-snapshot-version.md
-    def accompanist_version = "0.3.3.compose-$compose_snapshot-SNAPSHOT"
+    def accompanist_version = "0.3.4.compose-$compose_snapshot-SNAPSHOT"
 
-    def navigation_compose_version = "1.0.0-alpha02"
+//    def navigation_compose_version = "1.0.0-alpha02"
+    def navigation_compose_version = "1.0.0-SNAPSHOT"
 
     implementation "androidx.compose.animation:animation:$compose_version"
     implementation "androidx.compose.foundation:foundation:$compose_version"
@@ -104,4 +105,15 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+}
+
+configurations.all {
+    if (compose_version == '1.0.0-SNAPSHOT') {
+        resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+            if (details.requested.group.startsWith("androidx.compose")) {
+                details.useVersion compose_version
+                details.because 'force snapshot Compose builds (diamond dependencies tend to resolve to official versions)'
+            }
+        }
+    }
 }

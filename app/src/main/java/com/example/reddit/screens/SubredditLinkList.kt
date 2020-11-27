@@ -14,25 +14,23 @@
 
 package com.example.reddit.screens
 
-import com.example.reddit.navigation.navigate
 import androidx.compose.animation.animatedFloat
-import androidx.compose.foundation.ScrollableColumn
-import androidx.compose.foundation.background
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.onCommit
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawOpacity
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import androidx.navigation.compose.navigate
 import androidx.paging.PagedList
 import com.example.reddit.Ambients
 import com.example.reddit.LinkStyle
@@ -46,7 +44,7 @@ import com.example.reddit.data.Link
 import com.example.reddit.data.LinkPreview
 import com.example.reddit.data.RedditFilterType
 import com.example.reddit.navigation.currentSubreddit
-import dev.chrisbanes.accompanist.coil.CoilImage
+import com.example.reddit.navigation.navigate
 
 @Composable
 fun <T> subscribe(data: LiveData<T>): T? {
@@ -145,7 +143,7 @@ val LinkPreview.imageUrl: String?
 
 @Composable
 fun LoadingIndicator(opacity: Float) {
-    Box(Modifier.drawOpacity(opacity).padding(50.dp).fillMaxWidth().wrapContentSize(Alignment.TopCenter)) {
+    Box(Modifier.alpha(opacity).padding(50.dp).fillMaxWidth().wrapContentSize(Alignment.TopCenter)) {
         val color = MaterialTheme.colors.primary
         val indicatorColor = if (color == Color.White) MaterialTheme.colors.onSurface else color
         CircularProgressIndicator(color = indicatorColor)
