@@ -66,7 +66,7 @@ private fun timeAgoText(diff: Long): String {
 
 @Composable
 fun TimeAgo(date: Long) {
-    onCommit {
+    SideEffect {
        CurrentTime.subscribeIfNeeded()
     }
     BasicText(timeAgoText(CurrentTime.now - date))

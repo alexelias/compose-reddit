@@ -14,21 +14,20 @@
 
 package com.example.reddit.screens
 
-import androidx.compose.material.AmbientContentAlpha
+import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.ContentAlpha
-import androidx.compose.runtime.Providers
-import androidx.compose.animation.animatedFloat
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AmbientEmphasisLevels
 import androidx.compose.material.Card
-import androidx.compose.material.ProvideEmphasis
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.onCommit
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -41,8 +40,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.reddit.Ambients
 import com.example.reddit.components.TimeAgo
+import com.example.reddit.components.CoilImage
 import com.example.reddit.data.*
-import dev.chrisbanes.accompanist.coil.CoilImage
+import coil.compose.rememberImagePainter
 
 @Composable
 fun PostScreen(linkId: String, pageSize: Int = 10, initialLink: Link? = null) {
@@ -56,9 +56,9 @@ fun PostScreen(linkId: String, pageSize: Int = 10, initialLink: Link? = null) {
     val isLoading = networkState == AsyncState.LOADING
     Box(Modifier.fillMaxSize()) {
         // Controls fade out of the progress spinner
-        val opacity = animatedFloat(1f)
+        val opacity = remember { Animatable(1f) }
 
-        onCommit(isLoading) {
+        DisposableEffect(isLoading) {
             if (isLoading) {
                 if (opacity.value != 1f) {
                     opacity.snapTo(1f)
@@ -66,6 +66,8 @@ fun PostScreen(linkId: String, pageSize: Int = 10, initialLink: Link? = null) {
             } else {
                 opacity.animateTo(0f)
             }
+
+            onDispose {}
         }
 
         if (opacity.value == 0f) {
@@ -162,7 +164,7 @@ fun LinkCard(
                 }
 
                 Row(Modifier.padding(all = 10.dp)) {
-                    Providers(AmbientContentAlpha provides ContentAlpha.medium) {
+                    CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
                         BasicText(text = author, style = TextStyle(fontWeight = FontWeight.Bold))
                         if (score != 0) {
                             Bullet()
@@ -259,7 +261,7 @@ val String.color get() = Color(android.graphics.Color.parseColor(this))
     collapseCount: Int = 0
 ) {
     Row {
-        Providers(AmbientContentAlpha provides ContentAlpha.medium) {
+        CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
             BasicText(text = author, style = TextStyle(fontWeight = FontWeight.Bold))
             if (score != 0) {
                 Bullet()

@@ -15,6 +15,7 @@
 package com.example.reddit.components
 
 import com.example.reddit.navigation.navigate
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -27,18 +28,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.id
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.enforce
+import androidx.compose.ui.unit.constrain
 import androidx.core.os.bundleOf
 import androidx.navigation.compose.navigate
 import com.example.reddit.Ambients
 import com.example.reddit.Screen
 import com.example.reddit.navigation.currentSubreddit
-import dev.chrisbanes.accompanist.coil.CoilImage
+import coil.compose.rememberImagePainter
 
 @Composable
 fun ThumbnailPost(id: String, title: String, score: Int, author: String, comments: Int, image: String?) {
@@ -98,11 +98,11 @@ private fun CrossFlexibleRow(
         val postPlaceable = measurables.first { it.layoutId == "mainCard" }.measure(
             // Measure with loose constraints for height as we don't want the text to take up more
             // space than it needs
-            constraints.enforce(Constraints.fixedWidth(availableWidth))
+            constraints.constrain(Constraints.fixedWidth(availableWidth))
         )
 
         val scorePlaceable = measurables.first { it.layoutId == "inflexibleWidthSection" }
-            .measure(constraints.enforce(Constraints.fixedHeight(postPlaceable.height)))
+            .measure(constraints.constrain(Constraints.fixedHeight(postPlaceable.height)))
 
         layout(width = constraints.maxWidth, height = postPlaceable.height) {
             if (ltr) {
@@ -118,12 +118,12 @@ private fun CrossFlexibleRow(
 
 @Composable
 private fun ColumnScoreSection(score: Int, voteStatus: MutableState<VoteStatus>) {
-    Column(Modifier.preferredWidth(60.dp).fillMaxWidth()) {
+    Column(Modifier.width(60.dp).fillMaxWidth()) {
         val modifier = Modifier.align(Alignment.CenterHorizontally)
         ScoreSection(modifier.weight(1f), voteStatus) {
             // Simulate actual network connection to update the score
             val adjustedScore = score.adjustScore(voteStatus.value)
-            Spacer(modifier.preferredHeight(2.dp))
+            Spacer(modifier.height(2.dp))
             BasicText(
                 modifier = modifier,
                 text = "$adjustedScore",
@@ -134,9 +134,18 @@ private fun ColumnScoreSection(score: Int, voteStatus: MutableState<VoteStatus>)
                 text = if (adjustedScore == 1) "point" else "points",
                 style = MaterialTheme.typography.overline.copy(color = MaterialTheme.colors.onPrimary)
             )
-            Spacer(modifier.preferredHeight(2.dp))
+            Spacer(modifier.height(2.dp))
         }
     }
+}
+
+@Composable
+fun CoilImage(modifier: Modifier, data: String) {
+    Image(
+        painter = rememberImagePainter(data),
+        contentDescription = null,
+        modifier = modifier
+    )
 }
 
 @Composable
@@ -151,13 +160,13 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
                 .padding(start = 10.dp)) {
             CrossFlexibleRow(inflexibleWidthSection = {
                 if (image != null) {
-                    CoilImage(data = image, modifier = Modifier.preferredSize(90.dp, 110.dp))
+                    CoilImage(data = image, modifier = Modifier.size(90.dp, 110.dp))
                 } else {
                     Box(Modifier)
                 }
             }, mainCard = {
                 Column(
-                    Modifier.fillMaxWidth().preferredHeightIn(min = 100.dp).padding(
+                    Modifier.fillMaxWidth().heightIn(min = 100.dp).padding(
                         top = 5.dp,
                         bottom = 5.dp,
                         end = 5.dp
@@ -168,7 +177,7 @@ private fun MainPostCard(id: String, title: String, author: String, comments: In
                         style = MaterialTheme.typography.subtitle1
                     )
                     Spacer(Modifier.weight(1f))
-                    Spacer(Modifier.preferredHeight(5.dp))
+                    Spacer(Modifier.height(5.dp))
                     BasicText(
                         text = "u/$author",
                         style = (MaterialTheme.typography.overline).copy(fontStyle = FontStyle.Italic)

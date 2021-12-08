@@ -22,7 +22,8 @@ import android.app.Activity
 import android.os.Bundle
 import android.view.View
 import android.view.Window
-import androidx.compose.animation.animate
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -70,7 +71,7 @@ class MainActivity : ComposeActivity() {
     @Composable
     override fun content() {
         val subredditDest = "${Screen.Subreddit.route}?linkStyle={linkStyle}&sort={sort}&subreddit={subreddit}"
-        Providers(Ambients.Repository provides repository, Ambients.Api provides api) {
+        CompositionLocalProvider(Ambients.Repository provides repository, Ambients.Api provides api) {
             AppTheme(window) {
                 Scaffold(subreddit = SubredditTheme.subredditTitle) {
                     NavHost(Ambients.NavController.current, startDestination = subredditDest) {
@@ -82,10 +83,12 @@ class MainActivity : ComposeActivity() {
                             val subreddit: String = navArg("subreddit", it)!!
                             val sort: Int = navArg("sort", it)!!
                             val linkStyle: Boolean = navArg("linkStyle", it)!!
-                            onCommit(subreddit, sort, linkStyle) {
+                            DisposableEffect(subreddit, sort, linkStyle) {
                                 SubredditTheme.subredditTitle = subreddit
                                 LinkStyle.sort = sort
                                 LinkStyle.thumbnails = linkStyle
+
+                                onDispose {}
                             }
                             SubredditLinkList(subreddit, sort,10)
                         }
@@ -118,26 +121,26 @@ object SubredditTheme {
  */
 @Composable
 fun AppTheme(window: Window? = null, children: @Composable () -> Unit) {
-    val primary = animate(SubredditTheme.accentColor)
+    val primary = animateColorAsState(SubredditTheme.accentColor)
     val isDark = isSystemInDarkTheme()
 
     val isLightStatusBar = SubredditTheme.accentColor == Color.White && !isDark
     val onPrimary = if (isLightStatusBar) Color.Black else Color.White
     val colors = if (isDark) {
         darkColors(
-            primary = primary,
+            primary = primary.value,
             onPrimary = onPrimary,
         )
     } else {
         lightColors(
-            primary = primary,
+            primary = primary.value,
             onPrimary = onPrimary,
         )
     }
 
     window?.run {
-        val sysUiColor = if (isDark) colors.surface else primary
-        val animatedSysUiColor = animate(sysUiColor)
+        val sysUiColor = if (isDark) colors.surface else primary.value
+        val animatedSysUiColor by animateColorAsState(sysUiColor)
         statusBarColor = animatedSysUiColor.toArgb()
         navigationBarColor = animatedSysUiColor.toArgb()
         @Suppress("DEPRECATION")
@@ -169,16 +172,16 @@ fun Scaffold(subreddit: String, children: @Composable () -> Unit) {
             TopAppBar(
                 title = { BasicText("/r/$subreddit") }, navigationIcon = {
                 IconButton(onClick = { scaffoldState.drawerState.open() } ) {
-                    Icon(Icons.Filled.Menu)
+                    Icon(Icons.Filled.Menu, contentDescription = null)
                 }
             }, actions = {
                 IconButton(onClick = {
                     navigator.navigate(Screen.Subreddit.route, bundleOf("subreddit" to subreddit, "sort" to LinkStyle.sort, "linkStyle" to !LinkStyle.thumbnails))
                 }) {
                     if (LinkStyle.thumbnails == true) {
-                        Icon(Icons.Filled.ViewAgenda)
+                        Icon(Icons.Filled.ViewAgenda, contentDescription = null)
                     } else {
-                        Icon(Icons.Filled.ViewHeadline)
+                        Icon(Icons.Filled.ViewHeadline, contentDescription = null)
                     }
                 }
             })
@@ -203,15 +206,16 @@ fun DrawerContent(closeDrawer: () -> Unit) {
         LoginOrAccountItem(closeDrawer)
         SubredditNavigateField(onNavigate)
 
-        ListItem  {
+        @OptIn(ExperimentalMaterialApi::class)
+        ListItem {
             Row {
-                Icon(Icons.Filled.Star)
-                Spacer(Modifier.preferredWidth(6.dp))
+                Icon(Icons.Filled.Star, contentDescription = null)
+                Spacer(Modifier.width(6.dp))
                 BasicText(text = "Favorites:", style = TextStyle(fontWeight = FontWeight.Bold))
             }
         }
         Row {
-            Spacer(Modifier.preferredWidth(50.dp))
+            Spacer(Modifier.width(50.dp))
             Column {
                 SubredditLink("/r/android", onNavigate)
                 SubredditLink("/r/EarthPorn", onNavigate)
@@ -235,7 +239,7 @@ fun ColumnScope.LoginOrAccountItem(closeDrawer: () -> Unit) {
 
     Button(
         modifier = Modifier.align(Alignment.End).padding(12.dp),
-        colors = ButtonConstants.defaultButtonColors(
+        colors = ButtonDefaults.buttonColors(
             backgroundColor = MaterialTheme.colors.secondary
         ),
         onClick = {
@@ -243,21 +247,22 @@ fun ColumnScope.LoginOrAccountItem(closeDrawer: () -> Unit) {
             closeDrawer()
         }
     ) {
-        Icon(Icons.Filled.Person)
-        Spacer(Modifier.preferredWidth(6.dp))
+        Icon(Icons.Filled.Person, contentDescription = null)
+        Spacer(Modifier.width(6.dp))
         BasicText("Log in")
     }
 }
 
 @Composable
 fun SubredditLink(subreddit: String, onNavigate: (String) -> Unit) {
+    @OptIn(ExperimentalMaterialApi::class)
     ListItem(text = { BasicText(subreddit) }, modifier = Modifier.clickable { onNavigate(subreddit.substring(3)) })
 }
 
 @Composable
 fun SubredditNavigateField(onNavigate: (String) -> Unit) {
     Box(
-        Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp).preferredHeight(70.dp)
+        Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp).height(70.dp)
     ) {
         Column {
             var text by remember { mutableStateOf("") }

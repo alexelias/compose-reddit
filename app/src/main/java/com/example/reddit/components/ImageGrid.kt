@@ -15,7 +15,6 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.PagedList
 import com.example.reddit.data.Link
 import com.example.reddit.screens.imageUrl
-import dev.chrisbanes.accompanist.coil.CoilImage
 
 @Composable
 fun ImageGrid(links: PagedList<Link>, header: @Composable () -> Unit) {
@@ -24,7 +23,7 @@ fun ImageGrid(links: PagedList<Link>, header: @Composable () -> Unit) {
             header()
         }
         items(links.filter { it.preview?.imageUrl != null }.chunked(4)) { row ->
-            Row(Modifier.fillMaxWidth().height(100.dp)) {
+            Row(Modifier.fillMaxWidth().requiredHeight(100.dp)) {
                 for (l in row) {
                     Box(Modifier.weight(1f).aspectRatio(1f)) {
                         CoilImage(

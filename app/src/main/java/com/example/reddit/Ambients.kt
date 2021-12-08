@@ -14,15 +14,15 @@
 
 package com.example.reddit
 
-import androidx.compose.runtime.ambientOf
+import androidx.compose.runtime.compositionLocalOf
 import androidx.navigation.NavHostController
 import com.example.reddit.api.RedditApi
 import com.example.reddit.data.AuthenticationService
 import com.example.reddit.data.RedditRepository
 
 object Ambients {
-    val Repository = ambientOf<RedditRepository>()
-    val Api = ambientOf<RedditApi>()
-    val AuthenticationService = ambientOf<AuthenticationService>()
-    val NavController = ambientOf<NavHostController>()
+    val Repository = compositionLocalOf<RedditRepository>() { throw RuntimeException() }
+    val Api = compositionLocalOf<RedditApi>() { throw RuntimeException() }
+    val AuthenticationService = compositionLocalOf<AuthenticationService>() { throw RuntimeException() }
+    val NavController = compositionLocalOf<NavHostController>() { throw RuntimeException() }
 }

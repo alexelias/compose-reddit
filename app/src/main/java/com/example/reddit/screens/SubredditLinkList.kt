@@ -14,14 +14,15 @@
 
 package com.example.reddit.screens
 
-import androidx.compose.animation.animatedFloat
+import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.onCommit
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,7 +51,7 @@ import com.example.reddit.navigation.navigate
 fun <T> subscribe(data: LiveData<T>): T? {
     val current = remember(data) { mutableStateOf(data.value) }
 
-    onCommit(data) {
+    DisposableEffect(data) {
         val observer = Observer<T> {
             current.value = data.value
         }
@@ -112,13 +113,15 @@ fun SubredditLinkList(subreddit: String, selectedSortIndex: Int, pageSize: Int) 
         Column {
 
             // Controls fade out of the progress spinner
-            val opacity = animatedFloat(1f)
+            val opacity = remember { Animatable(1f) }
 
-            onCommit(isLoading, accentColor) {
+            DisposableEffect(isLoading, accentColor) {
                 if (!isLoading) {
                     SubredditTheme.accentColor = accentColor ?: Color.White
                     opacity.animateTo(0f)
                 }
+
+                onDispose {}
             }
 
             if (isLoading) {
@@ -160,7 +163,7 @@ fun ScrollingContent(links: PagedList<Link>, header: @Composable () -> Unit) {
     LazyColumn(modifier = Modifier.fillMaxHeight()) {
         item {
             header()
-            Spacer(Modifier.preferredHeight(10.dp))
+            Spacer(Modifier.height(10.dp))
         }
         items(links) {
             with(it) {
@@ -187,7 +190,7 @@ fun ScrollingContent(links: PagedList<Link>, header: @Composable () -> Unit) {
             }
         }
         item {
-            Spacer(Modifier.preferredHeight(10.dp))
+            Spacer(Modifier.height(10.dp))
         }
     }
 }

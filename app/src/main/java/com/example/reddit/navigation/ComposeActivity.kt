@@ -16,10 +16,10 @@ package com.example.reddit.navigation
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Providers
-import androidx.compose.runtime.onCommit
-import androidx.compose.ui.platform.setContent
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.reddit.Ambients
@@ -41,13 +41,13 @@ abstract class ComposeActivity : ComponentActivity() {
 
         setContent {
             val controller = rememberNavController()
-            onCommit(controller) {
+            DisposableEffect(controller) {
                 navController = controller
                 onDispose {
                     navController = null
                 }
             }
-            Providers(Ambients.NavController provides controller) {
+            CompositionLocalProvider(Ambients.NavController provides controller) {
                 content()
             }
         }

@@ -17,7 +17,7 @@ package com.example.reddit.screens
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
-import androidx.compose.material.ButtonConstants
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.TextField
 import androidx.compose.runtime.*
@@ -35,16 +35,16 @@ fun LoginScreen() {
             onValueChange = { value -> username = value },
             label = { BasicText("Username") }
         )
-        Spacer(Modifier.preferredHeight(16.dp))
+        Spacer(Modifier.height(16.dp))
 
         TextField(
             value = password,
             onValueChange = { value -> password = value},
             label = { BasicText("Password") }
         )
-        Spacer(Modifier.preferredHeight(16.dp))
+        Spacer(Modifier.height(16.dp))
 
-        Button(colors = ButtonConstants.defaultButtonColors(
+        Button(colors = ButtonDefaults.buttonColors(
             backgroundColor = MaterialTheme.colors.secondary),
             onClick = { /* TODO */ }) {
             BasicText("Log in (not implemented yet)")

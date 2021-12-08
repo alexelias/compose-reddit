@@ -34,7 +34,7 @@ import androidx.navigation.compose.navigate
 import com.example.reddit.Ambients
 import com.example.reddit.Screen
 import com.example.reddit.navigation.currentSubreddit
-import dev.chrisbanes.accompanist.coil.CoilImage
+import coil.compose.rememberImagePainter
 
 @Composable
 fun ExpandedPost(id: String, title: String, score: Int, author: String, comments: Int, image: String?, selftext: String?) {
@@ -63,7 +63,7 @@ private fun ColumnPostContent(
 
 @Composable
 private fun RowScoreSection(score: Int, voteStatus: MutableState<VoteStatus>) {
-    Row(Modifier.preferredHeight(40.dp).fillMaxHeight()) {
+    Row(Modifier.height(40.dp).fillMaxHeight()) {
         val modifier = Modifier.align(Alignment.CenterVertically)
         ScoreSection(modifier.weight(1f), voteStatus) {
             // Simulate actual network connection to update the score

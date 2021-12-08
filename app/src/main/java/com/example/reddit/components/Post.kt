@@ -14,11 +14,11 @@
 
 package com.example.reddit.components
 
-import androidx.compose.animation.animate
+import androidx.compose.animation.*
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
@@ -63,10 +64,10 @@ fun Post(voteStatus: MutableState<VoteStatus>, children: @Composable () -> Unit)
         VoteStatus.UP -> upvoteColor
         VoteStatus.DOWN -> downvoteColor
     }
-    val animatedColor = animate(cardColor)
+    val animatedColor = animateColorAsState(cardColor)
 
     Box(Modifier.padding(10.dp).fillMaxWidth()) {
-        Card(backgroundColor = animatedColor, shape = RoundedCornerShape(10.dp), elevation = 2.dp) {
+        Card(backgroundColor = animatedColor.value, shape = RoundedCornerShape(10.dp), elevation = 2.dp) {
             children()
         }
     }
@@ -110,12 +111,12 @@ private fun VoteArrow(
     selected: Boolean,
     onSelected: (Boolean) -> Unit
 ) {
-    val vector = vectorResource(vectorResource)
-    val tintColor = animate(if (selected) MaterialTheme.colors.onPrimary else MaterialTheme.colors.fadedOnPrimary)
+    val vector = ImageVector.vectorResource(vectorResource)
+    val tintColor = animateColorAsState(if (selected) MaterialTheme.colors.onPrimary else MaterialTheme.colors.fadedOnPrimary)
     val painter = rememberVectorPainter(vector)
     Box(
         modifier.toggleable(value = selected, onValueChange = onSelected)
-            .preferredSize(width = 24.dp, height = 24.dp)
-            .paint(painter, colorFilter = ColorFilter.tint(tintColor))
+            .size(width = 24.dp, height = 24.dp)
+            .paint(painter, colorFilter = ColorFilter.tint(tintColor.value))
     )
 }
