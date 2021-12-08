@@ -1,11 +1,11 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.4.20'
-    ext.kotlin_studio_version = '1.4.20'
-//    ext.compose_version = "1.0.0-alpha07"
-    ext.compose_version = "1.0.0-SNAPSHOT"
-    ext.compose_snapshot = "6995125"
+    ext.kotlin_version = '1.5.31'
+    ext.kotlin_studio_version = '1.5.31'
+    ext.compose_version = "1.0.5"
+//    ext.compose_version = "1.0.0-SNAPSHOT"
+//    ext.compose_snapshot = "6995125"
 
     repositories {
         google()
@@ -20,7 +20,7 @@ buildscript {
 subprojects {
     repositories {
         // Find valid snapshot IDs here: https://androidx.dev/snapshots/builds
-        maven { url "https://androidx.dev/snapshots/builds/$compose_snapshot/artifacts/repository" }
+//        maven { url "https://androidx.dev/snapshots/builds/$compose_snapshot/artifacts/repository" }
 
         // Accompanist snapshots
         maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
