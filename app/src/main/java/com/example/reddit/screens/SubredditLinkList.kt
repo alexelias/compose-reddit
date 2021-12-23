@@ -21,8 +21,9 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -115,20 +116,17 @@ fun SubredditLinkList(subreddit: String, selectedSortIndex: Int, pageSize: Int) 
             // Controls fade out of the progress spinner
             val opacity = remember { Animatable(1f) }
 
-            DisposableEffect(isLoading, accentColor) {
+            LaunchedEffect(isLoading, accentColor) {
                 if (!isLoading) {
                     SubredditTheme.accentColor = accentColor ?: Color.White
                     opacity.animateTo(0f)
-                }
-
-                onDispose {}
-            }
-
-            if (isLoading) {
-                if (opacity.value != 1f) {
-                    opacity.snapTo(1f)
+                } else {
+                    if (opacity.value != 1f) {
+                        opacity.snapTo(1f)
+                    }
                 }
             }
+
             if (opacity.value == 0f) {
                 ScrollingContent(links!!) {
                     TabStrip(selectedSortIndex)

@@ -25,10 +25,14 @@ import android.view.Window
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material.TextField
+import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
@@ -45,7 +49,6 @@ import androidx.core.os.bundleOf
 import androidx.navigation.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigate
 import com.example.reddit.api.RedditApi
 import com.example.reddit.data.RedditRepository
 import com.example.reddit.data.RedditRepositoryImpl
@@ -54,6 +57,7 @@ import com.example.reddit.screens.LoginScreen
 import com.example.reddit.screens.PostScreen
 import com.example.reddit.screens.SubredditLinkList
 import java.util.concurrent.Executors
+import kotlinx.coroutines.launch
 
 sealed class Screen(val route: String) {
     object Subreddit : Screen("Subreddit")
@@ -166,12 +170,13 @@ val Colors.fadedOnPrimary get() = onPrimary.copy(alpha = 0.55f)
 fun Scaffold(subreddit: String, children: @Composable () -> Unit) {
     val navigator: NavController = Ambients.NavController.current
     val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
             TopAppBar(
                 title = { BasicText("/r/$subreddit") }, navigationIcon = {
-                IconButton(onClick = { scaffoldState.drawerState.open() } ) {
+                IconButton(onClick = { scope.launch { scaffoldState.drawerState.open() } } ) {
                     Icon(Icons.Filled.Menu, contentDescription = null)
                 }
             }, actions = {
@@ -187,9 +192,9 @@ fun Scaffold(subreddit: String, children: @Composable () -> Unit) {
             })
         },
         drawerContent = {
-            DrawerContent { scaffoldState.drawerState.close() }
+            DrawerContent { scope.launch { scaffoldState.drawerState.close() } }
         },
-        bodyContent = {
+        content = {
             children()
         }
     )
@@ -270,9 +275,9 @@ fun SubredditNavigateField(onNavigate: (String) -> Unit) {
                 value = text,
                 onValueChange = { text = it },
                 label = { BasicText("Enter subreddit") },
-                onImeActionPerformed = { _, _ ->
+                keyboardActions = KeyboardActions(onGo = {
                     onNavigate(text)
-                }
+                })
             )
         }
     }
