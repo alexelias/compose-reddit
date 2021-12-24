@@ -34,7 +34,6 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.constrain
 import androidx.core.os.bundleOf
-import androidx.navigation.compose.navigate
 import com.example.reddit.Ambients
 import com.example.reddit.Screen
 import com.example.reddit.navigation.currentSubreddit

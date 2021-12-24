@@ -16,11 +16,12 @@ package com.example.reddit.navigation
 
 import android.os.Bundle
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.core.net.toUri
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.navigate
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.reddit.Ambients
 
 fun NavController.navigate(route: String, b: Bundle) {
@@ -34,12 +35,13 @@ fun NavController.navigate(route: String, b: Bundle) {
 
 @Composable
 fun <T> navArg(name: String, navController: NavHostController? = null): T? {
-    val args = navController ?: Ambients.NavController.current
-    return navArg(name, args.getCurrentBackStackEntry())
+    val controller = navController ?: Ambients.NavController.current
+    val navBackStackEntry by controller.currentBackStackEntryAsState()
+    return navArg(name, navBackStackEntry)
 }
 
 fun <T> navArg(name: String, backStackEntry: NavBackStackEntry?): T? {
-    val arg = backStackEntry?.getArguments()?.get(name)
+    val arg = backStackEntry?.arguments?.get(name)
     @Suppress("UNCHECKED_CAST")
     return arg as? T
 }

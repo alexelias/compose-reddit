@@ -15,8 +15,7 @@
 package com.example.reddit
 
 import com.example.reddit.navigation.navigate
-import androidx.navigation.compose.navArgument
-
+import androidx.navigation.navArgument
 
 import android.app.Activity
 import android.os.Bundle
